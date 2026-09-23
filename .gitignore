@@ -2,3 +2,10 @@
 *.xcodeproj
 
 .DS_Store
+
+.env
+.env.*
+__pycache__/
+.venv/
+*.p12
+*.mobileprovision
