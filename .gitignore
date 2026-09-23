@@ -1,0 +1,4 @@
+# XcodeGen 產生，不進 git（見 AGENTS.md）
+*.xcodeproj
+
+.DS_Store
