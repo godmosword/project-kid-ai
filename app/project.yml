@@ -1,0 +1,32 @@
+# XcodeGen 由此產生 KidsAI.xcodeproj（不進 git）。專案設定只改這個檔。
+name: KidsAI
+
+options:
+  deploymentTarget:
+    iOS: "17.0"
+  developmentLanguage: zh-Hant
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+
+targets:
+  KidsAI:
+    type: application
+    platform: iOS
+    sources:
+      - KidsAI
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.godmosword.kidsai
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ENABLE_PREVIEWS: "YES"
+        GENERATE_INFOPLIST_FILE: "YES"
+        # 麥克風／語音辨識的用途說明等隱私 key 隨 ASR spike 加入（見 README）。
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: "YES"
+        INFOPLIST_KEY_UILaunchScreen_Generation: "YES"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+    scheme: {}
