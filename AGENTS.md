@@ -13,6 +13,7 @@
 
 ## 工作流程
 - **先計畫再動手：** 每個任務先提出計畫（要改哪些檔、怎麼驗證、有什麼風險），等 Michael 同意後才寫程式。
+- **風險分級與審查：** 以 [docs/AGENT-WORKFLOW.md](docs/AGENT-WORKFLOW.md) 為準（L0／L1 可直接做、事後回報；L2／L3 用 `/agent-plan`、`/agent-action`）。
 - **Git：** 可直接 commit 並 push 到 `main`，也可走分支＋PR；不得 force push。
 - **一個 PR 只做一件事。** PR 描述寫清楚：做了什麼、怎麼驗證、已知限制。
 - **不確定就問，不要猜。** 規格互相衝突時，列出衝突並詢問 Michael。
