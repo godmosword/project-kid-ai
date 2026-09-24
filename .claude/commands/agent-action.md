@@ -12,10 +12,10 @@ description: KidsAI Agent Action：依 docs/AGENT-WORKFLOW.md 執行已核准的
 
 - L0：直接跑最小命令。
 - L1：Claude Code 單獨完成；路徑不明時先唯讀探索。
-- L2：可用 `cursor-agent --model cursor-grok-4.5-high-fast` 取得唯讀建議，由 Claude Code 寫檔；必要時加一次 `codex exec -m gpt-5.6-luna -c model_reasoning_effort="medium" "<prompt>" </dev/null` 工程審。
-- L3：Claude Code 實作，工程、對抗、設計（Agent tool `model: "opus"`）三審。
+- L2：可用 `cursor-agent -p --trust --mode ask --model grok-4.7-high-fast` 取得唯讀建議，由 Claude Code 寫檔；必要時加一次 `codex exec -m gpt-6-luna -s read-only -c model_reasoning_effort="medium" "<prompt>" </dev/null` 工程審。
+- L3：Claude Code 實作，工程、對抗、設計（Agent tool `model: "opus"`，Opus 5.5，effort high）三審。
 
-顧問一律 readonly；同一檔案不讓多個 agent 同時修改。子任務 prompt 必須包含 Goal、Context paths、Constraints、Do NOT、Verification、Deliverable，且不得含兒童資料或金鑰。不得使用 Fable 5（`claude-fable-5-*`）。
+顧問一律 readonly；同一檔案不讓多個 agent 同時修改。子任務 prompt 必須包含 Goal、Context paths、Constraints、Do NOT、Verification、Deliverable，且不得含兒童資料或金鑰。
 
 ## 驗證與收尾
 

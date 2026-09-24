@@ -61,10 +61,9 @@ L0／L1 是 AGENTS.md「先計畫再動手」的例外：可直接做，但做�
 
 ## 模型（Claude Code 這邊）
 
-- 工程審：`codex exec -m gpt-5.6-luna -c model_reasoning_effort="medium" "<prompt>" </dev/null`
-- 對抗審：`cursor-agent --model cursor-grok-4.5-high-fast`；失敗時改用 `grok -m grok-4.6`
-- 設計審：Agent tool `model: "opus"`，readonly
-- 任何路由都不能用 Fable 5（`claude-fable-5-*`）。
+- 工程審：`codex exec -m gpt-6-luna -s read-only -c model_reasoning_effort="medium" "<prompt>" </dev/null`
+- 對抗審：`cursor-agent -p --trust --mode ask --model grok-4.7-high-fast`；失敗時改用 `grok -m grok-4.7 --permission-mode plan -p "<prompt>"`
+- 設計審：Agent tool `model: "opus"`（Opus 5.5，effort high），readonly
 
 ## 紅線
 
