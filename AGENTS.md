@@ -8,6 +8,7 @@
 ## 角色
 - **寫程式：** Claude Code（唯一寫手）
 - **審 PR：** Codex、Grok
+- **Notion 與 mid-fi HTML：** Grok 執行（`design/` 內的 HTML 仍依本檔規則）
 - **定案：** Michael（人類）。遇到需要決定的事，停下來問，不要自行決定。
 
 ## 工作流程
