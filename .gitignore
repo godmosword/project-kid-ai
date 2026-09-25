@@ -1,5 +1,7 @@
 # XcodeGen 產生，不進 git（見 AGENTS.md）
 *.xcodeproj
+# 本機簽署設定（team ID），不進 git
+app/Local.xcconfig
 
 .DS_Store
 

@@ -24,9 +24,34 @@ targets:
         TARGETED_DEVICE_FAMILY: "1,2"
         ENABLE_PREVIEWS: "YES"
         GENERATE_INFOPLIST_FILE: "YES"
-        # 麥克風／語音辨識的用途說明等隱私 key 隨 ASR spike 加入（見 README）。
+        # 正式 App 還沒有麥克風／語音功能，不得加任何 *UsageDescription；另案 L3 再加。
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: "YES"
         INFOPLIST_KEY_UILaunchScreen_Generation: "YES"
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+    scheme: {}
+
+  # 語音辨識 spike：只裝在大人的測試 iPhone 上，不上架、不併入 KidsAI（見 docs/spikes/）。
+  ASRSpike:
+    type: application
+    platform: iOS
+    sources:
+      - ASRSpike
+    configFiles:
+      Debug: Signing.xcconfig
+      Release: Signing.xcconfig
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.godmosword.kidsai.asrspike
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        GENERATE_INFOPLIST_FILE: "YES"
+        INFOPLIST_KEY_CFBundleDisplayName: "ASR 測試"
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: "本 App 在孩子「跟著說」時使用麥克風，聲音只在這支 iPhone 上即時處理，不會錄音或儲存。不允許也沒關係，孩子可以改按按鈕、跟著旁白一起說來完成。"
+        INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: "本 App 只在這支 iPhone 上處理，判斷孩子有沒有說出指定的詞，判斷完立即丟棄，不會保存文字或聲音。"
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: "YES"
+        INFOPLIST_KEY_UILaunchScreen_Generation: "YES"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait"
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
     scheme: {}

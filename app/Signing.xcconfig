@@ -1,0 +1,4 @@
+// ASRSpike 實機簽署設定（只掛在 ASRSpike target）。
+// team ID 只放在本機的 Local.xcconfig（已被 .gitignore 排除），這個檔不得寫入真實值。
+CODE_SIGN_STYLE = Automatic
+#include? "Local.xcconfig"

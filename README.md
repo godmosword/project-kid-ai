@@ -12,6 +12,14 @@
 
 `.xcodeproj` 由 XcodeGen 產生、不進 git。專案設定只改 `app/project.yml`，改完重跑第 1 步。
 
+## 語音辨識 spike（ASRSpike，只給大人在實機測試）
+
+`ASRSpike` 是獨立的測試 App，不上架、不併入 KidsAI。測試步驟與規則見 [docs/spikes/asr-spike-protocol.md](docs/spikes/asr-spike-protocol.md)。
+
+1. 複製 `app/Local.xcconfig.example` 成 `app/Local.xcconfig`，填入你的 Apple Developer Team ID（免費的個人帳號即可；這個檔不進 git）。Team 只在這個檔設，不要在 Xcode 的專案設定裡填，否則會套到 KidsAI。
+2. `cd app && xcodegen generate && open KidsAI.xcodeproj`
+3. 用傳輸線接上 iPhone，在 Xcode 上方選 **ASRSpike** scheme 和你的 iPhone，按 Run（⌘R）。第一次要在 iPhone 的「設定 → 一般 → VPN 與裝置管理」信任你的開發者帳號。
+
 ## 尚未加入
 
-- 麥克風與語音辨識的用途說明（`NSMicrophoneUsageDescription`、`NSSpeechRecognitionUsageDescription`）等隱私 key：隨 ASR spike 一起加入。
+- 正式 App（KidsAI）的麥克風與語音辨識功能、隱私 key（`NSMicrophoneUsageDescription`、`NSSpeechRecognitionUsageDescription`）：等 spike 結果由 Michael 定案後另案（L3）加入。目前這兩個 key 只在 ASRSpike。
