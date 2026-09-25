@@ -1,0 +1,649 @@
+{
+  "kind": "unit",
+  "schema_version": "1.0.0",
+  "unit_id": "unit_9_fixture",
+  "meta": {
+    "title": {
+      "id": "fx.title",
+      "audience": "child",
+      "text": {
+        "zh-Hant": "測試單元"
+      },
+      "vo": "vo/fx/title",
+      "vo_status": "tts_placeholder"
+    },
+    "golden_line": {
+      "id": "fx.golden",
+      "audience": "child",
+      "text": {
+        "zh-Hant": "AI 會猜。"
+      },
+      "vo": "vo/fx/golden",
+      "vo_status": "tts_placeholder"
+    },
+    "max_seconds": 600
+  },
+  "narrator": {
+    "id": "diandian",
+    "is_ai": false
+  },
+  "ai_persona": {
+    "id": "guess_hat",
+    "is_ai": true
+  },
+  "beats": [
+    {
+      "id": "b_intro",
+      "type": "intro",
+      "est_seconds": 30,
+      "lines": [
+        {
+          "id": "fx.intro",
+          "audience": "child",
+          "text": {
+            "zh-Hant": "點javascript:x"
+          },
+          "vo": "vo/fx/intro",
+          "vo_status": "tts_placeholder"
+        }
+      ]
+    },
+    {
+      "id": "b_choice",
+      "type": "choice",
+      "est_seconds": 60,
+      "prompt": {
+        "id": "fx.choice.prompt",
+        "audience": "child",
+        "text": {
+          "zh-Hant": "哪一個會猜？"
+        },
+        "vo": "vo/fx/choice/prompt",
+        "vo_status": "tts_placeholder"
+      },
+      "options": [
+        {
+          "id": "opt_a",
+          "label": {
+            "id": "fx.opt.opt_a",
+            "audience": "child",
+            "text": {
+              "zh-Hant": "猜猜帽"
+            },
+            "vo": "vo/fx/opt/opt_a",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img/opt_a",
+          "a11y_label": {
+            "zh-Hant": "猜猜帽"
+          }
+        },
+        {
+          "id": "opt_b",
+          "label": {
+            "id": "fx.opt.opt_b",
+            "audience": "child",
+            "text": {
+              "zh-Hant": "時鐘"
+            },
+            "vo": "vo/fx/opt/opt_b",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img/opt_b",
+          "a11y_label": {
+            "zh-Hant": "時鐘"
+          }
+        },
+        {
+          "id": "opt_c",
+          "label": {
+            "id": "fx.opt.opt_c",
+            "audience": "child",
+            "text": {
+              "zh-Hant": "書本"
+            },
+            "vo": "vo/fx/opt/opt_c",
+            "vo_status": "tts_placeholder"
+          }
+        }
+      ],
+      "scoring": "graded",
+      "correct_option_ids": [
+        "opt_a"
+      ],
+      "feedback": {
+        "success": {
+          "id": "fx.choice.ok",
+          "audience": "child",
+          "text": {
+            "zh-Hant": "你找到了"
+          },
+          "vo": "vo/fx/choice/ok",
+          "vo_status": "tts_placeholder"
+        },
+        "not_yet": {
+          "id": "fx.choice.again",
+          "audience": "child",
+          "text": {
+            "zh-Hant": "再聽一次看看"
+          },
+          "vo": "vo/fx/choice/again",
+          "vo_status": "tts_placeholder"
+        },
+        "reveal": {
+          "id": "fx.choice.reveal",
+          "audience": "child",
+          "text": {
+            "zh-Hant": "我們一起看答案"
+          },
+          "vo": "vo/fx/choice/reveal",
+          "vo_status": "tts_placeholder"
+        }
+      },
+      "max_attempts": 2,
+      "after_max": "reveal_and_continue"
+    },
+    {
+      "id": "b_asr",
+      "type": "asr_repeat",
+      "est_seconds": 60,
+      "prompt": {
+        "id": "fx.asr.prompt",
+        "audience": "child",
+        "text": {
+          "zh-Hant": "跟我說一次"
+        },
+        "vo": "vo/fx/asr/prompt",
+        "vo_status": "tts_placeholder"
+      },
+      "target_line": {
+        "id": "fx.asr.line",
+        "audience": "child",
+        "text": {
+          "zh-Hant": "AI 會猜"
+        },
+        "vo": "vo/fx/asr/line",
+        "vo_status": "tts_placeholder"
+      },
+      "accept": {
+        "zh-Hant": [
+          "會猜",
+          "AI 會猜"
+        ]
+      },
+      "match": "keyword_or_voice",
+      "feedback": {
+        "success": {
+          "id": "fx.asr.ok",
+          "audience": "child",
+          "text": {
+            "zh-Hant": "說得真好"
+          },
+          "vo": "vo/fx/asr/ok",
+          "vo_status": "tts_placeholder"
+        }
+      },
+      "on_mic_denied": {
+        "mode": "say_together",
+        "lines": [
+          {
+            "id": "fx.asr.denied",
+            "audience": "child",
+            "text": {
+              "zh-Hant": "我們一起說"
+            },
+            "vo": "vo/fx/asr/denied",
+            "vo_status": "tts_placeholder"
+          }
+        ]
+      },
+      "on_device_unavailable": {
+        "mode": "say_together",
+        "lines": [
+          {
+            "id": "fx.asr.unavailable",
+            "audience": "child",
+            "text": {
+              "zh-Hant": "跟著我一起說"
+            },
+            "vo": "vo/fx/asr/unavailable",
+            "vo_status": "tts_placeholder"
+          }
+        ]
+      },
+      "on_no_match": {
+        "mode": "tap_to_read",
+        "after_attempts": 2,
+        "lines": [
+          {
+            "id": "fx.asr.tap",
+            "audience": "child",
+            "text": {
+              "zh-Hant": "按一下聽聽看"
+            },
+            "vo": "vo/fx/asr/tap",
+            "vo_status": "tts_placeholder"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b_ritual",
+      "type": "sandbox_ritual",
+      "est_seconds": 15,
+      "lines": [
+        {
+          "id": "fx.ritual",
+          "audience": "child",
+          "text": {
+            "zh-Hant": "戴上猜猜帽"
+          },
+          "vo": "vo/fx/ritual",
+          "vo_status": "tts_placeholder"
+        }
+      ],
+      "skippable": false
+    },
+    {
+      "id": "b_sandbox",
+      "type": "sandbox",
+      "est_seconds": 90,
+      "sandbox_ref": "box_1",
+      "prompt": {
+        "id": "fx.sandbox.prompt",
+        "audience": "child",
+        "text": {
+          "zh-Hant": "選一張圖"
+        },
+        "vo": "vo/fx/sandbox/prompt",
+        "vo_status": "tts_placeholder"
+      },
+      "reaction_prompt": {
+        "id": "fx.sandbox.react",
+        "audience": "child",
+        "text": {
+          "zh-Hant": "AI 猜得怎樣？"
+        },
+        "vo": "vo/fx/sandbox/react",
+        "vo_status": "tts_placeholder"
+      },
+      "reactions": [
+        {
+          "id": "r_right",
+          "label": {
+            "id": "fx.opt.r_right",
+            "audience": "child",
+            "text": {
+              "zh-Hant": "好像對"
+            },
+            "vo": "vo/fx/opt/r_right",
+            "vo_status": "tts_placeholder"
+          }
+        },
+        {
+          "id": "r_unsure",
+          "label": {
+            "id": "fx.opt.r_unsure",
+            "audience": "child",
+            "text": {
+              "zh-Hant": "不知道"
+            },
+            "vo": "vo/fx/opt/r_unsure",
+            "vo_status": "tts_placeholder"
+          }
+        }
+      ],
+      "scoring": "open",
+      "closing_line": {
+        "id": "fx.sandbox.close",
+        "audience": "child",
+        "text": {
+          "zh-Hant": "AI 會猜。"
+        },
+        "vo": "vo/fx/sandbox/close",
+        "vo_status": "tts_placeholder"
+      },
+      "feedback": {
+        "reveal": {
+          "id": "fx.sandbox.reveal",
+          "audience": "child",
+          "text": {
+            "zh-Hant": "我們來看看"
+          },
+          "vo": "vo/fx/sandbox/reveal",
+          "vo_status": "tts_placeholder"
+        }
+      },
+      "max_attempts": 1,
+      "after_max": "reveal_and_continue"
+    },
+    {
+      "id": "b_story",
+      "type": "story",
+      "est_seconds": 120,
+      "story_ref": "story_1"
+    },
+    {
+      "id": "b_review",
+      "type": "review",
+      "est_seconds": 60,
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": {
+            "id": "fx.q1.prompt",
+            "audience": "child",
+            "text": {
+              "zh-Hant": "AI 會不會猜？"
+            },
+            "vo": "vo/fx/q1/prompt",
+            "vo_status": "tts_placeholder"
+          },
+          "options": [
+            {
+              "id": "q1_yes",
+              "label": {
+                "id": "fx.opt.q1_yes",
+                "audience": "child",
+                "text": {
+                  "zh-Hant": "會"
+                },
+                "vo": "vo/fx/opt/q1_yes",
+                "vo_status": "tts_placeholder"
+              }
+            },
+            {
+              "id": "q1_no",
+              "label": {
+                "id": "fx.opt.q1_no",
+                "audience": "child",
+                "text": {
+                  "zh-Hant": "不會"
+                },
+                "vo": "vo/fx/opt/q1_no",
+                "vo_status": "tts_placeholder"
+              }
+            }
+          ],
+          "correct_option_ids": [
+            "q1_yes"
+          ],
+          "feedback": {
+            "success": {
+              "id": "fx.q1.ok",
+              "audience": "child",
+              "text": {
+                "zh-Hant": "你找到了"
+              },
+              "vo": "vo/fx/q1/ok",
+              "vo_status": "tts_placeholder"
+            },
+            "not_yet": {
+              "id": "fx.q1.again",
+              "audience": "child",
+              "text": {
+                "zh-Hant": "再聽一次看看"
+              },
+              "vo": "vo/fx/q1/again",
+              "vo_status": "tts_placeholder"
+            },
+            "reveal": {
+              "id": "fx.q1.reveal",
+              "audience": "child",
+              "text": {
+                "zh-Hant": "我們一起看答案"
+              },
+              "vo": "vo/fx/q1/reveal",
+              "vo_status": "tts_placeholder"
+            }
+          },
+          "max_attempts": 2,
+          "after_max": "reveal_and_continue"
+        },
+        {
+          "id": "q2",
+          "prompt": {
+            "id": "fx.q2.prompt",
+            "audience": "child",
+            "text": {
+              "zh-Hant": "AI 會不會猜？"
+            },
+            "vo": "vo/fx/q2/prompt",
+            "vo_status": "tts_placeholder"
+          },
+          "options": [
+            {
+              "id": "q2_yes",
+              "label": {
+                "id": "fx.opt.q2_yes",
+                "audience": "child",
+                "text": {
+                  "zh-Hant": "會"
+                },
+                "vo": "vo/fx/opt/q2_yes",
+                "vo_status": "tts_placeholder"
+              }
+            },
+            {
+              "id": "q2_no",
+              "label": {
+                "id": "fx.opt.q2_no",
+                "audience": "child",
+                "text": {
+                  "zh-Hant": "不會"
+                },
+                "vo": "vo/fx/opt/q2_no",
+                "vo_status": "tts_placeholder"
+              }
+            }
+          ],
+          "correct_option_ids": [
+            "q2_yes"
+          ],
+          "feedback": {
+            "success": {
+              "id": "fx.q2.ok",
+              "audience": "child",
+              "text": {
+                "zh-Hant": "你找到了"
+              },
+              "vo": "vo/fx/q2/ok",
+              "vo_status": "tts_placeholder"
+            },
+            "not_yet": {
+              "id": "fx.q2.again",
+              "audience": "child",
+              "text": {
+                "zh-Hant": "再聽一次看看"
+              },
+              "vo": "vo/fx/q2/again",
+              "vo_status": "tts_placeholder"
+            },
+            "reveal": {
+              "id": "fx.q2.reveal",
+              "audience": "child",
+              "text": {
+                "zh-Hant": "我們一起看答案"
+              },
+              "vo": "vo/fx/q2/reveal",
+              "vo_status": "tts_placeholder"
+            }
+          },
+          "max_attempts": 2,
+          "after_max": "reveal_and_continue"
+        }
+      ]
+    },
+    {
+      "id": "b_sticker",
+      "type": "sticker",
+      "est_seconds": 20,
+      "sticker": {
+        "id": "st_guess",
+        "label": {
+          "id": "fx.sticker",
+          "audience": "child",
+          "text": {
+            "zh-Hant": "會猜貼紙"
+          },
+          "vo": "vo/fx/sticker",
+          "vo_status": "tts_placeholder"
+        },
+        "image": "stickers/guess",
+        "a11y_label": {
+          "zh-Hant": "會猜貼紙"
+        }
+      },
+      "award": "on_reach"
+    }
+  ],
+  "stories": [
+    {
+      "id": "story_1",
+      "start": "n1",
+      "nodes": [
+        {
+          "id": "n1",
+          "speaker": "narrator",
+          "lines": [
+            {
+              "id": "fx.n1",
+              "audience": "child",
+              "text": {
+                "zh-Hant": "襪子不見了"
+              },
+              "vo": "vo/fx/n1",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "choices": [
+            {
+              "id": "c_bed",
+              "label": {
+                "id": "fx.c_bed",
+                "audience": "child",
+                "text": {
+                  "zh-Hant": "床下"
+                },
+                "vo": "vo/fx/c_bed",
+                "vo_status": "tts_placeholder"
+              },
+              "next": "n2"
+            },
+            {
+              "id": "c_bag",
+              "label": {
+                "id": "fx.c_bag",
+                "audience": "child",
+                "text": {
+                  "zh-Hant": "書包"
+                },
+                "vo": "vo/fx/c_bag",
+                "vo_status": "tts_placeholder"
+              },
+              "next": "n3"
+            }
+          ]
+        },
+        {
+          "id": "n2",
+          "speaker": "narrator",
+          "lines": [
+            {
+              "id": "fx.n2",
+              "audience": "child",
+              "text": {
+                "zh-Hant": "我們看看床下"
+              },
+              "vo": "vo/fx/n2",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "next": "n4"
+        },
+        {
+          "id": "n3",
+          "speaker": "narrator",
+          "lines": [
+            {
+              "id": "fx.n3",
+              "audience": "child",
+              "text": {
+                "zh-Hant": "我們看看書包"
+              },
+              "vo": "vo/fx/n3",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "next": "n4"
+        },
+        {
+          "id": "n4",
+          "speaker": "narrator",
+          "lines": [
+            {
+              "id": "fx.n4",
+              "audience": "child",
+              "text": {
+                "zh-Hant": "找到襪子了"
+              },
+              "vo": "vo/fx/n4",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "end": true
+        }
+      ]
+    }
+  ],
+  "sandboxes": [
+    {
+      "id": "box_1",
+      "mode": "pregenerated",
+      "required_uncertainty": "unsure",
+      "slots": [
+        {
+          "id": "weather",
+          "label": {
+            "id": "fx.slot.weather",
+            "audience": "child",
+            "text": {
+              "zh-Hant": "天氣"
+            },
+            "vo": "vo/fx/slot/weather",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "sandbox/weather",
+          "a11y_label": {
+            "zh-Hant": "天氣圖卡"
+          },
+          "choices": [
+            {
+              "id": "sun",
+              "label": {
+                "id": "fx.opt.sun",
+                "audience": "child",
+                "text": {
+                  "zh-Hant": "太陽"
+                },
+                "vo": "vo/fx/opt/sun",
+                "vo_status": "tts_placeholder"
+              },
+              "image": "img/sun",
+              "a11y_label": {
+                "zh-Hant": "太陽"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "parent_card": {
+    "id": "fx.parent",
+    "audience": "parent",
+    "text": {
+      "zh-Hant": "問孩子：今天 AI 猜對了幾次？"
+    }
+  }
+}

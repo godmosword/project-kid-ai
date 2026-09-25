@@ -1,0 +1,31 @@
+{
+  "valid": [
+    {
+      "sandbox_id": "box_1",
+      "slot_id": "weather",
+      "structured_choice": "sun"
+    }
+  ],
+  "invalid": [
+    {
+      "sandbox_id": "box_1",
+      "slot_id": "weather",
+      "structured_choice": "sun",
+      "nickname": "x"
+    },
+    {
+      "sandbox_id": "box_1",
+      "slot_id": "weather",
+      "structured_choice": null
+    },
+    {
+      "sandbox_id": "box_1",
+      "slot_id": "weather",
+      "structured_choice": "我想要太陽"
+    },
+    {
+      "sandbox_id": "box_1",
+      "slot_id": "weather"
+    }
+  ]
+}

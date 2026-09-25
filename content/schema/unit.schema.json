@@ -1,0 +1,645 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kidsai.invalid/schema/unit.schema.json",
+  "title": "KidsAI 單元檔 v1",
+  "description": "一個單元的完整內容。beats 的陣列順序就是線性流程；故事分歧放在 stories。版面、字級、顏色、動畫細節一律交給 App，本檔只放語意。此格式不含任何錄音或兒童輸入欄位。",
+  "type": "object",
+  "required": ["kind", "schema_version", "unit_id", "meta", "narrator", "ai_persona", "beats", "stories", "sandboxes", "parent_card"],
+  "properties": {
+    "kind": { "const": "unit" },
+    "schema_version": { "$ref": "common.schema.json#/$defs/semver" },
+    "unit_id": { "type": "string", "pattern": "^unit_[1-9][0-9]*_[a-z][a-z0-9_]*$" },
+    "meta": {
+      "type": "object",
+      "required": ["title", "golden_line", "max_seconds"],
+      "properties": {
+        "title": { "$ref": "common.schema.json#/$defs/childLine" },
+        "golden_line": { "$ref": "common.schema.json#/$defs/childLine" },
+        "max_seconds": { "type": "integer", "minimum": 60, "maximum": 600 }
+      },
+      "unevaluatedProperties": false
+    },
+    "narrator": {
+      "description": "旁白角色（點點），不是 AI。id 不得與 ai_persona 相同。",
+      "type": "object",
+      "required": ["id", "is_ai"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "is_ai": { "const": false }
+      },
+      "unevaluatedProperties": false
+    },
+    "ai_persona": {
+      "description": "沙盒裡的 AI 角色（猜猜帽）。",
+      "type": "object",
+      "required": ["id", "is_ai"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "is_ai": { "const": true }
+      },
+      "unevaluatedProperties": false
+    },
+    "beats": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 12,
+      "items": { "$ref": "#/$defs/beat" }
+    },
+    "stories": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": { "$ref": "#/$defs/story" }
+    },
+    "sandboxes": {
+      "type": "array",
+      "maxItems": 3,
+      "items": { "$ref": "#/$defs/sandbox" }
+    },
+    "parent_card": { "$ref": "common.schema.json#/$defs/parentText" },
+    "age_overrides": {
+      "description": "5–6／7–8 歲的差異。只能覆寫白名單欄位：prompt、hint、max_attempts，以及用 option_ids 指定要顯示的選項（必須包含正確答案）。首發可不填。",
+      "type": "object",
+      "propertyNames": { "enum": ["5-6", "7-8"] },
+      "additionalProperties": {
+        "type": "object",
+        "propertyNames": { "$ref": "common.schema.json#/$defs/id" },
+        "additionalProperties": {
+          "type": "object",
+          "minProperties": 1,
+          "properties": {
+            "prompt": { "$ref": "common.schema.json#/$defs/childPrompt" },
+            "hint": { "$ref": "common.schema.json#/$defs/childLine" },
+            "max_attempts": { "$ref": "#/$defs/maxAttempts" },
+            "option_ids": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 3,
+              "items": { "$ref": "common.schema.json#/$defs/id" }
+            }
+          },
+          "unevaluatedProperties": false
+        }
+      }
+    }
+  },
+  "unevaluatedProperties": false,
+  "$defs": {
+    "maxAttempts": { "type": "integer", "minimum": 1, "maximum": 3 },
+    "afterMax": { "description": "試到上限後一律揭曉並繼續，孩子不會被卡住。", "const": "reveal_and_continue" },
+    "options": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 3,
+      "items": { "$ref": "common.schema.json#/$defs/option" }
+    },
+    "idList": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "common.schema.json#/$defs/id" }
+    },
+    "feedbackGraded": {
+      "description": "有答案的關卡。結果只有 success、not_yet（不說「錯了」）與 reveal。",
+      "type": "object",
+      "required": ["success", "not_yet", "reveal"],
+      "properties": {
+        "success": { "$ref": "common.schema.json#/$defs/childLine" },
+        "not_yet": { "$ref": "common.schema.json#/$defs/childLine" },
+        "reveal": { "$ref": "common.schema.json#/$defs/childLine" }
+      },
+      "unevaluatedProperties": false
+    },
+    "feedbackOpen": {
+      "description": "沒有標準答案的關卡，只有揭曉。",
+      "type": "object",
+      "required": ["reveal"],
+      "properties": {
+        "reveal": { "$ref": "common.schema.json#/$defs/childLine" }
+      },
+      "unevaluatedProperties": false
+    },
+    "fallbackPath": {
+      "type": "object",
+      "required": ["mode", "lines"],
+      "properties": {
+        "mode": { "enum": ["say_together", "tap_to_read"] },
+        "lines": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "items": { "$ref": "common.schema.json#/$defs/childLine" }
+        }
+      }
+    },
+    "beat": {
+      "type": "object",
+      "required": ["id", "type", "est_seconds"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "type": {
+          "enum": ["intro", "choice", "drag", "asr_repeat", "sandbox_ritual", "sandbox", "story", "review", "sticker"]
+        },
+        "est_seconds": { "type": "integer", "minimum": 1, "maximum": 180 },
+        "transition_hint": {
+          "description": "只給語意，細節由 App 決定並遵守 Reduce Motion。celebrate 不得閃爍。",
+          "enum": ["none", "gentle", "celebrate"]
+        },
+        "coplay_prompt": { "description": "共玩模式才顯示給家長的一句引導。", "$ref": "common.schema.json#/$defs/parentText" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": { "const": "intro" }
+            }
+          },
+          "then": { "$ref": "#/$defs/intro" }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": { "const": "choice" }
+            }
+          },
+          "then": { "$ref": "#/$defs/choice" }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": { "const": "drag" }
+            }
+          },
+          "then": { "$ref": "#/$defs/drag" }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": { "const": "asr_repeat" }
+            }
+          },
+          "then": { "$ref": "#/$defs/asrRepeat" }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": { "const": "sandbox_ritual" }
+            }
+          },
+          "then": { "$ref": "#/$defs/sandboxRitual" }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": { "const": "sandbox" }
+            }
+          },
+          "then": { "$ref": "#/$defs/sandboxBeat" }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": { "const": "story" }
+            }
+          },
+          "then": { "$ref": "#/$defs/storyBeat" }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": { "const": "review" }
+            }
+          },
+          "then": { "$ref": "#/$defs/review" }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": { "const": "sticker" }
+            }
+          },
+          "then": { "$ref": "#/$defs/sticker" }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "intro": {
+      "required": ["lines"],
+      "properties": {
+        "lines": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": { "$ref": "common.schema.json#/$defs/childLine" }
+        }
+      }
+    },
+    "choice": {
+      "required": ["prompt", "options", "scoring", "feedback", "max_attempts", "after_max"],
+      "properties": {
+        "prompt": { "$ref": "common.schema.json#/$defs/childPrompt" },
+        "hint": { "$ref": "common.schema.json#/$defs/childLine" },
+        "scoring": { "enum": ["graded", "open"] },
+        "correct_option_ids": { "$ref": "#/$defs/idList" },
+        "feedback": true,
+        "max_attempts": { "$ref": "#/$defs/maxAttempts" },
+        "after_max": { "$ref": "#/$defs/afterMax" },
+        "stage": { "$ref": "#/$defs/stage" },
+        "options": { "$ref": "#/$defs/options" }
+      },
+      "if": {
+        "properties": {
+          "scoring": { "const": "graded" }
+        }
+      },
+      "then": {
+        "required": ["correct_option_ids"],
+        "properties": {
+          "feedback": { "$ref": "#/$defs/feedbackGraded" }
+        }
+      },
+      "else": {
+        "properties": {
+          "correct_option_ids": false,
+          "feedback": { "$ref": "#/$defs/feedbackOpen" },
+          "max_attempts": { "description": "沒有標準答案：選一次就揭曉。", "const": 1 }
+        }
+      }
+    },
+    "drag": {
+      "required": ["prompt", "mode", "items", "feedback", "max_attempts", "after_max"],
+      "properties": {
+        "prompt": { "$ref": "common.schema.json#/$defs/childPrompt" },
+        "hint": { "$ref": "common.schema.json#/$defs/childLine" },
+        "mode": { "enum": ["match", "order", "group"] },
+        "items": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 4,
+          "items": { "$ref": "common.schema.json#/$defs/option" }
+        },
+        "targets": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "items": { "$ref": "common.schema.json#/$defs/option" }
+        },
+        "pairs": {
+          "description": "match：item id → target id。",
+          "type": "object",
+          "propertyNames": { "$ref": "common.schema.json#/$defs/id" },
+          "additionalProperties": { "$ref": "common.schema.json#/$defs/id" }
+        },
+        "correct_order": { "$ref": "#/$defs/idList" },
+        "alt_orders": {
+          "description": "order：其他也算合理的順序。",
+          "type": "array",
+          "items": { "$ref": "#/$defs/idList" }
+        },
+        "groups": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 3,
+          "items": { "$ref": "common.schema.json#/$defs/option" }
+        },
+        "assignments": {
+          "description": "group：item id → group id。",
+          "type": "object",
+          "propertyNames": { "$ref": "common.schema.json#/$defs/id" },
+          "additionalProperties": { "$ref": "common.schema.json#/$defs/id" }
+        },
+        "feedback": { "$ref": "#/$defs/feedbackGraded" },
+        "max_attempts": { "$ref": "#/$defs/maxAttempts" },
+        "after_max": { "$ref": "#/$defs/afterMax" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": { "const": "match" }
+            }
+          },
+          "then": {
+            "required": ["targets", "pairs"],
+            "properties": { "correct_order": false, "alt_orders": false, "groups": false, "assignments": false }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": { "const": "order" }
+            }
+          },
+          "then": {
+            "required": ["correct_order"],
+            "properties": { "targets": false, "pairs": false, "groups": false, "assignments": false }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": { "const": "group" }
+            }
+          },
+          "then": {
+            "required": ["groups", "assignments"],
+            "properties": { "targets": false, "pairs": false, "correct_order": false, "alt_orders": false }
+          }
+        }
+      ]
+    },
+    "asrRepeat": {
+      "description": "跟讀。只在裝置端辨識；此 beat 不產生、不引用、不保存任何錄音或轉寫。沒有辨識模式欄位，App 不得改走雲端。",
+      "required": ["prompt", "accept", "match", "feedback", "on_mic_denied", "on_device_unavailable", "on_no_match"],
+      "properties": {
+        "prompt": { "$ref": "common.schema.json#/$defs/childPrompt" },
+        "hint": { "$ref": "common.schema.json#/$defs/childLine" },
+        "target_line": { "$ref": "common.schema.json#/$defs/childLine" },
+        "target_lines_by_option": {
+          "description": "依前一個 beat 的選擇決定要跟讀的句子（單元 4）。",
+          "type": "object",
+          "required": ["from_beat", "lines"],
+          "properties": {
+            "from_beat": { "$ref": "common.schema.json#/$defs/id" },
+            "lines": {
+              "type": "object",
+              "minProperties": 2,
+              "propertyNames": { "$ref": "common.schema.json#/$defs/id" },
+              "additionalProperties": { "$ref": "common.schema.json#/$defs/childLine" }
+            }
+          },
+          "unevaluatedProperties": false
+        },
+        "accept": {
+          "description": "寬鬆比對用的關鍵詞，只比對、不評發音。",
+          "type": "object",
+          "required": ["zh-Hant"],
+          "properties": {
+            "zh-Hant": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 10,
+              "items": { "type": "string", "minLength": 1, "maxLength": 20 }
+            }
+          },
+          "unevaluatedProperties": false
+        },
+        "match": { "description": "說出任一關鍵詞，或有出聲就算完成（契約 A4）。", "const": "keyword_or_voice" },
+        "feedback": {
+          "type": "object",
+          "required": ["success"],
+          "properties": {
+            "success": { "$ref": "common.schema.json#/$defs/childLine" }
+          },
+          "unevaluatedProperties": false
+        },
+        "on_mic_denied": {
+          "description": "孩子或家長拒絕麥克風：一起說。不得暗示做錯了。",
+          "$ref": "#/$defs/fallbackPath",
+          "properties": {
+            "mode": { "const": "say_together" }
+          },
+          "unevaluatedProperties": false
+        },
+        "on_device_unavailable": {
+          "description": "裝置端辨識不可用：一起說，絕不改走雲端。",
+          "$ref": "#/$defs/fallbackPath",
+          "properties": {
+            "mode": { "const": "say_together" }
+          },
+          "unevaluatedProperties": false
+        },
+        "on_no_match": {
+          "description": "辨識不到 2 次：改點選跟讀，然後繼續。",
+          "$ref": "#/$defs/fallbackPath",
+          "required": ["after_attempts"],
+          "properties": {
+            "mode": { "const": "tap_to_read" },
+            "after_attempts": { "const": 2 }
+          },
+          "unevaluatedProperties": false
+        }
+      },
+      "oneOf": [
+        {
+          "required": ["target_line"],
+          "properties": { "target_lines_by_option": false }
+        },
+        {
+          "required": ["target_lines_by_option"],
+          "properties": { "target_line": false }
+        }
+      ]
+    },
+    "sandboxRitual": {
+      "description": "戴上猜猜帽的進場儀式，不可跳過。",
+      "required": ["lines", "skippable"],
+      "properties": {
+        "lines": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "items": { "$ref": "common.schema.json#/$defs/childLine" }
+        },
+        "skippable": { "const": false }
+      }
+    },
+    "sandboxBeat": {
+      "description": "孩子選 slot 與選項，App 只從預生成猜測庫取猜測（S1）；孩子再對猜測做反應。",
+      "required": ["sandbox_ref", "prompt", "reaction_prompt", "reactions", "scoring", "closing_line", "feedback", "max_attempts", "after_max"],
+      "properties": {
+        "sandbox_ref": { "$ref": "common.schema.json#/$defs/id" },
+        "prompt": { "$ref": "common.schema.json#/$defs/childPrompt" },
+        "reaction_prompt": { "description": "看到 AI 猜測後，問孩子的題幹。", "$ref": "common.schema.json#/$defs/childPrompt" },
+        "reactions": { "$ref": "#/$defs/options" },
+        "scoring": { "enum": ["graded", "open"] },
+        "reaction_for_truth": {
+          "description": "graded（單元 3）：猜測為 right／wrong 時，哪個反應算抓對。",
+          "type": "object",
+          "required": ["right", "wrong"],
+          "properties": {
+            "right": { "$ref": "common.schema.json#/$defs/id" },
+            "wrong": { "$ref": "common.schema.json#/$defs/id" }
+          },
+          "unevaluatedProperties": false
+        },
+        "closing_line": { "$ref": "common.schema.json#/$defs/childLine" },
+        "feedback": true,
+        "max_attempts": { "$ref": "#/$defs/maxAttempts" },
+        "after_max": { "$ref": "#/$defs/afterMax" }
+      },
+      "if": {
+        "properties": {
+          "scoring": { "const": "graded" }
+        }
+      },
+      "then": {
+        "required": ["reaction_for_truth"],
+        "properties": {
+          "feedback": { "$ref": "#/$defs/feedbackGraded" }
+        }
+      },
+      "else": {
+        "properties": {
+          "reaction_for_truth": false,
+          "feedback": { "$ref": "#/$defs/feedbackOpen" },
+          "max_attempts": { "description": "沒有標準答案：選一次就揭曉。", "const": 1 }
+        }
+      }
+    },
+    "storyBeat": {
+      "required": ["story_ref"],
+      "properties": {
+        "story_ref": { "$ref": "common.schema.json#/$defs/id" }
+      }
+    },
+    "review": {
+      "required": ["questions"],
+      "properties": {
+        "questions": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "required": ["id", "prompt", "options", "correct_option_ids", "feedback", "max_attempts", "after_max"],
+            "properties": {
+              "id": { "$ref": "common.schema.json#/$defs/id" },
+              "prompt": { "$ref": "common.schema.json#/$defs/childPrompt" },
+              "options": { "$ref": "#/$defs/options" },
+              "correct_option_ids": { "$ref": "#/$defs/idList" },
+              "feedback": { "$ref": "#/$defs/feedbackGraded" },
+              "max_attempts": { "$ref": "#/$defs/maxAttempts" },
+              "after_max": { "$ref": "#/$defs/afterMax" }
+            },
+            "unevaluatedProperties": false
+          }
+        }
+      }
+    },
+    "sticker": {
+      "description": "走到這裡就給貼紙，不接受任何成績條件。",
+      "required": ["sticker", "award"],
+      "properties": {
+        "sticker": {
+          "type": "object",
+          "required": ["id", "label", "image", "a11y_label"],
+          "properties": {
+            "id": { "$ref": "common.schema.json#/$defs/id" },
+            "label": { "$ref": "common.schema.json#/$defs/childLabel" },
+            "image": { "$ref": "common.schema.json#/$defs/assetKey" },
+            "a11y_label": { "$ref": "common.schema.json#/$defs/a11yLabel" }
+          },
+          "unevaluatedProperties": false
+        },
+        "lines": {
+          "type": "array",
+          "maxItems": 2,
+          "items": { "$ref": "common.schema.json#/$defs/childLine" }
+        },
+        "award": { "const": "on_reach" }
+      }
+    },
+    "story": {
+      "description": "互動故事圖。分歧選項沒有對錯。",
+      "type": "object",
+      "required": ["id", "start", "nodes"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "start": { "$ref": "common.schema.json#/$defs/id" },
+        "nodes": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 12,
+          "items": { "$ref": "#/$defs/storyNode" }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "storyNode": {
+      "type": "object",
+      "required": ["id", "speaker", "lines"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "speaker": { "enum": ["narrator", "ai_persona"] },
+        "lines": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "items": { "$ref": "common.schema.json#/$defs/childLine" }
+        },
+        "choices": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "required": ["id", "label", "next"],
+            "properties": {
+              "id": { "$ref": "common.schema.json#/$defs/id" },
+              "label": { "$ref": "common.schema.json#/$defs/childLabel" },
+              "image": { "$ref": "common.schema.json#/$defs/assetKey" },
+              "a11y_label": { "$ref": "common.schema.json#/$defs/a11yLabel" },
+              "next": { "$ref": "common.schema.json#/$defs/id" }
+            },
+            "dependentRequired": { "image": ["a11y_label"] },
+            "unevaluatedProperties": false
+          }
+        },
+        "next": { "$ref": "common.schema.json#/$defs/id" },
+        "end": { "const": true },
+        "transition_hint": { "enum": ["none", "gentle", "celebrate"] }
+      },
+      "oneOf": [
+        { "required": ["choices"] },
+        { "required": ["next"] },
+        { "required": ["end"] }
+      ],
+      "unevaluatedProperties": false
+    },
+    "sandbox": {
+      "description": "沙盒定義。v1 只允許預生成（S1）；live 呼叫需要網路白名單，另案。",
+      "type": "object",
+      "required": ["id", "mode", "slots"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "mode": { "const": "pregenerated" },
+        "required_uncertainty": { "description": "設定時，猜測庫每筆的 uncertainty_mark 都必須是這個值（單元 1 為 unsure）。", "enum": ["unsure", "sure"] },
+        "max_guess_chars": { "type": "integer", "minimum": 6, "maximum": 24 },
+        "slots": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "required": ["id", "label", "choices"],
+            "properties": {
+              "id": { "$ref": "common.schema.json#/$defs/id" },
+              "label": { "$ref": "common.schema.json#/$defs/childLabel" },
+              "image": { "$ref": "common.schema.json#/$defs/assetKey" },
+              "a11y_label": { "$ref": "common.schema.json#/$defs/a11yLabel" },
+              "choices": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 3,
+                "items": { "$ref": "common.schema.json#/$defs/option" }
+              }
+            },
+            "dependentRequired": { "image": ["a11y_label"] },
+            "unevaluatedProperties": false
+          }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "stage": {
+      "description": "關卡的場景圖（例如只露出一角的箱子）。",
+      "type": "object",
+      "required": ["image", "a11y_label"],
+      "properties": {
+        "image": { "$ref": "common.schema.json#/$defs/assetKey" },
+        "a11y_label": { "$ref": "common.schema.json#/$defs/a11yLabel" }
+      },
+      "unevaluatedProperties": false
+    }
+  }
+}
