@@ -1,0 +1,68 @@
+{
+  "$description": "KidsAI 設計 token v1（W3C Design Tokens 格式，可匯入 Figma 的 Tokens Studio 等外掛，之後也轉成 SwiftUI）。來源與規則見 docs/art/art-spec.md 第 4 節；改值時兩邊一起改，並重新驗算對比。",
+  "color": {
+    "$type": "color",
+    "bg": { "$value": "#FFF8EC", "$description": "兒童畫面底色（奶油色）" },
+    "surface": { "$value": "#FFFFFF", "$description": "卡片" },
+    "ink": { "$value": "#2B2B3A", "$description": "主要文字；bg 上 13.2:1" },
+    "ink-secondary": { "$value": "#5C5C7A", "$description": "次要文字；bg 上 6.1:1" },
+    "island": {
+      "recognize": { "$value": "#F5B82E", "$description": "島 1 認識（黃）；配 ink 7.8:1" },
+      "prompt": { "$value": "#3BAA6E", "$description": "島 2 提問（綠）；配 ink 4.7:1" },
+      "verify": { "$value": "#F08A3C", "$description": "島 3 查證（橘）；配 ink 5.6:1" },
+      "create": { "$value": "#A98BF0", "$description": "島 4 創作（紫）；配 ink 5.1:1" }
+    },
+    "action": { "$value": "#1A7A4B", "$description": "主要按鈕（前進、一起說）；配白字 5.3:1" },
+    "on-action": { "$value": "#FFFFFF" },
+    "neutral-retry": { "$value": "#E9E4DA", "$description": "再試一次（不用紅色）；配 ink" },
+    "diandian": { "$value": "#F2877A", "$description": "點點（旁白，不是 AI）；配 ink 5.7:1" },
+    "ai": { "$value": "#1E6FC2", "$description": "猜猜帽、AI 徽章；配白字 5.1:1" },
+    "on-ai": { "$value": "#FFFFFF" },
+    "parent": { "$value": "#3D4A5C", "$description": "家長頁主色，與兒童頁明顯不同；配白字 9.0:1" },
+    "on-parent": { "$value": "#FFFFFF" }
+  },
+  "font": {
+    "family": {
+      "$type": "fontFamily",
+      "system": { "$value": ["PingFang TC", "-apple-system", "system-ui", "sans-serif"], "$description": "App 用系統字型並支援 Dynamic Type" }
+    },
+    "size": {
+      "$type": "dimension",
+      "child-hero": { "$value": "40px", "$description": "金句" },
+      "child-title": { "$value": "34px", "$description": "題目；最小 34pt" },
+      "child-option": { "$value": "22px", "$description": "選項；最小 22pt" },
+      "child-min": { "$value": "17px", "$description": "兒童畫面最小字" },
+      "parent-body": { "$value": "17px" },
+      "parent-caption": { "$value": "15px" }
+    },
+    "weight": {
+      "$type": "fontWeight",
+      "regular": { "$value": 400 },
+      "bold": { "$value": 700 }
+    }
+  },
+  "size": {
+    "$type": "dimension",
+    "touch-min": { "$value": "60px", "$description": "兒童可點物件最小 60×60pt（Apple 最低 44pt）" },
+    "option-card-min": { "$value": "140px", "$description": "選項卡最小 140×140pt" }
+  },
+  "space": {
+    "$type": "dimension",
+    "1": { "$value": "8px" },
+    "2": { "$value": "16px" },
+    "3": { "$value": "24px" },
+    "4": { "$value": "32px" },
+    "6": { "$value": "48px" }
+  },
+  "radius": {
+    "$type": "dimension",
+    "card": { "$value": "20px" },
+    "button": { "$value": "28px" },
+    "pill": { "$value": "999px" }
+  },
+  "motion": {
+    "$type": "duration",
+    "enter-exit": { "$value": "400ms", "$description": "進出場上限；減少動態效果開啟時改淡入淡出" },
+    "celebrate": { "$value": "800ms", "$description": "慶祝效果，不得閃爍（每秒 3 次以上）" }
+  }
+}

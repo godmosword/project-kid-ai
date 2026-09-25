@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KidsAI 風格樣張 v1</title>
+<!--
+  參考用，不打包進 App。顏色、字級、尺寸與 design/tokens/kidsai.tokens.json 一致（改值時兩邊一起改）。
+  規則見 docs/art/art-spec.md。用瀏覽器直接打開這個檔即可。
+-->
+<style>
+  :root {
+    --bg: #FFF8EC; --surface: #FFFFFF; --ink: #2B2B3A; --ink-2: #5C5C7A;
+    --island-recognize: #F5B82E; --island-prompt: #3BAA6E; --island-verify: #F08A3C; --island-create: #A98BF0;
+    --action: #1A7A4B; --on-action: #FFFFFF; --neutral-retry: #E9E4DA;
+    --diandian: #F2877A; --ai: #1E6FC2; --on-ai: #FFFFFF; --parent: #3D4A5C; --on-parent: #FFFFFF;
+    --font: "PingFang TC", -apple-system, system-ui, sans-serif;
+    --child-hero: 40px; --child-title: 34px; --child-option: 22px; --child-min: 17px;
+    --parent-body: 17px; --parent-caption: 15px;
+    --touch-min: 60px; --option-min: 140px;
+    --s1: 8px; --s2: 16px; --s3: 24px; --s4: 32px; --s6: 48px;
+    --r-card: 20px; --r-button: 28px;
+    --enter: 400ms;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--font); color: var(--ink); background: #EFE9DE; }
+  main { max-width: 1180px; margin: 0 auto; padding: var(--s4) var(--s2); }
+  h1 { font-size: 28px; margin: 0 0 var(--s1); }
+  h2 { font-size: 22px; margin: var(--s6) 0 var(--s2); }
+  .note { color: var(--ink-2); font-size: var(--parent-caption); margin: 0; }
+  .grid { display: grid; gap: var(--s2); grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  .panel { background: var(--surface); border-radius: var(--r-card); padding: var(--s2); }
+
+  /* 色票 */
+  .swatch { border-radius: var(--r-card); overflow: hidden; background: var(--surface); }
+  .swatch .chip { height: 72px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; }
+  .swatch .meta { padding: var(--s1) var(--s2) var(--s2); font-size: 14px; line-height: 1.5; }
+  .ratio.fail { color: #9B1C1C; font-weight: 700; }
+
+  /* 元件 */
+  .btn { min-height: var(--touch-min); min-width: var(--touch-min); border: 0; border-radius: var(--r-button);
+         padding: 0 var(--s4); font: 700 var(--child-option)/1 var(--font); cursor: pointer; }
+  .btn-action { background: var(--action); color: var(--on-action); }
+  .btn-retry { background: var(--neutral-retry); color: var(--ink); }
+  .btn-parent { background: var(--parent); color: var(--on-parent); font-size: var(--parent-body); min-height: 48px; border-radius: 12px; }
+  .row { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
+  .option { width: var(--option-min); min-height: var(--option-min); border-radius: var(--r-card); background: var(--surface);
+            border: 3px solid transparent; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: var(--s1); font-size: var(--child-option); font-weight: 700; box-shadow: 0 2px 0 rgba(43,43,58,.12); }
+  .option .pic { font-size: 44px; line-height: 1; }
+  .option.selected { border-color: var(--ink); }
+  .option.selected::after { content: "✓ 你選的"; font-size: var(--child-min); }
+  .island { display: inline-flex; align-items: center; gap: var(--s1); min-height: var(--touch-min); padding: 0 var(--s2);
+            border-radius: 999px; font-weight: 700; font-size: 20px; color: var(--ink); }
+  .ai-pill { display: inline-block; background: var(--ai); color: var(--on-ai); font-weight: 700; font-size: 15px;
+             padding: 2px 10px; border-radius: 999px; }
+  .sticker { width: 140px; height: 140px; border-radius: 50%; background: var(--surface); border: 6px solid #fff;
+             box-shadow: 0 0 0 3px var(--island-recognize); display: flex; align-items: center; justify-content: center;
+             font-size: 56px; }
+
+  /* 手機畫面 */
+  .phones { display: flex; flex-wrap: wrap; gap: var(--s4); }
+  .phone { width: 390px; height: 844px; background: var(--bg); border-radius: 48px; border: 10px solid #1d1d25;
+           position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 56px var(--s3) var(--s3); }
+  .phone .top { display: flex; justify-content: space-between; align-items: center; font-size: var(--child-min); color: var(--ink-2); }
+  .phone .gear { width: var(--touch-min); height: var(--touch-min); border-radius: 50%; background: var(--surface);
+                 display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .map { flex: 1; position: relative; margin: var(--s2) 0; }
+  .map .island { position: absolute; }
+  .map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .lock { opacity: .55; }
+  .narrator { display: flex; gap: var(--s2); align-items: center; background: var(--surface); border-radius: var(--r-card); padding: var(--s2); font-size: 20px; }
+  .hero { font-size: var(--child-title); font-weight: 700; text-align: center; margin: var(--s3) 0; }
+  .progress { display: flex; gap: 6px; justify-content: center; margin-top: var(--s1); }
+  .progress i { width: 28px; height: 10px; border-radius: 5px; background: #d9d2c4; }
+  .progress i.on { background: var(--ink); }
+  .options3 { display: flex; gap: 10px; justify-content: center; }
+  .options3 .option { width: 108px; min-height: 150px; }
+  .listen { align-self: center; margin-bottom: var(--s3); }
+  .spacer { flex: 1; }
+
+  /* 圖片比對 */
+  .compare { display: grid; gap: var(--s2); grid-template-columns: 120px repeat(3, 1fr); align-items: start; }
+  .compare .h { font-weight: 700; }
+  .slot { background: var(--surface); border-radius: var(--r-card); aspect-ratio: 1; display: flex; align-items: center;
+          justify-content: center; overflow: hidden; color: var(--ink-2); font-size: 14px; text-align: center; padding: var(--s1); }
+  .slot img { width: 100%; height: 100%; object-fit: contain; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .btn, .option { transition: transform var(--enter) ease; }
+    .btn:active, .option:active { transform: scale(.96); }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>KidsAI 風格樣張 v1</h1>
+  <p class="note">參考用，不打包進 App。顏色與尺寸同 <code>design/tokens/kidsai.tokens.json</code>；規則見 <code>docs/art/art-spec.md</code>。角色是暫代圖形，等生圖定稿後替換。</p>
+
+  <h2>1. 色票（對比由瀏覽器即時計算，需 ≥ 4.5:1）</h2>
+  <div class="grid" id="swatches"></div>
+
+  <h2>2. 字級</h2>
+  <div class="panel">
+    <div style="font-size:var(--child-hero);font-weight:700">AI 會猜。</div>
+    <div style="font-size:var(--child-title);font-weight:700">聽一聽，誰說「我猜」？</div>
+    <div style="font-size:var(--child-option);font-weight:700">電子玩具</div>
+    <div style="font-size:var(--child-min)">兒童畫面最小字 17pt</div>
+    <hr>
+    <div style="font-size:var(--parent-body)">家長內文 17pt：問孩子：今天猜猜帽猜了什麼？你覺得它猜得對嗎？</div>
+    <div style="font-size:var(--parent-caption);color:var(--ink-2)">家長說明 15pt</div>
+  </div>
+
+  <h2>3. 元件</h2>
+  <div class="panel">
+    <div class="row">
+      <button class="btn btn-action">出發！</button>
+      <button class="btn btn-action">🗣 一起說</button>
+      <button class="btn btn-retry">再聽一次</button>
+      <span class="ai-pill">AI</span>
+      <button class="btn btn-parent">家長設定</button>
+    </div>
+    <p class="note" style="margin-top:var(--s2)">「再試一次」用中性色，不用紅色；選中狀態用粗框加「✓」，不只靠顏色。</p>
+    <div class="row" style="margin-top:var(--s2)">
+      <div class="option"><span class="pic">☀️</span>天氣</div>
+      <div class="option selected"><span class="pic">🥐</span>早餐</div>
+      <div class="option"><span class="pic">🦊</span>動物影子</div>
+      <div class="sticker" title="會猜貼紙">⭐</div>
+    </div>
+    <div class="row" style="margin-top:var(--s2)">
+      <span class="island" style="background:var(--island-recognize)">❓ 認識島</span>
+      <span class="island" style="background:var(--island-prompt)">💬 提問島</span>
+      <span class="island" style="background:var(--island-verify)">🔍 檢查島</span>
+      <span class="island" style="background:var(--island-create)">🎬 創作島</span>
+    </div>
+    <p class="note">每個島都有顏色＋圖示＋文字三種線索。</p>
+  </div>
+
+  <h2>4. 角色（暫代圖形）</h2>
+  <div class="row">
+    <div class="panel" style="text-align:center">
+      <svg width="160" height="160" viewBox="0 0 160 160" role="img" aria-label="點點（旁白，不是 AI）">
+        <circle cx="80" cy="88" r="58" fill="var(--diandian)"/>
+        <circle cx="60" cy="78" r="9" fill="#2B2B3A"/><circle cx="100" cy="78" r="9" fill="#2B2B3A"/>
+        <path d="M62 104 Q80 118 98 104" stroke="#2B2B3A" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <path d="M80 138 l-9 -9 a6 6 0 0 1 9 -8 a6 6 0 0 1 9 8z" fill="#fff"/>
+        <line x1="80" y1="30" x2="80" y2="14" stroke="#2B2B3A" stroke-width="4"/><circle cx="80" cy="12" r="6" fill="#2B2B3A"/>
+      </svg>
+      <div style="font-weight:700;font-size:20px">點點</div>
+      <div class="note">旁白，不是 AI｜圓形、珊瑚色、胸前愛心燈</div>
+    </div>
+    <div class="panel" style="text-align:center">
+      <svg width="160" height="160" viewBox="0 0 160 160" role="img" aria-label="猜猜帽（AI）">
+        <path d="M44 120 L60 30 L100 30 L116 120 Z" fill="var(--ai)"/>
+        <ellipse cx="80" cy="122" rx="62" ry="14" fill="#174f8a"/>
+        <circle cx="68" cy="72" r="7" fill="#fff"/><circle cx="92" cy="72" r="7" fill="#fff"/>
+        <path d="M68 92 Q80 100 92 92" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <rect x="64" y="100" width="32" height="14" rx="4" fill="#fff"/>
+        <text x="80" y="111" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ai)">AI</text>
+      </svg>
+      <div style="font-weight:700;font-size:20px">猜猜帽 <span class="ai-pill">AI</span></div>
+      <div class="note">AI｜尖頂帽、AI 藍、空白小牌（「AI」由 App 疊上）</div>
+    </div>
+  </div>
+
+  <h2>5. 畫面示意（390×844，單元 1 已核准文字）</h2>
+  <div class="phones">
+    <section class="phone" aria-label="地圖首頁">
+      <div class="top"><span>⏱ 剩 12 分鐘</span><span class="gear" aria-label="家長設定">⚙️</span></div>
+      <div class="map">
+        <svg viewBox="0 0 340 460" aria-hidden="true"><path d="M80 60 C 200 90, 260 150, 180 220 S 90 330, 240 400" stroke="#d9c9a8" stroke-width="10" fill="none" stroke-dasharray="4 18" stroke-linecap="round"/></svg>
+        <span class="island" style="background:var(--island-recognize);left:10px;top:30px">❓ 認識 ★</span>
+        <span class="island" style="background:var(--island-prompt);right:0;top:150px">💬 提問</span>
+        <span class="island lock" style="background:var(--island-verify);left:20px;top:260px">🔒 檢查</span>
+        <span class="island lock" style="background:var(--island-create);right:10px;top:370px">🔒 創作</span>
+      </div>
+      <div class="narrator"><svg width="48" height="48" viewBox="0 0 160 160" aria-hidden="true"><circle cx="80" cy="88" r="58" fill="var(--diandian)"/></svg>我們去哪個島？</div>
+    </section>
+    <section class="phone" aria-label="單元 1 第 1 關">
+      <div class="top"><span>← 地圖</span><span>⏸</span></div>
+      <div class="progress"><i class="on"></i><i></i><i></i><i></i></div>
+      <div class="hero">聽一聽，<br>誰說「我猜」？</div>
+      <button class="btn btn-retry listen">🔊 再聽一次</button>
+      <div class="options3">
+        <div class="option"><span class="pic">👪</span>家人</div>
+        <div class="option"><span class="pic">🧸</span>電子玩具</div>
+        <div class="option"><span class="pic">🎩</span>AI</div>
+      </div>
+      <div class="spacer"></div>
+      <div class="narrator"><svg width="48" height="48" viewBox="0 0 160 160" aria-hidden="true"><circle cx="80" cy="88" r="58" fill="var(--diandian)"/></svg>選一個吧</div>
+    </section>
+  </div>
+
+  <h2>6. 風格方向比對</h2>
+  <p class="note">把 Codex／Grok 生的圖存成 <code>design/art/style-a/map.png</code>、<code>characters.png</code>、<code>card.png</code>（style-b、style-c 同理），重新整理這頁就會出現。</p>
+  <div class="compare" id="compare"></div>
+</main>
+<script>
+  const tokens = [
+    ["bg", "兒童底色", "--ink"], ["surface", "卡片", "--ink"], ["ink", "主要文字", "--bg"], ["ink-2", "次要文字", "--bg"],
+    ["island-recognize", "島 1 認識", "--ink"], ["island-prompt", "島 2 提問", "--ink"], ["island-verify", "島 3 查證", "--ink"],
+    ["island-create", "島 4 創作", "--ink"], ["action", "主要按鈕", "--on-action"], ["neutral-retry", "再試一次", "--ink"],
+    ["diandian", "點點", "--ink"], ["ai", "猜猜帽／AI", "--on-ai"], ["parent", "家長頁", "--on-parent"],
+  ];
+  const css = getComputedStyle(document.documentElement);
+  const hex = (name) => css.getPropertyValue(name).trim();
+  const lum = (h) => {
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255)
+      .map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+  const box = document.getElementById("swatches");
+  for (const [name, label, textVar] of tokens) {
+    const bg = hex(`--${name}`), fg = hex(textVar), r = ratio(bg, fg);
+    const el = document.createElement("div");
+    el.className = "swatch";
+    el.innerHTML = `<div class="chip" style="background:${bg};color:${fg}">字 Aa</div>
+      <div class="meta"><b>${label}</b><br><code>--${name}</code> ${bg}<br>
+      <span class="ratio ${r < 4.5 ? "fail" : ""}">配字 ${r.toFixed(1)}:1${r < 4.5 ? "（不足）" : ""}</span></div>`;
+    box.appendChild(el);
+  }
+  const compare = document.getElementById("compare");
+  compare.insertAdjacentHTML("beforeend", `<div></div><div class="h">A 扁平圓角</div><div class="h">B 繪本水彩</div><div class="h">C 軟黏土 3D</div>`);
+  for (const [file, label] of [["map", "地圖"], ["characters", "兩個角色"], ["card", "圖卡"]]) {
+    compare.insertAdjacentHTML("beforeend", `<div class="h">${label}</div>`);
+    for (const style of ["a", "b", "c"]) {
+      const slot = document.createElement("div");
+      slot.className = "slot";
+      const img = new Image();
+      img.alt = `${label}（方向 ${style.toUpperCase()}）`;
+      img.onerror = () => { slot.textContent = `尚無圖\nstyle-${style}/${file}.png`; };
+      img.src = `../art/style-${style}/${file}.png`;
+      slot.appendChild(img);
+      compare.appendChild(slot);
+    }
+  }
+</script>
+</body>
+</html>

@@ -6,6 +6,8 @@
 
 每個方向都生同一組 3 張測試圖（地圖、兩個角色、一張圖卡），放在一起給 Michael 比較。
 
+存檔位置：`design/art/style-a/map.png`、`characters.png`、`card.png`（方向 B、C 改成 `style-b`、`style-c`）。存好後用瀏覽器打開 [design/style-tile/index.html](../../design/style-tile/index.html)，第 6 節會把 9 張圖並排，方便比較。
+
 ### 風格區塊
 
 **方向 A｜扁平圓角（像兒童教育 App）**
