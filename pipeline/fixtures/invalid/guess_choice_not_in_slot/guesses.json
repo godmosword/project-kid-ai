@@ -1,0 +1,42 @@
+{
+  "kind": "guess_bank",
+  "schema_version": "1.0.0",
+  "unit_id": "unit_9_fixture",
+  "sandbox_id": "box_1",
+  "guesses": [
+    {
+      "id": "g_sun",
+      "slot_id": "weather",
+      "choice_id": "sun",
+      "guess_text": {
+        "id": "fx.guess.sun",
+        "audience": "child",
+        "text": {
+          "zh-Hant": "我猜今天會出太陽"
+        },
+        "vo": "vo/fx/guess/sun",
+        "vo_status": "tts_placeholder"
+      },
+      "uncertainty_mark": "unsure",
+      "safe": true,
+      "approved_hash": "1e789b536e68"
+    },
+    {
+      "id": "g_moon",
+      "slot_id": "weather",
+      "choice_id": "moon",
+      "guess_text": {
+        "id": "fx.guess.moon",
+        "audience": "child",
+        "text": {
+          "zh-Hant": "我猜是月亮"
+        },
+        "vo": "vo/fx/guess/moon",
+        "vo_status": "tts_placeholder"
+      },
+      "uncertainty_mark": "unsure",
+      "safe": true,
+      "approved_hash": "556782ba1e86"
+    }
+  ]
+}

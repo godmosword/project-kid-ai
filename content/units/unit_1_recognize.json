@@ -1,0 +1,859 @@
+{
+  "kind": "unit",
+  "schema_version": "1.0.0",
+  "unit_id": "unit_1_recognize",
+  "meta": {
+    "title": {
+      "id": "u1.title",
+      "audience": "child",
+      "text": { "zh-Hant": "認識島：AI 是會猜的幫手" },
+      "vo": "vo/u1/title",
+      "vo_status": "tts_placeholder"
+    },
+    "golden_line": {
+      "id": "u1.golden",
+      "audience": "child",
+      "text": { "zh-Hant": "AI 會猜。" },
+      "vo": "vo/u1/golden",
+      "vo_status": "tts_placeholder"
+    },
+    "max_seconds": 600
+  },
+  "narrator": { "id": "diandian", "is_ai": false },
+  "ai_persona": { "id": "guess_hat", "is_ai": true },
+  "beats": [
+    {
+      "id": "u1_intro",
+      "type": "intro",
+      "est_seconds": 30,
+      "transition_hint": "gentle",
+      "lines": [
+        {
+          "id": "u1.intro.1",
+          "audience": "child",
+          "text": { "zh-Hant": "我是點點，不是 AI 喔。" },
+          "vo": "vo/u1/intro/1",
+          "vo_status": "tts_placeholder"
+        },
+        {
+          "id": "u1.intro.2",
+          "audience": "child",
+          "text": { "zh-Hant": "今天我們要認識一個會猜的幫手。" },
+          "vo": "vo/u1/intro/2",
+          "vo_status": "tts_placeholder"
+        },
+        {
+          "id": "u1.intro.3",
+          "audience": "child",
+          "text": { "zh-Hant": "記住這句：AI 會猜。" },
+          "vo": "vo/u1/intro/3",
+          "vo_status": "tts_placeholder"
+        }
+      ]
+    },
+    {
+      "id": "u1_gate1_listen",
+      "type": "choice",
+      "est_seconds": 60,
+      "prompt": {
+        "id": "u1.gate1.prompt",
+        "audience": "child",
+        "text": { "zh-Hant": "聽一聽，誰說「我猜」？" },
+        "vo": "vo/u1/gate1/prompt",
+        "vo_status": "tts_placeholder"
+      },
+      "hint": {
+        "id": "u1.gate1.hint",
+        "audience": "child",
+        "text": { "zh-Hant": "選一個吧" },
+        "vo": "vo/u1/gate1/hint",
+        "vo_status": "tts_placeholder"
+      },
+      "options": [
+        {
+          "id": "family",
+          "label": {
+            "id": "u1.opt.family",
+            "audience": "child",
+            "text": { "zh-Hant": "家人" },
+            "vo": "vo/u1/opt/family",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_card_family",
+          "sound": "sfx_voice_family_short",
+          "sound_script": { "zh-Hant": "晚餐吃麵喔。" },
+          "a11y_label": { "zh-Hant": "家人說話的聲音" }
+        },
+        {
+          "id": "toy",
+          "label": {
+            "id": "u1.opt.toy",
+            "audience": "child",
+            "text": { "zh-Hant": "電子玩具" },
+            "vo": "vo/u1/opt/toy",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_card_toy",
+          "sound": "sfx_voice_toy_short",
+          "sound_script": { "zh-Hant": "嗶嗶，你好，我是玩具。" },
+          "a11y_label": { "zh-Hant": "電子玩具的聲音" }
+        },
+        {
+          "id": "ai",
+          "label": {
+            "id": "u1.opt.ai",
+            "audience": "child",
+            "text": { "zh-Hant": "AI" },
+            "vo": "vo/u1/opt/ai",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_card_ai",
+          "sound": "sfx_voice_ai_short",
+          "sound_script": { "zh-Hant": "我猜，你想聽故事。" },
+          "a11y_label": { "zh-Hant": "AI 說話的聲音" }
+        }
+      ],
+      "scoring": "graded",
+      "correct_option_ids": ["ai"],
+      "feedback": {
+        "success": {
+          "id": "u1.gate1.ok",
+          "audience": "child",
+          "text": { "zh-Hant": "對！AI 常常用猜的。" },
+          "vo": "vo/u1/gate1/ok",
+          "vo_status": "tts_placeholder"
+        },
+        "not_yet": {
+          "id": "u1.gate1.not_yet",
+          "audience": "child",
+          "text": { "zh-Hant": "再聽一次，誰說「我猜」？" },
+          "vo": "vo/u1/gate1/not_yet",
+          "vo_status": "tts_placeholder"
+        },
+        "reveal": {
+          "id": "u1.gate1.reveal",
+          "audience": "child",
+          "text": { "zh-Hant": "是 AI，它說「我猜」。" },
+          "vo": "vo/u1/gate1/reveal",
+          "vo_status": "tts_placeholder"
+        }
+      },
+      "max_attempts": 2,
+      "after_max": "reveal_and_continue"
+    },
+    {
+      "id": "u1_gate2_box",
+      "type": "choice",
+      "est_seconds": 60,
+      "transition_hint": "gentle",
+      "prompt": {
+        "id": "u1.gate2.prompt",
+        "audience": "child",
+        "text": { "zh-Hant": "你猜箱子裡是什麼？" },
+        "vo": "vo/u1/gate2/prompt",
+        "vo_status": "tts_placeholder"
+      },
+      "hint": {
+        "id": "u1.gate2.hint",
+        "audience": "child",
+        "text": { "zh-Hant": "看看露出來的角落" },
+        "vo": "vo/u1/gate2/hint",
+        "vo_status": "tts_placeholder"
+      },
+      "stage": {
+        "image": "img_box_peek_cat_ear",
+        "a11y_label": { "zh-Hant": "箱子只露出一小角，看得到尖尖的耳朵" }
+      },
+      "options": [
+        {
+          "id": "cat",
+          "label": {
+            "id": "u1.opt.cat",
+            "audience": "child",
+            "text": { "zh-Hant": "貓咪" },
+            "vo": "vo/u1/opt/cat",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_box_reveal_cat",
+          "a11y_label": { "zh-Hant": "一隻貓咪" }
+        },
+        {
+          "id": "car",
+          "label": {
+            "id": "u1.opt.car",
+            "audience": "child",
+            "text": { "zh-Hant": "小車" },
+            "vo": "vo/u1/opt/car",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_box_reveal_car",
+          "a11y_label": { "zh-Hant": "一台小車" }
+        },
+        {
+          "id": "banana",
+          "label": {
+            "id": "u1.opt.banana",
+            "audience": "child",
+            "text": { "zh-Hant": "香蕉" },
+            "vo": "vo/u1/opt/banana",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_box_reveal_banana",
+          "a11y_label": { "zh-Hant": "一根香蕉" }
+        }
+      ],
+      "scoring": "open",
+      "feedback": {
+        "reveal": {
+          "id": "u1.gate2.reveal",
+          "audience": "child",
+          "text": { "zh-Hant": "你和 AI 都會猜，有時對有時錯。" },
+          "vo": "vo/u1/gate2/reveal",
+          "vo_status": "tts_placeholder"
+        }
+      },
+      "max_attempts": 1,
+      "after_max": "reveal_and_continue"
+    },
+    {
+      "id": "u1_gate3_asr",
+      "type": "asr_repeat",
+      "est_seconds": 60,
+      "prompt": {
+        "id": "u1.gate3.prompt",
+        "audience": "child",
+        "text": { "zh-Hant": "跟著說" },
+        "vo": "vo/u1/gate3/prompt",
+        "vo_status": "tts_placeholder"
+      },
+      "hint": {
+        "id": "u1.gate3.hint",
+        "audience": "child",
+        "text": { "zh-Hant": "跟我一起說：AI 會猜。" },
+        "vo": "vo/u1/gate3/hint",
+        "vo_status": "tts_placeholder"
+      },
+      "target_line": {
+        "id": "u1.gate3.line",
+        "audience": "child",
+        "text": { "zh-Hant": "AI 會猜。" },
+        "vo": "vo/u1/gate3/line",
+        "vo_status": "tts_placeholder"
+      },
+      "accept": { "zh-Hant": ["AI", "會猜", "猜"] },
+      "match": "keyword_or_voice",
+      "feedback": {
+        "success": {
+          "id": "u1.gate3.ok",
+          "audience": "child",
+          "text": { "zh-Hant": "說得好！AI 會猜。" },
+          "vo": "vo/u1/gate3/ok",
+          "vo_status": "tts_placeholder"
+        }
+      },
+      "on_mic_denied": {
+        "mode": "say_together",
+        "lines": [
+          {
+            "id": "u1.gate3.mic_denied",
+            "audience": "child",
+            "text": { "zh-Hant": "按一下嘴巴按鈕，我們一起說。" },
+            "vo": "vo/u1/gate3/mic_denied",
+            "vo_status": "tts_placeholder"
+          }
+        ]
+      },
+      "on_device_unavailable": {
+        "mode": "say_together",
+        "lines": [
+          {
+            "id": "u1.gate3.unavailable",
+            "audience": "child",
+            "text": { "zh-Hant": "按一下嘴巴按鈕，我們一起說。" },
+            "vo": "vo/u1/gate3/unavailable",
+            "vo_status": "tts_placeholder"
+          }
+        ]
+      },
+      "on_no_match": {
+        "mode": "tap_to_read",
+        "after_attempts": 2,
+        "lines": [
+          {
+            "id": "u1.gate3.no_match",
+            "audience": "child",
+            "text": { "zh-Hant": "沒關係，按一下，聽我念一次。" },
+            "vo": "vo/u1/gate3/no_match",
+            "vo_status": "tts_placeholder"
+          }
+        ]
+      }
+    },
+    {
+      "id": "u1_gate4_sandbox_ritual",
+      "type": "sandbox_ritual",
+      "est_seconds": 15,
+      "transition_hint": "celebrate",
+      "skippable": false,
+      "lines": [
+        {
+          "id": "u1.ritual.1",
+          "audience": "child",
+          "text": { "zh-Hant": "猜猜帽時間" },
+          "vo": "vo/u1/ritual/1",
+          "vo_status": "tts_placeholder"
+        },
+        {
+          "id": "u1.ritual.2",
+          "audience": "child",
+          "text": { "zh-Hant": "猜猜帽是 AI，請它猜一猜！" },
+          "vo": "vo/u1/ritual/2",
+          "vo_status": "tts_placeholder"
+        }
+      ]
+    },
+    {
+      "id": "u1_gate4_sandbox",
+      "type": "sandbox",
+      "est_seconds": 90,
+      "sandbox_ref": "u1_guess_01",
+      "prompt": {
+        "id": "u1.sandbox.prompt",
+        "audience": "child",
+        "text": { "zh-Hant": "選一張卡，請猜猜帽猜！" },
+        "vo": "vo/u1/sandbox/prompt",
+        "vo_status": "tts_placeholder"
+      },
+      "reaction_prompt": {
+        "id": "u1.sandbox.react",
+        "audience": "child",
+        "text": { "zh-Hant": "你覺得 AI 猜得怎樣？" },
+        "vo": "vo/u1/sandbox/react",
+        "vo_status": "tts_placeholder"
+      },
+      "reactions": [
+        {
+          "id": "seem_right",
+          "label": {
+            "id": "u1.opt.seem_right",
+            "audience": "child",
+            "text": { "zh-Hant": "好像對" },
+            "vo": "vo/u1/opt/seem_right",
+            "vo_status": "tts_placeholder"
+          }
+        },
+        {
+          "id": "seem_wrong",
+          "label": {
+            "id": "u1.opt.seem_wrong",
+            "audience": "child",
+            "text": { "zh-Hant": "好像錯" },
+            "vo": "vo/u1/opt/seem_wrong",
+            "vo_status": "tts_placeholder"
+          }
+        },
+        {
+          "id": "unsure",
+          "label": {
+            "id": "u1.opt.unsure",
+            "audience": "child",
+            "text": { "zh-Hant": "不知道" },
+            "vo": "vo/u1/opt/unsure",
+            "vo_status": "tts_placeholder"
+          }
+        }
+      ],
+      "scoring": "open",
+      "closing_line": {
+        "id": "u1.sandbox.close",
+        "audience": "child",
+        "text": { "zh-Hant": "AI 會猜。" },
+        "vo": "vo/u1/sandbox/close",
+        "vo_status": "tts_placeholder"
+      },
+      "feedback": {
+        "reveal": {
+          "id": "u1.sandbox.reveal",
+          "audience": "child",
+          "text": { "zh-Hant": "AI 會猜，有時猜對，有時猜錯。" },
+          "vo": "vo/u1/sandbox/reveal",
+          "vo_status": "tts_placeholder"
+        }
+      },
+      "max_attempts": 1,
+      "after_max": "reveal_and_continue"
+    },
+    { "id": "u1_story", "type": "story", "est_seconds": 150, "story_ref": "u1_socks" },
+    {
+      "id": "u1_review",
+      "type": "review",
+      "est_seconds": 60,
+      "questions": [
+        {
+          "id": "u1_review_1",
+          "prompt": {
+            "id": "u1.review1.prompt",
+            "audience": "child",
+            "text": { "zh-Hant": "AI 比較像？" },
+            "vo": "vo/u1/review1/prompt",
+            "vo_status": "tts_placeholder"
+          },
+          "options": [
+            {
+              "id": "helper",
+              "label": {
+                "id": "u1.opt.helper",
+                "audience": "child",
+                "text": { "zh-Hant": "會猜的幫手" },
+                "vo": "vo/u1/opt/helper",
+                "vo_status": "tts_placeholder"
+              }
+            },
+            {
+              "id": "know_all",
+              "label": {
+                "id": "u1.opt.know_all",
+                "audience": "child",
+                "text": { "zh-Hant": "什麼都知道" },
+                "vo": "vo/u1/opt/know_all",
+                "vo_status": "tts_placeholder"
+              }
+            }
+          ],
+          "correct_option_ids": ["helper"],
+          "feedback": {
+            "success": {
+              "id": "u1.review1.ok",
+              "audience": "child",
+              "text": { "zh-Hant": "對，AI 是會猜的幫手。" },
+              "vo": "vo/u1/review1/ok",
+              "vo_status": "tts_placeholder"
+            },
+            "not_yet": {
+              "id": "u1.review1.not_yet",
+              "audience": "child",
+              "text": { "zh-Hant": "再想想：它會猜，也會說錯。比較像幫手喔。" },
+              "vo": "vo/u1/review1/not_yet",
+              "vo_status": "tts_placeholder"
+            },
+            "reveal": {
+              "id": "u1.review1.reveal",
+              "audience": "child",
+              "text": { "zh-Hant": "AI 是會猜的幫手。" },
+              "vo": "vo/u1/review1/reveal",
+              "vo_status": "tts_placeholder"
+            }
+          },
+          "max_attempts": 2,
+          "after_max": "reveal_and_continue"
+        },
+        {
+          "id": "u1_review_2",
+          "prompt": {
+            "id": "u1.review2.prompt",
+            "audience": "child",
+            "text": { "zh-Hant": "AI 會不會說錯？" },
+            "vo": "vo/u1/review2/prompt",
+            "vo_status": "tts_placeholder"
+          },
+          "options": [
+            {
+              "id": "yes_can_err",
+              "label": {
+                "id": "u1.opt.yes_can_err",
+                "audience": "child",
+                "text": { "zh-Hant": "會" },
+                "vo": "vo/u1/opt/yes_can_err",
+                "vo_status": "tts_placeholder"
+              }
+            },
+            {
+              "id": "no_never",
+              "label": {
+                "id": "u1.opt.no_never",
+                "audience": "child",
+                "text": { "zh-Hant": "不會" },
+                "vo": "vo/u1/opt/no_never",
+                "vo_status": "tts_placeholder"
+              }
+            }
+          ],
+          "correct_option_ids": ["yes_can_err"],
+          "feedback": {
+            "success": {
+              "id": "u1.review2.ok",
+              "audience": "child",
+              "text": { "zh-Hant": "對！會猜，也會說錯。" },
+              "vo": "vo/u1/review2/ok",
+              "vo_status": "tts_placeholder"
+            },
+            "not_yet": {
+              "id": "u1.review2.not_yet",
+              "audience": "child",
+              "text": { "zh-Hant": "再想想：AI 會猜，所以有時也會說錯。" },
+              "vo": "vo/u1/review2/not_yet",
+              "vo_status": "tts_placeholder"
+            },
+            "reveal": {
+              "id": "u1.review2.reveal",
+              "audience": "child",
+              "text": { "zh-Hant": "AI 會猜，有時也會說錯。" },
+              "vo": "vo/u1/review2/reveal",
+              "vo_status": "tts_placeholder"
+            }
+          },
+          "max_attempts": 2,
+          "after_max": "reveal_and_continue"
+        }
+      ]
+    },
+    {
+      "id": "u1_sticker",
+      "type": "sticker",
+      "est_seconds": 15,
+      "transition_hint": "celebrate",
+      "award": "on_reach",
+      "sticker": {
+        "id": "sticker_can_guess",
+        "label": {
+          "id": "u1.sticker.label",
+          "audience": "child",
+          "text": { "zh-Hant": "會猜貼紙" },
+          "vo": "vo/u1/sticker/label",
+          "vo_status": "tts_placeholder"
+        },
+        "image": "img_sticker_can_guess",
+        "a11y_label": { "zh-Hant": "會猜貼紙" }
+      },
+      "lines": [
+        {
+          "id": "u1.sticker.1",
+          "audience": "child",
+          "text": { "zh-Hant": "完成認識島！" },
+          "vo": "vo/u1/sticker/1",
+          "vo_status": "tts_placeholder"
+        },
+        {
+          "id": "u1.sticker.2",
+          "audience": "child",
+          "text": { "zh-Hant": "你得到「會猜貼紙」" },
+          "vo": "vo/u1/sticker/2",
+          "vo_status": "tts_placeholder"
+        }
+      ]
+    }
+  ],
+  "stories": [
+    {
+      "id": "u1_socks",
+      "start": "u1_story_start",
+      "nodes": [
+        {
+          "id": "u1_story_start",
+          "speaker": "narrator",
+          "next": "u1_story_branch_a",
+          "lines": [
+            {
+              "id": "u1.story.start.1",
+              "audience": "child",
+              "text": { "zh-Hant": "猜猜帽第一次幫忙找襪子。" },
+              "vo": "vo/u1/story/start/1",
+              "vo_status": "tts_placeholder"
+            },
+            {
+              "id": "u1.story.start.2",
+              "audience": "child",
+              "text": { "zh-Hant": "會不會在沙發下？" },
+              "vo": "vo/u1/story/start/2",
+              "vo_status": "tts_placeholder"
+            }
+          ]
+        },
+        {
+          "id": "u1_story_branch_a",
+          "speaker": "ai_persona",
+          "lines": [
+            {
+              "id": "u1.story.a.1",
+              "audience": "child",
+              "text": { "zh-Hant": "我猜在沙發下！咦，沒有。" },
+              "vo": "vo/u1/story/a/1",
+              "vo_status": "tts_placeholder"
+            },
+            {
+              "id": "u1.story.a.2",
+              "audience": "child",
+              "text": { "zh-Hant": "接下來呢？" },
+              "vo": "vo/u1/story/a/2",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "choices": [
+            {
+              "id": "guess_again",
+              "label": {
+                "id": "u1.story.a.guess_again",
+                "audience": "child",
+                "text": { "zh-Hant": "再猜一次" },
+                "vo": "vo/u1/story/a/guess_again",
+                "vo_status": "tts_placeholder"
+              },
+              "next": "u1_story_guess_again"
+            },
+            {
+              "id": "find_myself",
+              "label": {
+                "id": "u1.story.a.find_myself",
+                "audience": "child",
+                "text": { "zh-Hant": "自己找" },
+                "vo": "vo/u1/story/a/find_myself",
+                "vo_status": "tts_placeholder"
+              },
+              "next": "u1_story_find_myself"
+            }
+          ]
+        },
+        {
+          "id": "u1_story_guess_again",
+          "speaker": "ai_persona",
+          "next": "u1_story_branch_b",
+          "lines": [
+            {
+              "id": "u1.story.guess_again.1",
+              "audience": "child",
+              "text": { "zh-Hant": "我再猜：在床上？也沒有。" },
+              "vo": "vo/u1/story/guess_again/1",
+              "vo_status": "tts_placeholder"
+            }
+          ]
+        },
+        {
+          "id": "u1_story_find_myself",
+          "speaker": "narrator",
+          "next": "u1_story_branch_b",
+          "lines": [
+            {
+              "id": "u1.story.find_myself.1",
+              "audience": "child",
+              "text": { "zh-Hant": "你找了找，還沒找到。" },
+              "vo": "vo/u1/story/find_myself/1",
+              "vo_status": "tts_placeholder"
+            }
+          ]
+        },
+        {
+          "id": "u1_story_branch_b",
+          "speaker": "ai_persona",
+          "lines": [
+            {
+              "id": "u1.story.b.1",
+              "audience": "child",
+              "text": { "zh-Hant": "我不確定。" },
+              "vo": "vo/u1/story/b/1",
+              "vo_status": "tts_placeholder"
+            },
+            {
+              "id": "u1.story.b.2",
+              "audience": "child",
+              "text": { "zh-Hant": "要怎麼幫我？" },
+              "vo": "vo/u1/story/b/2",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "choices": [
+            {
+              "id": "find_together",
+              "label": {
+                "id": "u1.story.b.find_together",
+                "audience": "child",
+                "text": { "zh-Hant": "一起找" },
+                "vo": "vo/u1/story/b/find_together",
+                "vo_status": "tts_placeholder"
+              },
+              "next": "u1_story_ending"
+            },
+            {
+              "id": "give_hint",
+              "label": {
+                "id": "u1.story.b.give_hint",
+                "audience": "child",
+                "text": { "zh-Hant": "給它提示圖" },
+                "vo": "vo/u1/story/b/give_hint",
+                "vo_status": "tts_placeholder"
+              },
+              "next": "u1_story_hint"
+            }
+          ]
+        },
+        {
+          "id": "u1_story_hint",
+          "speaker": "narrator",
+          "lines": [
+            {
+              "id": "u1.story.hint.1",
+              "audience": "child",
+              "text": { "zh-Hant": "選一張提示圖給猜猜帽" },
+              "vo": "vo/u1/story/hint/1",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "choices": [
+            {
+              "id": "hint_bed",
+              "label": {
+                "id": "u1.story.hint.bed",
+                "audience": "child",
+                "text": { "zh-Hant": "床" },
+                "vo": "vo/u1/story/hint/bed",
+                "vo_status": "tts_placeholder"
+              },
+              "image": "img_hint_bed",
+              "a11y_label": { "zh-Hant": "床" },
+              "next": "u1_story_ending"
+            },
+            {
+              "id": "hint_bag",
+              "label": {
+                "id": "u1.story.hint.bag",
+                "audience": "child",
+                "text": { "zh-Hant": "書包" },
+                "vo": "vo/u1/story/hint/bag",
+                "vo_status": "tts_placeholder"
+              },
+              "image": "img_hint_bag",
+              "a11y_label": { "zh-Hant": "書包" },
+              "next": "u1_story_ending"
+            },
+            {
+              "id": "hint_bath",
+              "label": {
+                "id": "u1.story.hint.bath",
+                "audience": "child",
+                "text": { "zh-Hant": "浴室" },
+                "vo": "vo/u1/story/hint/bath",
+                "vo_status": "tts_placeholder"
+              },
+              "image": "img_hint_bath",
+              "a11y_label": { "zh-Hant": "浴室" },
+              "next": "u1_story_ending"
+            }
+          ]
+        },
+        {
+          "id": "u1_story_ending",
+          "speaker": "ai_persona",
+          "end": true,
+          "transition_hint": "celebrate",
+          "lines": [
+            {
+              "id": "u1.story.end.1",
+              "audience": "child",
+              "text": { "zh-Hant": "襪子找到了！" },
+              "vo": "vo/u1/story/end/1",
+              "vo_status": "tts_placeholder"
+            },
+            {
+              "id": "u1.story.end.2",
+              "audience": "child",
+              "text": { "zh-Hant": "我只是會猜的幫手。" },
+              "vo": "vo/u1/story/end/2",
+              "vo_status": "tts_placeholder"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sandboxes": [
+    {
+      "id": "u1_guess_01",
+      "mode": "pregenerated",
+      "required_uncertainty": "unsure",
+      "slots": [
+        {
+          "id": "weather_symbol",
+          "label": {
+            "id": "u1.slot.weather_symbol",
+            "audience": "child",
+            "text": { "zh-Hant": "天氣" },
+            "vo": "vo/u1/slot/weather_symbol",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_slot_weather",
+          "a11y_label": { "zh-Hant": "天氣卡" },
+          "choices": [
+            {
+              "id": "weather_symbol_card",
+              "label": {
+                "id": "u1.opt.weather_symbol_card",
+                "audience": "child",
+                "text": { "zh-Hant": "天氣" },
+                "vo": "vo/u1/opt/weather_symbol_card",
+                "vo_status": "tts_placeholder"
+              },
+              "image": "img_slot_weather",
+              "a11y_label": { "zh-Hant": "天氣卡" }
+            }
+          ]
+        },
+        {
+          "id": "breakfast_pic",
+          "label": {
+            "id": "u1.slot.breakfast_pic",
+            "audience": "child",
+            "text": { "zh-Hant": "早餐" },
+            "vo": "vo/u1/slot/breakfast_pic",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_slot_breakfast",
+          "a11y_label": { "zh-Hant": "早餐卡" },
+          "choices": [
+            {
+              "id": "breakfast_pic_card",
+              "label": {
+                "id": "u1.opt.breakfast_pic_card",
+                "audience": "child",
+                "text": { "zh-Hant": "早餐" },
+                "vo": "vo/u1/opt/breakfast_pic_card",
+                "vo_status": "tts_placeholder"
+              },
+              "image": "img_slot_breakfast",
+              "a11y_label": { "zh-Hant": "早餐卡" }
+            }
+          ]
+        },
+        {
+          "id": "animal_silhouette",
+          "label": {
+            "id": "u1.slot.animal_silhouette",
+            "audience": "child",
+            "text": { "zh-Hant": "動物影子" },
+            "vo": "vo/u1/slot/animal_silhouette",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_slot_animal",
+          "a11y_label": { "zh-Hant": "動物影子卡" },
+          "choices": [
+            {
+              "id": "animal_silhouette_card",
+              "label": {
+                "id": "u1.opt.animal_silhouette_card",
+                "audience": "child",
+                "text": { "zh-Hant": "動物影子" },
+                "vo": "vo/u1/opt/animal_silhouette_card",
+                "vo_status": "tts_placeholder"
+              },
+              "image": "img_slot_animal",
+              "a11y_label": { "zh-Hant": "動物影子卡" }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "parent_card": {
+    "id": "u1.parent_card",
+    "audience": "parent",
+    "text": { "zh-Hant": "問孩子：今天猜猜帽猜了什麼？你覺得它猜得對嗎？" }
+  }
+}

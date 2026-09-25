@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kidsai.invalid/schema/common.schema.json",
+  "title": "KidsAI 內容共用定義 v1",
+  "description": "單元檔與猜測庫共用的 id、文字、選項定義。所有物件皆封閉（unevaluatedProperties: false），沒定義的欄位一律不得出現。v1 只允許 zh-Hant；長度上限以 NFC 正規化後的 Unicode 字元數計算。",
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 48 },
+    "textId": { "type": "string", "pattern": "^[a-z][a-z0-9_.]*$", "maxLength": 64 },
+    "assetKey": {
+      "description": "App 內資產（圖片、音效、旁白）的站內 key，只能是小寫英數與底線，用 / 分層；不得含 .、..、網址或主機名稱。",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*(/[a-z0-9_]+)*$",
+      "maxLength": 80
+    },
+    "semver": { "type": "string", "pattern": "^1\\.[0-9]+\\.[0-9]+$" },
+    "localized": {
+      "description": "多語系字串。v1 只允許 zh-Hant；新增語系時一併訂定該語系的長度上限（minor 版號）。",
+      "type": "object",
+      "required": ["zh-Hant"],
+      "properties": {
+        "zh-Hant": { "type": "string", "minLength": 1 }
+      },
+      "unevaluatedProperties": false
+    },
+    "a11yLabel": {
+      "description": "VoiceOver 讀出的替代文字。",
+      "$ref": "#/$defs/localized",
+      "properties": {
+        "zh-Hant": { "maxLength": 40 }
+      }
+    },
+    "childText": {
+      "description": "給孩子看或聽的文字。vo 是旁白音檔 key；還沒錄音時 vo_status 用 tts_placeholder。",
+      "type": "object",
+      "required": ["id", "audience", "text", "vo", "vo_status"],
+      "properties": {
+        "id": { "$ref": "#/$defs/textId" },
+        "audience": { "const": "child" },
+        "text": { "$ref": "#/$defs/localized" },
+        "vo": { "$ref": "#/$defs/assetKey" },
+        "vo_status": { "enum": ["recorded", "tts_placeholder"] }
+      },
+      "unevaluatedProperties": false
+    },
+    "childLine": {
+      "description": "旁白、故事、回饋的一句話：zh-Hant ≤20 字。",
+      "$ref": "#/$defs/childText",
+      "properties": {
+        "text": {
+          "properties": {
+            "zh-Hant": { "maxLength": 20 }
+          }
+        }
+      }
+    },
+    "childPrompt": {
+      "description": "題幹：zh-Hant ≤16 字。",
+      "$ref": "#/$defs/childText",
+      "properties": {
+        "text": {
+          "properties": {
+            "zh-Hant": { "maxLength": 16 }
+          }
+        }
+      }
+    },
+    "childLabel": {
+      "description": "選項、貼紙名稱：zh-Hant ≤6 字。",
+      "$ref": "#/$defs/childText",
+      "properties": {
+        "text": {
+          "properties": {
+            "zh-Hant": { "maxLength": 6 }
+          }
+        }
+      }
+    },
+    "guessText": {
+      "description": "AI 猜測：zh-Hant ≤24 字（沙盒可再用 max_guess_chars 收緊）。",
+      "$ref": "#/$defs/childText",
+      "properties": {
+        "text": {
+          "properties": {
+            "zh-Hant": { "maxLength": 24 }
+          }
+        }
+      }
+    },
+    "parentText": {
+      "description": "給家長的文字：zh-Hant ≤120 字，不得含連結。",
+      "type": "object",
+      "required": ["id", "audience", "text"],
+      "properties": {
+        "id": { "$ref": "#/$defs/textId" },
+        "audience": { "const": "parent" },
+        "text": {
+          "$ref": "#/$defs/localized",
+          "properties": {
+            "zh-Hant": { "maxLength": 120 }
+          }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "option": {
+      "description": "可點選或拖曳的一個選項。有圖或聲音時必須有 a11y_label；有聲音時必須寫出 sound_script。",
+      "type": "object",
+      "required": ["id", "label"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "label": { "$ref": "#/$defs/childLabel" },
+        "image": { "$ref": "#/$defs/assetKey" },
+        "sound": { "$ref": "#/$defs/assetKey" },
+        "a11y_label": { "$ref": "#/$defs/a11yLabel" },
+        "sound_script": { "$ref": "#/$defs/soundScript" }
+      },
+      "dependentRequired": { "image": ["a11y_label"], "sound": ["a11y_label", "sound_script"] },
+      "unevaluatedProperties": false
+    },
+    "soundScript": {
+      "description": "音效裡說的話，給審稿與 VoiceOver 使用：zh-Hant ≤20 字。",
+      "$ref": "#/$defs/localized",
+      "properties": {
+        "zh-Hant": { "maxLength": 20 }
+      }
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "kind": "guess_bank",
+  "schema_version": "1.0.0",
+  "unit_id": "unit_1_recognize",
+  "sandbox_id": "u1_guess_01",
+  "guesses": [
+    {
+      "id": "u1_guess_weather_symbol",
+      "slot_id": "weather_symbol",
+      "choice_id": "weather_symbol_card",
+      "guess_text": {
+        "id": "u1.guess.weather_symbol",
+        "audience": "child",
+        "text": { "zh-Hant": "我猜今天會出太陽" },
+        "vo": "vo/u1/guess/weather_symbol",
+        "vo_status": "tts_placeholder"
+      },
+      "uncertainty_mark": "unsure",
+      "safe": true,
+      "approved_hash": "1e789b536e68"
+    },
+    {
+      "id": "u1_guess_breakfast_pic",
+      "slot_id": "breakfast_pic",
+      "choice_id": "breakfast_pic_card",
+      "guess_text": {
+        "id": "u1.guess.breakfast_pic",
+        "audience": "child",
+        "text": { "zh-Hant": "我猜是麵包配牛奶" },
+        "vo": "vo/u1/guess/breakfast_pic",
+        "vo_status": "tts_placeholder"
+      },
+      "uncertainty_mark": "unsure",
+      "safe": true,
+      "approved_hash": "b1b584295e1f"
+    },
+    {
+      "id": "u1_guess_animal_silhouette",
+      "slot_id": "animal_silhouette",
+      "choice_id": "animal_silhouette_card",
+      "guess_text": {
+        "id": "u1.guess.animal_silhouette",
+        "audience": "child",
+        "text": { "zh-Hant": "我猜是一隻狐狸" },
+        "vo": "vo/u1/guess/animal_silhouette",
+        "vo_status": "tts_placeholder"
+      },
+      "uncertainty_mark": "unsure",
+      "safe": true,
+      "approved_hash": "6567aff2ccaa"
+    }
+  ]
+}

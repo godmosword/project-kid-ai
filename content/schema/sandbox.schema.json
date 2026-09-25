@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kidsai.invalid/schema/sandbox.schema.json",
+  "title": "KidsAI 沙盒預生成猜測庫 v1",
+  "description": "S1：沙盒預設只用預生成猜測。Michael 核准一筆猜測時，把該猜測 zh-Hant 文字的 SHA-256 前 12 碼寫進 approved_hash；文字一改，核准自動失效。content/ 內不得出現 safe: false。$defs/request 是 App 對沙盒的唯一請求格式（S2 白名單）。",
+  "type": "object",
+  "required": ["kind", "schema_version", "unit_id", "sandbox_id", "guesses"],
+  "properties": {
+    "kind": { "const": "guess_bank" },
+    "schema_version": { "$ref": "common.schema.json#/$defs/semver" },
+    "unit_id": { "type": "string", "pattern": "^unit_[1-9][0-9]*_[a-z][a-z0-9_]*$" },
+    "sandbox_id": { "$ref": "common.schema.json#/$defs/id" },
+    "guesses": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 60,
+      "items": { "$ref": "#/$defs/guess" }
+    }
+  },
+  "unevaluatedProperties": false,
+  "$defs": {
+    "guess": {
+      "type": "object",
+      "required": ["id", "slot_id", "choice_id", "guess_text", "uncertainty_mark", "safe"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "slot_id": { "$ref": "common.schema.json#/$defs/id" },
+        "choice_id": { "$ref": "common.schema.json#/$defs/id" },
+        "guess_text": { "$ref": "common.schema.json#/$defs/guessText" },
+        "uncertainty_mark": { "description": "unsure：UI 顯示並念出「我不確定」。", "enum": ["unsure", "sure"] },
+        "truth": { "description": "單元 3（scoring: graded）才可使用：這個猜測對真實世界來說是對還是錯。", "enum": ["right", "wrong"] },
+        "image": { "$ref": "common.schema.json#/$defs/assetKey" },
+        "a11y_label": { "$ref": "common.schema.json#/$defs/a11yLabel" },
+        "safe": { "const": true },
+        "approved_hash": {
+          "description": "Michael 核准時的 guess_text（zh-Hant、NFC、UTF-8）SHA-256 前 12 碼。",
+          "type": "string",
+          "pattern": "^[0-9a-f]{12}$"
+        }
+      },
+      "dependentRequired": { "image": ["a11y_label"] },
+      "unevaluatedProperties": false
+    },
+    "request": {
+      "description": "App 向沙盒取猜測時的請求。只有這三個鍵；structured_choice 必須是該 slot 的選項 id。不得帶暱稱、音訊、照片、轉寫或任何自由文字。",
+      "type": "object",
+      "required": ["sandbox_id", "slot_id", "structured_choice"],
+      "properties": {
+        "sandbox_id": { "$ref": "common.schema.json#/$defs/id" },
+        "slot_id": { "$ref": "common.schema.json#/$defs/id" },
+        "structured_choice": { "$ref": "common.schema.json#/$defs/id" }
+      },
+      "unevaluatedProperties": false
+    }
+  }
+}
