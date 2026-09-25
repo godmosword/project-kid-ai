@@ -1,0 +1,56 @@
+{
+  "kind": "guess_bank",
+  "schema_version": "1.0.0",
+  "unit_id": "unit_3_verify",
+  "sandbox_id": "u3_check_01",
+  "guesses": [
+    {
+      "id": "u3_guess_dog_legs",
+      "slot_id": "dog_legs",
+      "choice_id": "dog_legs_card",
+      "guess_text": {
+        "id": "u3.guess.u3_guess_dog_legs",
+        "audience": "child",
+        "text": { "zh-Hant": "小狗有三隻腳。" },
+        "vo": "vo/u3/guess/u3_guess_dog_legs",
+        "vo_status": "tts_placeholder"
+      },
+      "uncertainty_mark": "sure",
+      "safe": true,
+      "truth": "wrong",
+      "approved_hash": "fc79aa905d70"
+    },
+    {
+      "id": "u3_guess_day_night",
+      "slot_id": "day_night",
+      "choice_id": "day_night_card",
+      "guess_text": {
+        "id": "u3.guess.u3_guess_day_night",
+        "audience": "child",
+        "text": { "zh-Hant": "現在是晚上。" },
+        "vo": "vo/u3/guess/u3_guess_day_night",
+        "vo_status": "tts_placeholder"
+      },
+      "uncertainty_mark": "sure",
+      "safe": true,
+      "truth": "right",
+      "approved_hash": "236909d5e448"
+    },
+    {
+      "id": "u3_guess_is_fruit",
+      "slot_id": "is_fruit",
+      "choice_id": "is_fruit_card",
+      "guess_text": {
+        "id": "u3.guess.u3_guess_is_fruit",
+        "audience": "child",
+        "text": { "zh-Hant": "這是一個水果。" },
+        "vo": "vo/u3/guess/u3_guess_is_fruit",
+        "vo_status": "tts_placeholder"
+      },
+      "uncertainty_mark": "sure",
+      "safe": true,
+      "truth": "wrong",
+      "approved_hash": "63a62b4deef7"
+    }
+  ]
+}

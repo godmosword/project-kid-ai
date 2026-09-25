@@ -1,0 +1,736 @@
+{
+  "kind": "unit",
+  "schema_version": "1.0.0",
+  "unit_id": "unit_2_prompt",
+  "meta": {
+    "title": {
+      "id": "u2.title",
+      "audience": "child",
+      "text": { "zh-Hant": "提問島：說清楚才猜得準" },
+      "vo": "vo/u2/title",
+      "vo_status": "tts_placeholder"
+    },
+    "golden_line": {
+      "id": "u2.golden",
+      "audience": "child",
+      "text": { "zh-Hant": "說清楚，AI 才猜得準。" },
+      "vo": "vo/u2/golden",
+      "vo_status": "tts_placeholder"
+    },
+    "max_seconds": 600
+  },
+  "narrator": { "id": "diandian", "is_ai": false },
+  "ai_persona": { "id": "guess_hat", "is_ai": true },
+  "beats": [
+    {
+      "id": "u2_intro",
+      "type": "intro",
+      "est_seconds": 30,
+      "transition_hint": "gentle",
+      "lines": [
+        {
+          "id": "u2.intro.1",
+          "audience": "child",
+          "text": { "zh-Hant": "我是點點，不是 AI 喔。" },
+          "vo": "vo/u2/intro/1",
+          "vo_status": "tts_placeholder"
+        },
+        {
+          "id": "u2.intro.2",
+          "audience": "child",
+          "text": { "zh-Hant": "今天學怎麼跟 AI 說話。" },
+          "vo": "vo/u2/intro/2",
+          "vo_status": "tts_placeholder"
+        },
+        {
+          "id": "u2.intro.3",
+          "audience": "child",
+          "text": { "zh-Hant": "記住這句：說清楚，AI 才猜得準。" },
+          "vo": "vo/u2/intro/3",
+          "vo_status": "tts_placeholder"
+        }
+      ]
+    },
+    {
+      "id": "u2_gate1_clear",
+      "type": "choice",
+      "est_seconds": 60,
+      "prompt": {
+        "id": "u2.gate1.prompt",
+        "audience": "child",
+        "text": { "zh-Hant": "誰說得比較清楚？" },
+        "vo": "vo/u2/gate1/prompt",
+        "vo_status": "tts_placeholder"
+      },
+      "hint": {
+        "id": "u2.gate1.hint",
+        "audience": "child",
+        "text": { "zh-Hant": "聽聽誰說了放哪裡" },
+        "vo": "vo/u2/gate1/hint",
+        "vo_status": "tts_placeholder"
+      },
+      "options": [
+        {
+          "id": "bear",
+          "label": {
+            "id": "u2.opt.bear",
+            "audience": "child",
+            "text": { "zh-Hant": "小熊說" },
+            "vo": "vo/u2/opt/bear",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_u2_bear",
+          "sound": "sfx_u2_bear_vague",
+          "sound_script": { "zh-Hant": "請弄一下。" },
+          "a11y_label": { "zh-Hant": "小熊在說話" }
+        },
+        {
+          "id": "rabbit",
+          "label": {
+            "id": "u2.opt.rabbit",
+            "audience": "child",
+            "text": { "zh-Hant": "小兔說" },
+            "vo": "vo/u2/opt/rabbit",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_u2_rabbit",
+          "sound": "sfx_u2_rabbit_clear",
+          "sound_script": { "zh-Hant": "請把小紅積木放進盒子裡。" },
+          "a11y_label": { "zh-Hant": "小兔在說話" }
+        }
+      ],
+      "scoring": "graded",
+      "correct_option_ids": ["rabbit"],
+      "feedback": {
+        "success": {
+          "id": "u2.gate1.ok",
+          "audience": "child",
+          "text": { "zh-Hant": "對！小兔說得很清楚。" },
+          "vo": "vo/u2/gate1/ok",
+          "vo_status": "tts_placeholder"
+        },
+        "not_yet": {
+          "id": "u2.gate1.not_yet",
+          "audience": "child",
+          "text": { "zh-Hant": "再聽一次，誰說了要放哪裡？" },
+          "vo": "vo/u2/gate1/not_yet",
+          "vo_status": "tts_placeholder"
+        },
+        "reveal": {
+          "id": "u2.gate1.reveal",
+          "audience": "child",
+          "text": { "zh-Hant": "小兔說清楚了：拿什麼、放哪裡。" },
+          "vo": "vo/u2/gate1/reveal",
+          "vo_status": "tts_placeholder"
+        }
+      },
+      "max_attempts": 2,
+      "after_max": "reveal_and_continue"
+    },
+    {
+      "id": "u2_gate2_blanks",
+      "type": "drag",
+      "est_seconds": 60,
+      "mode": "match",
+      "prompt": {
+        "id": "u2.gate2.prompt",
+        "audience": "child",
+        "text": { "zh-Hant": "拖卡片，把話說清楚" },
+        "vo": "vo/u2/gate2/prompt",
+        "vo_status": "tts_placeholder"
+      },
+      "hint": {
+        "id": "u2.gate2.hint",
+        "audience": "child",
+        "text": { "zh-Hant": "請把什麼，放到哪裡？" },
+        "vo": "vo/u2/gate2/hint",
+        "vo_status": "tts_placeholder"
+      },
+      "items": [
+        {
+          "id": "cup_star",
+          "label": {
+            "id": "u2.opt.cup_star",
+            "audience": "child",
+            "text": { "zh-Hant": "星星杯子" },
+            "vo": "vo/u2/opt/cup_star",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_u2_cup_star",
+          "a11y_label": { "zh-Hant": "有星星圖案的小杯子" }
+        },
+        {
+          "id": "place_table",
+          "label": {
+            "id": "u2.opt.place_table",
+            "audience": "child",
+            "text": { "zh-Hant": "桌子上" },
+            "vo": "vo/u2/opt/place_table",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_u2_place_table",
+          "a11y_label": { "zh-Hant": "一張桌子" }
+        }
+      ],
+      "targets": [
+        {
+          "id": "blank_what",
+          "label": {
+            "id": "u2.opt.blank_what",
+            "audience": "child",
+            "text": { "zh-Hant": "拿什麼" },
+            "vo": "vo/u2/opt/blank_what",
+            "vo_status": "tts_placeholder"
+          }
+        },
+        {
+          "id": "blank_where",
+          "label": {
+            "id": "u2.opt.blank_where",
+            "audience": "child",
+            "text": { "zh-Hant": "放哪裡" },
+            "vo": "vo/u2/opt/blank_where",
+            "vo_status": "tts_placeholder"
+          }
+        }
+      ],
+      "pairs": { "cup_star": "blank_what", "place_table": "blank_where" },
+      "feedback": {
+        "success": {
+          "id": "u2.gate2.ok",
+          "audience": "child",
+          "text": { "zh-Hant": "說清楚了！杯子放桌上。" },
+          "vo": "vo/u2/gate2/ok",
+          "vo_status": "tts_placeholder"
+        },
+        "not_yet": {
+          "id": "u2.gate2.not_yet",
+          "audience": "child",
+          "text": { "zh-Hant": "想想看，哪張卡是拿什麼？" },
+          "vo": "vo/u2/gate2/not_yet",
+          "vo_status": "tts_placeholder"
+        },
+        "reveal": {
+          "id": "u2.gate2.reveal",
+          "audience": "child",
+          "text": { "zh-Hant": "請把星星杯子，放到桌子上。" },
+          "vo": "vo/u2/gate2/reveal",
+          "vo_status": "tts_placeholder"
+        }
+      },
+      "max_attempts": 2,
+      "after_max": "reveal_and_continue"
+    },
+    {
+      "id": "u2_gate3_asr",
+      "type": "asr_repeat",
+      "est_seconds": 60,
+      "prompt": {
+        "id": "u2.u2_gate3_asr.prompt",
+        "audience": "child",
+        "text": { "zh-Hant": "跟著說" },
+        "vo": "vo/u2/u2_gate3_asr/prompt",
+        "vo_status": "tts_placeholder"
+      },
+      "hint": {
+        "id": "u2.u2_gate3_asr.hint",
+        "audience": "child",
+        "text": { "zh-Hant": "跟我一起說：請畫一隻坐著的小黃貓。" },
+        "vo": "vo/u2/u2_gate3_asr/hint",
+        "vo_status": "tts_placeholder"
+      },
+      "accept": { "zh-Hant": ["小黃貓", "坐著", "黃貓", "貓"] },
+      "match": "keyword_or_voice",
+      "feedback": {
+        "success": {
+          "id": "u2.u2_gate3_asr.ok",
+          "audience": "child",
+          "text": { "zh-Hant": "說得好！說得很清楚。" },
+          "vo": "vo/u2/u2_gate3_asr/ok",
+          "vo_status": "tts_placeholder"
+        }
+      },
+      "on_mic_denied": {
+        "mode": "say_together",
+        "lines": [
+          {
+            "id": "u2.u2_gate3_asr.mic_denied",
+            "audience": "child",
+            "text": { "zh-Hant": "按一下嘴巴按鈕，我們一起說。" },
+            "vo": "vo/u2/u2_gate3_asr/mic_denied",
+            "vo_status": "tts_placeholder"
+          }
+        ]
+      },
+      "on_device_unavailable": {
+        "mode": "say_together",
+        "lines": [
+          {
+            "id": "u2.u2_gate3_asr.unavailable",
+            "audience": "child",
+            "text": { "zh-Hant": "按一下嘴巴按鈕，我們一起說。" },
+            "vo": "vo/u2/u2_gate3_asr/unavailable",
+            "vo_status": "tts_placeholder"
+          }
+        ]
+      },
+      "on_no_match": {
+        "mode": "tap_to_read",
+        "after_attempts": 2,
+        "lines": [
+          {
+            "id": "u2.u2_gate3_asr.no_match",
+            "audience": "child",
+            "text": { "zh-Hant": "沒關係，按一下，聽我念一次。" },
+            "vo": "vo/u2/u2_gate3_asr/no_match",
+            "vo_status": "tts_placeholder"
+          }
+        ]
+      },
+      "target_line": {
+        "id": "u2.u2_gate3_asr.line",
+        "audience": "child",
+        "text": { "zh-Hant": "請畫一隻坐著的小黃貓。" },
+        "vo": "vo/u2/u2_gate3_asr/line",
+        "vo_status": "tts_placeholder"
+      }
+    },
+    {
+      "id": "u2_ritual",
+      "type": "sandbox_ritual",
+      "est_seconds": 15,
+      "transition_hint": "celebrate",
+      "skippable": false,
+      "lines": [
+        {
+          "id": "u2.ritual.1",
+          "audience": "child",
+          "text": { "zh-Hant": "猜猜帽時間" },
+          "vo": "vo/u2/ritual/1",
+          "vo_status": "tts_placeholder"
+        },
+        {
+          "id": "u2.ritual.2",
+          "audience": "child",
+          "text": { "zh-Hant": "猜猜帽是 AI，請它畫畫看！" },
+          "vo": "vo/u2/ritual/2",
+          "vo_status": "tts_placeholder"
+        }
+      ]
+    },
+    {
+      "id": "u2_sandbox",
+      "type": "sandbox",
+      "est_seconds": 90,
+      "sandbox_ref": "u2_draw_01",
+      "prompt": {
+        "id": "u2.sandbox.prompt",
+        "audience": "child",
+        "text": { "zh-Hant": "選一句話請猜猜帽畫" },
+        "vo": "vo/u2/sandbox/prompt",
+        "vo_status": "tts_placeholder"
+      },
+      "reaction_prompt": {
+        "id": "u2.sandbox.react",
+        "audience": "child",
+        "text": { "zh-Hant": "哪張比較像你想要的？" },
+        "vo": "vo/u2/sandbox/react",
+        "vo_status": "tts_placeholder"
+      },
+      "reactions": [
+        {
+          "id": "closer",
+          "label": {
+            "id": "u2.opt.closer",
+            "audience": "child",
+            "text": { "zh-Hant": "比較像" },
+            "vo": "vo/u2/opt/closer",
+            "vo_status": "tts_placeholder"
+          }
+        },
+        {
+          "id": "not_close",
+          "label": {
+            "id": "u2.opt.not_close",
+            "audience": "child",
+            "text": { "zh-Hant": "不太像" },
+            "vo": "vo/u2/opt/not_close",
+            "vo_status": "tts_placeholder"
+          }
+        },
+        {
+          "id": "dont_know",
+          "label": {
+            "id": "u2.opt.dont_know",
+            "audience": "child",
+            "text": { "zh-Hant": "不知道" },
+            "vo": "vo/u2/opt/dont_know",
+            "vo_status": "tts_placeholder"
+          }
+        }
+      ],
+      "scoring": "open",
+      "closing_line": {
+        "id": "u2.sandbox.close",
+        "audience": "child",
+        "text": { "zh-Hant": "說清楚，AI 才猜得準。" },
+        "vo": "vo/u2/sandbox/close",
+        "vo_status": "tts_placeholder"
+      },
+      "feedback": {
+        "reveal": {
+          "id": "u2.sandbox.reveal",
+          "audience": "child",
+          "text": { "zh-Hant": "說得越清楚，它越知道你要哪種貓。" },
+          "vo": "vo/u2/sandbox/reveal",
+          "vo_status": "tts_placeholder"
+        }
+      },
+      "max_attempts": 1,
+      "after_max": "reveal_and_continue"
+    },
+    { "id": "u2_story", "type": "story", "est_seconds": 150, "story_ref": "u2_story_graph" },
+    {
+      "id": "u2_review",
+      "type": "review",
+      "est_seconds": 60,
+      "questions": [
+        {
+          "id": "u2_review_1",
+          "prompt": {
+            "id": "u2.review1.prompt",
+            "audience": "child",
+            "text": { "zh-Hant": "要讓 AI 猜得準，要？" },
+            "vo": "vo/u2/review1/prompt",
+            "vo_status": "tts_placeholder"
+          },
+          "options": [
+            {
+              "id": "shout",
+              "label": {
+                "id": "u2.opt.shout",
+                "audience": "child",
+                "text": { "zh-Hant": "大聲叫" },
+                "vo": "vo/u2/opt/shout",
+                "vo_status": "tts_placeholder"
+              }
+            },
+            {
+              "id": "say_clear",
+              "label": {
+                "id": "u2.opt.say_clear",
+                "audience": "child",
+                "text": { "zh-Hant": "說清楚" },
+                "vo": "vo/u2/opt/say_clear",
+                "vo_status": "tts_placeholder"
+              }
+            }
+          ],
+          "correct_option_ids": ["say_clear"],
+          "feedback": {
+            "success": {
+              "id": "u2.review1.ok",
+              "audience": "child",
+              "text": { "zh-Hant": "對！說清楚，AI 才猜得準。" },
+              "vo": "vo/u2/review1/ok",
+              "vo_status": "tts_placeholder"
+            },
+            "not_yet": {
+              "id": "u2.review1.not_yet",
+              "audience": "child",
+              "text": { "zh-Hant": "再想想，要怎麼說它才知道？" },
+              "vo": "vo/u2/review1/not_yet",
+              "vo_status": "tts_placeholder"
+            },
+            "reveal": {
+              "id": "u2.review1.reveal",
+              "audience": "child",
+              "text": { "zh-Hant": "要說清楚，AI 才猜得準。" },
+              "vo": "vo/u2/review1/reveal",
+              "vo_status": "tts_placeholder"
+            }
+          },
+          "max_attempts": 2,
+          "after_max": "reveal_and_continue"
+        },
+        {
+          "id": "u2_review_2",
+          "prompt": {
+            "id": "u2.review2.prompt",
+            "audience": "child",
+            "text": { "zh-Hant": "說法不同，AI 的回答會？" },
+            "vo": "vo/u2/review2/prompt",
+            "vo_status": "tts_placeholder"
+          },
+          "options": [
+            {
+              "id": "same",
+              "label": {
+                "id": "u2.opt.same",
+                "audience": "child",
+                "text": { "zh-Hant": "一樣" },
+                "vo": "vo/u2/opt/same",
+                "vo_status": "tts_placeholder"
+              }
+            },
+            {
+              "id": "different",
+              "label": {
+                "id": "u2.opt.different",
+                "audience": "child",
+                "text": { "zh-Hant": "不一樣" },
+                "vo": "vo/u2/opt/different",
+                "vo_status": "tts_placeholder"
+              }
+            }
+          ],
+          "correct_option_ids": ["different"],
+          "feedback": {
+            "success": {
+              "id": "u2.review2.ok",
+              "audience": "child",
+              "text": { "zh-Hant": "對！說法不同，答案也不同。" },
+              "vo": "vo/u2/review2/ok",
+              "vo_status": "tts_placeholder"
+            },
+            "not_yet": {
+              "id": "u2.review2.not_yet",
+              "audience": "child",
+              "text": { "zh-Hant": "想想剛剛的兩隻貓。" },
+              "vo": "vo/u2/review2/not_yet",
+              "vo_status": "tts_placeholder"
+            },
+            "reveal": {
+              "id": "u2.review2.reveal",
+              "audience": "child",
+              "text": { "zh-Hant": "說法不同，AI 的回答也不同。" },
+              "vo": "vo/u2/review2/reveal",
+              "vo_status": "tts_placeholder"
+            }
+          },
+          "max_attempts": 2,
+          "after_max": "reveal_and_continue"
+        }
+      ]
+    },
+    {
+      "id": "u2_sticker",
+      "type": "sticker",
+      "est_seconds": 15,
+      "transition_hint": "celebrate",
+      "award": "on_reach",
+      "sticker": {
+        "id": "sticker_say_clear",
+        "label": {
+          "id": "u2.sticker.label",
+          "audience": "child",
+          "text": { "zh-Hant": "說清楚貼紙" },
+          "vo": "vo/u2/sticker/label",
+          "vo_status": "tts_placeholder"
+        },
+        "image": "img_sticker_say_clear",
+        "a11y_label": { "zh-Hant": "說清楚貼紙" }
+      },
+      "lines": [
+        {
+          "id": "u2.sticker.1",
+          "audience": "child",
+          "text": { "zh-Hant": "完成提問島！" },
+          "vo": "vo/u2/sticker/1",
+          "vo_status": "tts_placeholder"
+        },
+        {
+          "id": "u2.sticker.2",
+          "audience": "child",
+          "text": { "zh-Hant": "你得到「說清楚貼紙」" },
+          "vo": "vo/u2/sticker/2",
+          "vo_status": "tts_placeholder"
+        }
+      ]
+    }
+  ],
+  "stories": [
+    {
+      "id": "u2_story_graph",
+      "start": "u2_story_start",
+      "nodes": [
+        {
+          "id": "u2_story_start",
+          "speaker": "narrator",
+          "lines": [
+            {
+              "id": "u2.story.u2_story_start.1",
+              "audience": "child",
+              "text": { "zh-Hant": "猜猜帽要幫忙種笑笑菜。" },
+              "vo": "vo/u2/story/u2_story_start/1",
+              "vo_status": "tts_placeholder"
+            },
+            {
+              "id": "u2.story.u2_story_start.2",
+              "audience": "child",
+              "text": { "zh-Hant": "它在等你說話。" },
+              "vo": "vo/u2/story/u2_story_start/2",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "next": "u2_story_choose"
+        },
+        {
+          "id": "u2_story_choose",
+          "speaker": "narrator",
+          "lines": [
+            {
+              "id": "u2.story.u2_story_choose.1",
+              "audience": "child",
+              "text": { "zh-Hant": "你要怎麼說？" },
+              "vo": "vo/u2/story/u2_story_choose/1",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "choices": [
+            {
+              "id": "say_vague",
+              "label": {
+                "id": "u2.story.u2_story_choose.say_vague",
+                "audience": "child",
+                "text": { "zh-Hant": "拿那個來" },
+                "vo": "vo/u2/story/u2_story_choose/say_vague",
+                "vo_status": "tts_placeholder"
+              },
+              "next": "u2_story_vague"
+            },
+            {
+              "id": "say_clear",
+              "label": {
+                "id": "u2.story.u2_story_choose.say_clear",
+                "audience": "child",
+                "text": { "zh-Hant": "拿小鏟子" },
+                "vo": "vo/u2/story/u2_story_choose/say_clear",
+                "vo_status": "tts_placeholder"
+              },
+              "next": "u2_story_clear"
+            }
+          ]
+        },
+        {
+          "id": "u2_story_vague",
+          "speaker": "ai_persona",
+          "lines": [
+            {
+              "id": "u2.story.u2_story_vague.1",
+              "audience": "child",
+              "text": { "zh-Hant": "我猜你要這台玩具車！" },
+              "vo": "vo/u2/story/u2_story_vague/1",
+              "vo_status": "tts_placeholder"
+            },
+            {
+              "id": "u2.story.u2_story_vague.2",
+              "audience": "child",
+              "text": { "zh-Hant": "我不確定耶。" },
+              "vo": "vo/u2/story/u2_story_vague/2",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "next": "u2_story_retry"
+        },
+        {
+          "id": "u2_story_retry",
+          "speaker": "narrator",
+          "lines": [
+            {
+              "id": "u2.story.u2_story_retry.1",
+              "audience": "child",
+              "text": { "zh-Hant": "你說清楚：請拿小鏟子。" },
+              "vo": "vo/u2/story/u2_story_retry/1",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "next": "u2_story_clear"
+        },
+        {
+          "id": "u2_story_clear",
+          "speaker": "ai_persona",
+          "lines": [
+            {
+              "id": "u2.story.u2_story_clear.1",
+              "audience": "child",
+              "text": { "zh-Hant": "好！我拿小鏟子來了。" },
+              "vo": "vo/u2/story/u2_story_clear/1",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "next": "u2_story_ending"
+        },
+        {
+          "id": "u2_story_ending",
+          "speaker": "ai_persona",
+          "lines": [
+            {
+              "id": "u2.story.u2_story_ending.1",
+              "audience": "child",
+              "text": { "zh-Hant": "笑笑菜種好了！" },
+              "vo": "vo/u2/story/u2_story_ending/1",
+              "vo_status": "tts_placeholder"
+            },
+            {
+              "id": "u2.story.u2_story_ending.2",
+              "audience": "child",
+              "text": { "zh-Hant": "你說清楚，我就猜得準。" },
+              "vo": "vo/u2/story/u2_story_ending/2",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "end": true,
+          "transition_hint": "celebrate"
+        }
+      ]
+    }
+  ],
+  "sandboxes": [
+    {
+      "id": "u2_draw_01",
+      "mode": "pregenerated",
+      "slots": [
+        {
+          "id": "cat_wish",
+          "label": {
+            "id": "u2.slot.cat_wish",
+            "audience": "child",
+            "text": { "zh-Hant": "我想要的貓" },
+            "vo": "vo/u2/slot/cat_wish",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_u2_wish_cat",
+          "a11y_label": { "zh-Hant": "一隻坐著的小黃貓" },
+          "choices": [
+            {
+              "id": "prompt_vague",
+              "label": {
+                "id": "u2.opt.prompt_vague",
+                "audience": "child",
+                "text": { "zh-Hant": "貓" },
+                "vo": "vo/u2/opt/prompt_vague",
+                "vo_status": "tts_placeholder"
+              }
+            },
+            {
+              "id": "prompt_clear",
+              "label": {
+                "id": "u2.opt.prompt_clear",
+                "audience": "child",
+                "text": { "zh-Hant": "坐著的小黃貓" },
+                "vo": "vo/u2/opt/prompt_clear",
+                "vo_status": "tts_placeholder"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "parent_card": {
+    "id": "u2.parent_card",
+    "audience": "parent",
+    "text": { "zh-Hant": "請孩子給你一個說清楚的小任務，例如「請把藍色小杯子拿到桌上」，你照做一次，再問孩子：我聽懂了嗎？" }
+  }
+}

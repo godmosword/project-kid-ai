@@ -1,0 +1,143 @@
+{
+  "kind": "guess_bank",
+  "schema_version": "1.0.0",
+  "unit_id": "unit_4_create",
+  "sandbox_id": "u4_ideas_01",
+  "guesses": [
+    {
+      "id": "u4_cars_rescue",
+      "slot_id": "world_cars",
+      "choice_id": "world_cars_card",
+      "guess_text": {
+        "id": "u4.guess.u4_cars_rescue",
+        "audience": "child",
+        "text": { "zh-Hant": "小車卡在泥巴，拉它出來" },
+        "vo": "vo/u4/guess/u4_cars_rescue",
+        "vo_status": "tts_placeholder"
+      },
+      "uncertainty_mark": "sure",
+      "safe": true,
+      "approved_hash": "08056b155ecc"
+    },
+    {
+      "id": "u4_cars_share",
+      "slot_id": "world_cars",
+      "choice_id": "world_cars_card",
+      "guess_text": {
+        "id": "u4.guess.u4_cars_share",
+        "audience": "child",
+        "text": { "zh-Hant": "小車請大家吃餅乾" },
+        "vo": "vo/u4/guess/u4_cars_share",
+        "vo_status": "tts_placeholder"
+      },
+      "uncertainty_mark": "sure",
+      "safe": true,
+      "approved_hash": "b232ac5a912d"
+    },
+    {
+      "id": "u4_cars_keep_going",
+      "slot_id": "world_cars",
+      "choice_id": "world_cars_card",
+      "guess_text": {
+        "id": "u4.guess.u4_cars_keep_going",
+        "audience": "child",
+        "text": { "zh-Hant": "小車爬坡，一直往上" },
+        "vo": "vo/u4/guess/u4_cars_keep_going",
+        "vo_status": "tts_placeholder"
+      },
+      "uncertainty_mark": "sure",
+      "safe": true,
+      "approved_hash": "06070fc7e194"
+    },
+    {
+      "id": "u4_animals_rescue",
+      "slot_id": "world_animals",
+      "choice_id": "world_animals_card",
+      "guess_text": {
+        "id": "u4.guess.u4_animals_rescue",
+        "audience": "child",
+        "text": { "zh-Hant": "小兔卡在草叢，拉牠出來" },
+        "vo": "vo/u4/guess/u4_animals_rescue",
+        "vo_status": "tts_placeholder"
+      },
+      "uncertainty_mark": "sure",
+      "safe": true,
+      "approved_hash": "a1b028e194d5"
+    },
+    {
+      "id": "u4_animals_share",
+      "slot_id": "world_animals",
+      "choice_id": "world_animals_card",
+      "guess_text": {
+        "id": "u4.guess.u4_animals_share",
+        "audience": "child",
+        "text": { "zh-Hant": "小熊請大家吃蘋果" },
+        "vo": "vo/u4/guess/u4_animals_share",
+        "vo_status": "tts_placeholder"
+      },
+      "uncertainty_mark": "sure",
+      "safe": true,
+      "approved_hash": "404d830e5a9c"
+    },
+    {
+      "id": "u4_animals_keep_going",
+      "slot_id": "world_animals",
+      "choice_id": "world_animals_card",
+      "guess_text": {
+        "id": "u4.guess.u4_animals_keep_going",
+        "audience": "child",
+        "text": { "zh-Hant": "小烏龜慢慢走到終點" },
+        "vo": "vo/u4/guess/u4_animals_keep_going",
+        "vo_status": "tts_placeholder"
+      },
+      "uncertainty_mark": "sure",
+      "safe": true,
+      "approved_hash": "e73ac9fb0046"
+    },
+    {
+      "id": "u4_picnic_rescue",
+      "slot_id": "world_picnic",
+      "choice_id": "world_picnic_card",
+      "guess_text": {
+        "id": "u4.guess.u4_picnic_rescue",
+        "audience": "child",
+        "text": { "zh-Hant": "小狗卡在月球坑，拉上來" },
+        "vo": "vo/u4/guess/u4_picnic_rescue",
+        "vo_status": "tts_placeholder"
+      },
+      "uncertainty_mark": "sure",
+      "safe": true,
+      "approved_hash": "35b25618ec3c"
+    },
+    {
+      "id": "u4_picnic_share",
+      "slot_id": "world_picnic",
+      "choice_id": "world_picnic_card",
+      "guess_text": {
+        "id": "u4.guess.u4_picnic_share",
+        "audience": "child",
+        "text": { "zh-Hant": "大家分吃星星餅乾" },
+        "vo": "vo/u4/guess/u4_picnic_share",
+        "vo_status": "tts_placeholder"
+      },
+      "uncertainty_mark": "sure",
+      "safe": true,
+      "approved_hash": "57f6b48e0b35"
+    },
+    {
+      "id": "u4_picnic_keep_going",
+      "slot_id": "world_picnic",
+      "choice_id": "world_picnic_card",
+      "guess_text": {
+        "id": "u4.guess.u4_picnic_keep_going",
+        "audience": "child",
+        "text": { "zh-Hant": "火箭再飛一次，到了" },
+        "vo": "vo/u4/guess/u4_picnic_keep_going",
+        "vo_status": "tts_placeholder"
+      },
+      "uncertainty_mark": "sure",
+      "safe": true,
+      "approved_hash": "7eadca14fc65"
+    }
+  ]
+}

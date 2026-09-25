@@ -1,0 +1,827 @@
+{
+  "kind": "unit",
+  "schema_version": "1.0.0",
+  "unit_id": "unit_3_verify",
+  "meta": {
+    "title": {
+      "id": "u3.title",
+      "audience": "child",
+      "text": { "zh-Hant": "檢查島：當個小偵探" },
+      "vo": "vo/u3/title",
+      "vo_status": "tts_placeholder"
+    },
+    "golden_line": {
+      "id": "u3.golden",
+      "audience": "child",
+      "text": { "zh-Hant": "AI 會說錯，我可以檢查。" },
+      "vo": "vo/u3/golden",
+      "vo_status": "tts_placeholder"
+    },
+    "max_seconds": 600
+  },
+  "narrator": { "id": "diandian", "is_ai": false },
+  "ai_persona": { "id": "guess_hat", "is_ai": true },
+  "beats": [
+    {
+      "id": "u3_intro",
+      "type": "intro",
+      "est_seconds": 30,
+      "transition_hint": "gentle",
+      "lines": [
+        {
+          "id": "u3.intro.1",
+          "audience": "child",
+          "text": { "zh-Hant": "我是點點，不是 AI 喔。" },
+          "vo": "vo/u3/intro/1",
+          "vo_status": "tts_placeholder"
+        },
+        {
+          "id": "u3.intro.2",
+          "audience": "child",
+          "text": { "zh-Hant": "今天我們來當小偵探。" },
+          "vo": "vo/u3/intro/2",
+          "vo_status": "tts_placeholder"
+        },
+        {
+          "id": "u3.intro.3",
+          "audience": "child",
+          "text": { "zh-Hant": "記住這句：AI 會說錯，我可以檢查。" },
+          "vo": "vo/u3/intro/3",
+          "vo_status": "tts_placeholder"
+        }
+      ]
+    },
+    {
+      "id": "u3_gate1_odd",
+      "type": "choice",
+      "est_seconds": 60,
+      "prompt": {
+        "id": "u3.gate1.prompt",
+        "audience": "child",
+        "text": { "zh-Hant": "哪張怪怪的？查一查" },
+        "vo": "vo/u3/gate1/prompt",
+        "vo_status": "tts_placeholder"
+      },
+      "hint": {
+        "id": "u3.gate1.hint",
+        "audience": "child",
+        "text": { "zh-Hant": "看一看圖，找找怪地方" },
+        "vo": "vo/u3/gate1/hint",
+        "vo_status": "tts_placeholder"
+      },
+      "options": [
+        {
+          "id": "apple_plain",
+          "label": {
+            "id": "u3.opt.apple_plain",
+            "audience": "child",
+            "text": { "zh-Hant": "第一張" },
+            "vo": "vo/u3/opt/apple_plain",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_u3_apple_plain",
+          "a11y_label": { "zh-Hant": "一顆紅蘋果" }
+        },
+        {
+          "id": "apple_glasses",
+          "label": {
+            "id": "u3.opt.apple_glasses",
+            "audience": "child",
+            "text": { "zh-Hant": "第二張" },
+            "vo": "vo/u3/opt/apple_glasses",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_u3_apple_glasses",
+          "a11y_label": { "zh-Hant": "一顆戴眼鏡的蘋果" }
+        }
+      ],
+      "scoring": "graded",
+      "correct_option_ids": ["apple_glasses"],
+      "feedback": {
+        "success": {
+          "id": "u3.gate1.ok",
+          "audience": "child",
+          "text": { "zh-Hant": "抓到了！蘋果不會戴眼鏡。" },
+          "vo": "vo/u3/gate1/ok",
+          "vo_status": "tts_placeholder"
+        },
+        "not_yet": {
+          "id": "u3.gate1.not_yet",
+          "audience": "child",
+          "text": { "zh-Hant": "再看一看，哪裡怪怪的？" },
+          "vo": "vo/u3/gate1/not_yet",
+          "vo_status": "tts_placeholder"
+        },
+        "reveal": {
+          "id": "u3.gate1.reveal",
+          "audience": "child",
+          "text": { "zh-Hant": "蘋果不會戴眼鏡，看圖就知道。" },
+          "vo": "vo/u3/gate1/reveal",
+          "vo_status": "tts_placeholder"
+        }
+      },
+      "max_attempts": 2,
+      "after_max": "reveal_and_continue"
+    },
+    {
+      "id": "u3_gate2_sort",
+      "type": "drag",
+      "est_seconds": 60,
+      "mode": "group",
+      "prompt": {
+        "id": "u3.gate2.prompt",
+        "audience": "child",
+        "text": { "zh-Hant": "這句說得通嗎？" },
+        "vo": "vo/u3/gate2/prompt",
+        "vo_status": "tts_placeholder"
+      },
+      "hint": {
+        "id": "u3.gate2.hint",
+        "audience": "child",
+        "text": { "zh-Hant": "點卡片，聽一聽" },
+        "vo": "vo/u3/gate2/hint",
+        "vo_status": "tts_placeholder"
+      },
+      "items": [
+        {
+          "id": "fish",
+          "label": {
+            "id": "u3.opt.fish",
+            "audience": "child",
+            "text": { "zh-Hant": "魚在游" },
+            "vo": "vo/u3/opt/fish",
+            "vo_status": "tts_placeholder"
+          },
+          "sound": "sfx_u3_fish",
+          "sound_script": { "zh-Hant": "魚在水裡游。" },
+          "a11y_label": { "zh-Hant": "第一句話" }
+        },
+        {
+          "id": "square_moon",
+          "label": {
+            "id": "u3.opt.square_moon",
+            "audience": "child",
+            "text": { "zh-Hant": "方月亮" },
+            "vo": "vo/u3/opt/square_moon",
+            "vo_status": "tts_placeholder"
+          },
+          "sound": "sfx_u3_moon",
+          "sound_script": { "zh-Hant": "月亮是方的。" },
+          "a11y_label": { "zh-Hant": "第二句話" }
+        },
+        {
+          "id": "hot_ice",
+          "label": {
+            "id": "u3.opt.hot_ice",
+            "audience": "child",
+            "text": { "zh-Hant": "熱的冰" },
+            "vo": "vo/u3/opt/hot_ice",
+            "vo_status": "tts_placeholder"
+          },
+          "sound": "sfx_u3_ice",
+          "sound_script": { "zh-Hant": "冰是熱的。" },
+          "a11y_label": { "zh-Hant": "第三句話" }
+        },
+        {
+          "id": "bright_sun",
+          "label": {
+            "id": "u3.opt.bright_sun",
+            "audience": "child",
+            "text": { "zh-Hant": "亮太陽" },
+            "vo": "vo/u3/opt/bright_sun",
+            "vo_status": "tts_placeholder"
+          },
+          "sound": "sfx_u3_sun",
+          "sound_script": { "zh-Hant": "太陽很亮。" },
+          "a11y_label": { "zh-Hant": "第四句話" }
+        }
+      ],
+      "groups": [
+        {
+          "id": "keep",
+          "label": {
+            "id": "u3.opt.keep",
+            "audience": "child",
+            "text": { "zh-Hant": "留下" },
+            "vo": "vo/u3/opt/keep",
+            "vo_status": "tts_placeholder"
+          }
+        },
+        {
+          "id": "fix",
+          "label": {
+            "id": "u3.opt.fix",
+            "audience": "child",
+            "text": { "zh-Hant": "要改正" },
+            "vo": "vo/u3/opt/fix",
+            "vo_status": "tts_placeholder"
+          }
+        }
+      ],
+      "assignments": { "fish": "keep", "square_moon": "fix", "hot_ice": "fix", "bright_sun": "keep" },
+      "feedback": {
+        "success": {
+          "id": "u3.gate2.ok",
+          "audience": "child",
+          "text": { "zh-Hant": "都分好了！你是小偵探。" },
+          "vo": "vo/u3/gate2/ok",
+          "vo_status": "tts_placeholder"
+        },
+        "not_yet": {
+          "id": "u3.gate2.not_yet",
+          "audience": "child",
+          "text": { "zh-Hant": "再聽一次，說得通嗎？" },
+          "vo": "vo/u3/gate2/not_yet",
+          "vo_status": "tts_placeholder"
+        },
+        "reveal": {
+          "id": "u3.gate2.reveal",
+          "audience": "child",
+          "text": { "zh-Hant": "月亮是圓的，冰是冷的。" },
+          "vo": "vo/u3/gate2/reveal",
+          "vo_status": "tts_placeholder"
+        }
+      },
+      "max_attempts": 2,
+      "after_max": "reveal_and_continue"
+    },
+    {
+      "id": "u3_gate3_asr",
+      "type": "asr_repeat",
+      "est_seconds": 60,
+      "prompt": {
+        "id": "u3.u3_gate3_asr.prompt",
+        "audience": "child",
+        "text": { "zh-Hant": "跟著說" },
+        "vo": "vo/u3/u3_gate3_asr/prompt",
+        "vo_status": "tts_placeholder"
+      },
+      "hint": {
+        "id": "u3.u3_gate3_asr.hint",
+        "audience": "child",
+        "text": { "zh-Hant": "跟我一起說：AI 會說錯，我可以檢查。" },
+        "vo": "vo/u3/u3_gate3_asr/hint",
+        "vo_status": "tts_placeholder"
+      },
+      "accept": { "zh-Hant": ["檢查", "說錯", "可以"] },
+      "match": "keyword_or_voice",
+      "feedback": {
+        "success": {
+          "id": "u3.u3_gate3_asr.ok",
+          "audience": "child",
+          "text": { "zh-Hant": "說得好！你可以檢查。" },
+          "vo": "vo/u3/u3_gate3_asr/ok",
+          "vo_status": "tts_placeholder"
+        }
+      },
+      "on_mic_denied": {
+        "mode": "say_together",
+        "lines": [
+          {
+            "id": "u3.u3_gate3_asr.mic_denied",
+            "audience": "child",
+            "text": { "zh-Hant": "按一下嘴巴按鈕，我們一起說。" },
+            "vo": "vo/u3/u3_gate3_asr/mic_denied",
+            "vo_status": "tts_placeholder"
+          }
+        ]
+      },
+      "on_device_unavailable": {
+        "mode": "say_together",
+        "lines": [
+          {
+            "id": "u3.u3_gate3_asr.unavailable",
+            "audience": "child",
+            "text": { "zh-Hant": "按一下嘴巴按鈕，我們一起說。" },
+            "vo": "vo/u3/u3_gate3_asr/unavailable",
+            "vo_status": "tts_placeholder"
+          }
+        ]
+      },
+      "on_no_match": {
+        "mode": "tap_to_read",
+        "after_attempts": 2,
+        "lines": [
+          {
+            "id": "u3.u3_gate3_asr.no_match",
+            "audience": "child",
+            "text": { "zh-Hant": "沒關係，按一下，聽我念一次。" },
+            "vo": "vo/u3/u3_gate3_asr/no_match",
+            "vo_status": "tts_placeholder"
+          }
+        ]
+      },
+      "target_line": {
+        "id": "u3.u3_gate3_asr.line",
+        "audience": "child",
+        "text": { "zh-Hant": "AI 會說錯，我可以檢查。" },
+        "vo": "vo/u3/u3_gate3_asr/line",
+        "vo_status": "tts_placeholder"
+      }
+    },
+    {
+      "id": "u3_ritual",
+      "type": "sandbox_ritual",
+      "est_seconds": 15,
+      "transition_hint": "celebrate",
+      "skippable": false,
+      "lines": [
+        {
+          "id": "u3.ritual.1",
+          "audience": "child",
+          "text": { "zh-Hant": "猜猜帽時間" },
+          "vo": "vo/u3/ritual/1",
+          "vo_status": "tts_placeholder"
+        },
+        {
+          "id": "u3.ritual.2",
+          "audience": "child",
+          "text": { "zh-Hant": "猜猜帽是 AI，請它猜一猜！" },
+          "vo": "vo/u3/ritual/2",
+          "vo_status": "tts_placeholder"
+        }
+      ]
+    },
+    {
+      "id": "u3_sandbox",
+      "type": "sandbox",
+      "est_seconds": 120,
+      "sandbox_ref": "u3_check_01",
+      "prompt": {
+        "id": "u3.sandbox.prompt",
+        "audience": "child",
+        "text": { "zh-Hant": "選一張卡，請猜猜帽猜" },
+        "vo": "vo/u3/sandbox/prompt",
+        "vo_status": "tts_placeholder"
+      },
+      "reaction_prompt": {
+        "id": "u3.sandbox.react",
+        "audience": "child",
+        "text": { "zh-Hant": "AI 說得對嗎？看一看圖" },
+        "vo": "vo/u3/sandbox/react",
+        "vo_status": "tts_placeholder"
+      },
+      "reactions": [
+        {
+          "id": "agree",
+          "label": {
+            "id": "u3.opt.agree",
+            "audience": "child",
+            "text": { "zh-Hant": "同意" },
+            "vo": "vo/u3/opt/agree",
+            "vo_status": "tts_placeholder"
+          }
+        },
+        {
+          "id": "catch",
+          "label": {
+            "id": "u3.opt.catch",
+            "audience": "child",
+            "text": { "zh-Hant": "抓到了" },
+            "vo": "vo/u3/opt/catch",
+            "vo_status": "tts_placeholder"
+          }
+        },
+        {
+          "id": "not_sure",
+          "label": {
+            "id": "u3.opt.not_sure",
+            "audience": "child",
+            "text": { "zh-Hant": "我不確定" },
+            "vo": "vo/u3/opt/not_sure",
+            "vo_status": "tts_placeholder"
+          }
+        }
+      ],
+      "scoring": "graded",
+      "reaction_for_truth": { "right": "agree", "wrong": "catch" },
+      "closing_line": {
+        "id": "u3.sandbox.close",
+        "audience": "child",
+        "text": { "zh-Hant": "AI 會說錯，我可以檢查。" },
+        "vo": "vo/u3/sandbox/close",
+        "vo_status": "tts_placeholder"
+      },
+      "feedback": {
+        "success": {
+          "id": "u3.sandbox.ok",
+          "audience": "child",
+          "text": { "zh-Hant": "你查到了！真是小偵探。" },
+          "vo": "vo/u3/sandbox/ok",
+          "vo_status": "tts_placeholder"
+        },
+        "not_yet": {
+          "id": "u3.sandbox.not_yet",
+          "audience": "child",
+          "text": { "zh-Hant": "不確定？再看看圖，數一數。" },
+          "vo": "vo/u3/sandbox/not_yet",
+          "vo_status": "tts_placeholder"
+        },
+        "reveal": {
+          "id": "u3.sandbox.reveal",
+          "audience": "child",
+          "text": { "zh-Hant": "AI 很確定，也可能說錯。" },
+          "vo": "vo/u3/sandbox/reveal",
+          "vo_status": "tts_placeholder"
+        }
+      },
+      "max_attempts": 2,
+      "after_max": "reveal_and_continue"
+    },
+    { "id": "u3_story", "type": "story", "est_seconds": 150, "story_ref": "u3_story_graph" },
+    {
+      "id": "u3_review",
+      "type": "review",
+      "est_seconds": 60,
+      "questions": [
+        {
+          "id": "u3_review_1",
+          "prompt": {
+            "id": "u3.review1.prompt",
+            "audience": "child",
+            "text": { "zh-Hant": "AI 說的話要檢查嗎？" },
+            "vo": "vo/u3/review1/prompt",
+            "vo_status": "tts_placeholder"
+          },
+          "options": [
+            {
+              "id": "need_check",
+              "label": {
+                "id": "u3.opt.need_check",
+                "audience": "child",
+                "text": { "zh-Hant": "要" },
+                "vo": "vo/u3/opt/need_check",
+                "vo_status": "tts_placeholder"
+              }
+            },
+            {
+              "id": "no_need",
+              "label": {
+                "id": "u3.opt.no_need",
+                "audience": "child",
+                "text": { "zh-Hant": "不用" },
+                "vo": "vo/u3/opt/no_need",
+                "vo_status": "tts_placeholder"
+              }
+            }
+          ],
+          "correct_option_ids": ["need_check"],
+          "feedback": {
+            "success": {
+              "id": "u3.review1.ok",
+              "audience": "child",
+              "text": { "zh-Hant": "對！AI 會說錯，要檢查。" },
+              "vo": "vo/u3/review1/ok",
+              "vo_status": "tts_placeholder"
+            },
+            "not_yet": {
+              "id": "u3.review1.not_yet",
+              "audience": "child",
+              "text": { "zh-Hant": "再想想，AI 會不會說錯？" },
+              "vo": "vo/u3/review1/not_yet",
+              "vo_status": "tts_placeholder"
+            },
+            "reveal": {
+              "id": "u3.review1.reveal",
+              "audience": "child",
+              "text": { "zh-Hant": "要檢查，AI 會說錯。" },
+              "vo": "vo/u3/review1/reveal",
+              "vo_status": "tts_placeholder"
+            }
+          },
+          "max_attempts": 2,
+          "after_max": "reveal_and_continue"
+        },
+        {
+          "id": "u3_review_2",
+          "prompt": {
+            "id": "u3.review2.prompt",
+            "audience": "child",
+            "text": { "zh-Hant": "發現 AI 說錯，你可以？" },
+            "vo": "vo/u3/review2/prompt",
+            "vo_status": "tts_placeholder"
+          },
+          "options": [
+            {
+              "id": "angry_toss",
+              "label": {
+                "id": "u3.opt.angry_toss",
+                "audience": "child",
+                "text": { "zh-Hant": "生氣丟掉" },
+                "vo": "vo/u3/opt/angry_toss",
+                "vo_status": "tts_placeholder"
+              }
+            },
+            {
+              "id": "check_again",
+              "label": {
+                "id": "u3.opt.check_again",
+                "audience": "child",
+                "text": { "zh-Hant": "再查一次" },
+                "vo": "vo/u3/opt/check_again",
+                "vo_status": "tts_placeholder"
+              }
+            }
+          ],
+          "correct_option_ids": ["check_again"],
+          "feedback": {
+            "success": {
+              "id": "u3.review2.ok",
+              "audience": "child",
+              "text": { "zh-Hant": "對！再查一次，也告訴它。" },
+              "vo": "vo/u3/review2/ok",
+              "vo_status": "tts_placeholder"
+            },
+            "not_yet": {
+              "id": "u3.review2.not_yet",
+              "audience": "child",
+              "text": { "zh-Hant": "再想想，猜猜帽說了什麼？" },
+              "vo": "vo/u3/review2/not_yet",
+              "vo_status": "tts_placeholder"
+            },
+            "reveal": {
+              "id": "u3.review2.reveal",
+              "audience": "child",
+              "text": { "zh-Hant": "可以再查一次，也告訴它。" },
+              "vo": "vo/u3/review2/reveal",
+              "vo_status": "tts_placeholder"
+            }
+          },
+          "max_attempts": 2,
+          "after_max": "reveal_and_continue"
+        }
+      ]
+    },
+    {
+      "id": "u3_sticker",
+      "type": "sticker",
+      "est_seconds": 15,
+      "transition_hint": "celebrate",
+      "award": "on_reach",
+      "sticker": {
+        "id": "sticker_detective",
+        "label": {
+          "id": "u3.sticker.label",
+          "audience": "child",
+          "text": { "zh-Hant": "小偵探貼紙" },
+          "vo": "vo/u3/sticker/label",
+          "vo_status": "tts_placeholder"
+        },
+        "image": "img_sticker_detective",
+        "a11y_label": { "zh-Hant": "小偵探貼紙" }
+      },
+      "lines": [
+        {
+          "id": "u3.sticker.1",
+          "audience": "child",
+          "text": { "zh-Hant": "完成檢查島！" },
+          "vo": "vo/u3/sticker/1",
+          "vo_status": "tts_placeholder"
+        },
+        {
+          "id": "u3.sticker.2",
+          "audience": "child",
+          "text": { "zh-Hant": "你得到「小偵探貼紙」" },
+          "vo": "vo/u3/sticker/2",
+          "vo_status": "tts_placeholder"
+        }
+      ]
+    }
+  ],
+  "stories": [
+    {
+      "id": "u3_story_graph",
+      "start": "u3_story_start",
+      "nodes": [
+        {
+          "id": "u3_story_start",
+          "speaker": "narrator",
+          "lines": [
+            {
+              "id": "u3.story.u3_story_start.1",
+              "audience": "child",
+              "text": { "zh-Hant": "猜猜帽說了一件怪事。" },
+              "vo": "vo/u3/story/u3_story_start/1",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "next": "u3_story_claim"
+        },
+        {
+          "id": "u3_story_claim",
+          "speaker": "ai_persona",
+          "lines": [
+            {
+              "id": "u3.story.u3_story_claim.1",
+              "audience": "child",
+              "text": { "zh-Hant": "襪子會飛喔！" },
+              "vo": "vo/u3/story/u3_story_claim/1",
+              "vo_status": "tts_placeholder"
+            },
+            {
+              "id": "u3.story.u3_story_claim.2",
+              "audience": "child",
+              "text": { "zh-Hant": "你相信嗎？" },
+              "vo": "vo/u3/story/u3_story_claim/2",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "choices": [
+            {
+              "id": "believe",
+              "label": {
+                "id": "u3.story.u3_story_claim.believe",
+                "audience": "child",
+                "text": { "zh-Hant": "相信" },
+                "vo": "vo/u3/story/u3_story_claim/believe",
+                "vo_status": "tts_placeholder"
+              },
+              "next": "u3_story_believe"
+            },
+            {
+              "id": "check",
+              "label": {
+                "id": "u3.story.u3_story_claim.check",
+                "audience": "child",
+                "text": { "zh-Hant": "檢查一下" },
+                "vo": "vo/u3/story/u3_story_claim/check",
+                "vo_status": "tts_placeholder"
+              },
+              "next": "u3_story_check"
+            }
+          ]
+        },
+        {
+          "id": "u3_story_believe",
+          "speaker": "narrator",
+          "lines": [
+            {
+              "id": "u3.story.u3_story_believe.1",
+              "audience": "child",
+              "text": { "zh-Hant": "你把襪子放在窗邊等它飛。" },
+              "vo": "vo/u3/story/u3_story_believe/1",
+              "vo_status": "tts_placeholder"
+            },
+            {
+              "id": "u3.story.u3_story_believe.2",
+              "audience": "child",
+              "text": { "zh-Hant": "等了好久，都沒有飛。" },
+              "vo": "vo/u3/story/u3_story_believe/2",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "next": "u3_story_check"
+        },
+        {
+          "id": "u3_story_check",
+          "speaker": "narrator",
+          "lines": [
+            {
+              "id": "u3.story.u3_story_check.1",
+              "audience": "child",
+              "text": { "zh-Hant": "你看一看，也問問大人。" },
+              "vo": "vo/u3/story/u3_story_check/1",
+              "vo_status": "tts_placeholder"
+            },
+            {
+              "id": "u3.story.u3_story_check.2",
+              "audience": "child",
+              "text": { "zh-Hant": "襪子不會飛喔。" },
+              "vo": "vo/u3/story/u3_story_check/2",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "next": "u3_story_tell"
+        },
+        {
+          "id": "u3_story_tell",
+          "speaker": "narrator",
+          "lines": [
+            {
+              "id": "u3.story.u3_story_tell.1",
+              "audience": "child",
+              "text": { "zh-Hant": "你告訴猜猜帽：襪子不會飛。" },
+              "vo": "vo/u3/story/u3_story_tell/1",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "next": "u3_story_ending"
+        },
+        {
+          "id": "u3_story_ending",
+          "speaker": "ai_persona",
+          "lines": [
+            {
+              "id": "u3.story.u3_story_ending.1",
+              "audience": "child",
+              "text": { "zh-Hant": "謝謝你幫我檢查！" },
+              "vo": "vo/u3/story/u3_story_ending/1",
+              "vo_status": "tts_placeholder"
+            },
+            {
+              "id": "u3.story.u3_story_ending.2",
+              "audience": "child",
+              "text": { "zh-Hant": "我會說錯，你可以檢查。" },
+              "vo": "vo/u3/story/u3_story_ending/2",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "end": true,
+          "transition_hint": "celebrate"
+        }
+      ]
+    }
+  ],
+  "sandboxes": [
+    {
+      "id": "u3_check_01",
+      "mode": "pregenerated",
+      "required_uncertainty": "sure",
+      "slots": [
+        {
+          "id": "dog_legs",
+          "label": {
+            "id": "u3.slot.dog_legs",
+            "audience": "child",
+            "text": { "zh-Hant": "數數腳" },
+            "vo": "vo/u3/slot/dog_legs",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_u3_card_dog",
+          "a11y_label": { "zh-Hant": "一隻小狗，看得到四隻腳" },
+          "choices": [
+            {
+              "id": "dog_legs_card",
+              "label": {
+                "id": "u3.opt.dog_legs_card",
+                "audience": "child",
+                "text": { "zh-Hant": "數數腳" },
+                "vo": "vo/u3/opt/dog_legs_card",
+                "vo_status": "tts_placeholder"
+              },
+              "image": "img_u3_card_dog",
+              "a11y_label": { "zh-Hant": "一隻小狗，看得到四隻腳" }
+            }
+          ]
+        },
+        {
+          "id": "day_night",
+          "label": {
+            "id": "u3.slot.day_night",
+            "audience": "child",
+            "text": { "zh-Hant": "白天晚上" },
+            "vo": "vo/u3/slot/day_night",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_u3_card_night",
+          "a11y_label": { "zh-Hant": "天上有月亮和星星" },
+          "choices": [
+            {
+              "id": "day_night_card",
+              "label": {
+                "id": "u3.opt.day_night_card",
+                "audience": "child",
+                "text": { "zh-Hant": "白天晚上" },
+                "vo": "vo/u3/opt/day_night_card",
+                "vo_status": "tts_placeholder"
+              },
+              "image": "img_u3_card_night",
+              "a11y_label": { "zh-Hant": "天上有月亮和星星" }
+            }
+          ]
+        },
+        {
+          "id": "is_fruit",
+          "label": {
+            "id": "u3.slot.is_fruit",
+            "audience": "child",
+            "text": { "zh-Hant": "是水果嗎" },
+            "vo": "vo/u3/slot/is_fruit",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_u3_card_car",
+          "a11y_label": { "zh-Hant": "一台紅色小汽車" },
+          "choices": [
+            {
+              "id": "is_fruit_card",
+              "label": {
+                "id": "u3.opt.is_fruit_card",
+                "audience": "child",
+                "text": { "zh-Hant": "是水果嗎" },
+                "vo": "vo/u3/opt/is_fruit_card",
+                "vo_status": "tts_placeholder"
+              },
+              "image": "img_u3_card_car",
+              "a11y_label": { "zh-Hant": "一台紅色小汽車" }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "parent_card": {
+    "id": "u3.parent_card",
+    "audience": "parent",
+    "text": { "zh-Hant": "今晚一起看一則廣告或短片，問孩子：有沒有聽起來很厲害、但不一定是真的話？也可以告訴孩子：AI 可以做出很像真的圖，看到奇怪的可以問大人。" }
+  }
+}

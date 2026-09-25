@@ -1,0 +1,42 @@
+{
+  "kind": "guess_bank",
+  "schema_version": "1.0.0",
+  "unit_id": "unit_2_prompt",
+  "sandbox_id": "u2_draw_01",
+  "guesses": [
+    {
+      "id": "u2_guess_vague",
+      "slot_id": "cat_wish",
+      "choice_id": "prompt_vague",
+      "guess_text": {
+        "id": "u2.guess.u2_guess_vague",
+        "audience": "child",
+        "text": { "zh-Hant": "我畫了一隻大白貓。" },
+        "vo": "vo/u2/guess/u2_guess_vague",
+        "vo_status": "tts_placeholder"
+      },
+      "uncertainty_mark": "unsure",
+      "safe": true,
+      "image": "img_u2_guess_cat_vague",
+      "a11y_label": { "zh-Hant": "一隻站著的大白貓" },
+      "approved_hash": "ea2844d64761"
+    },
+    {
+      "id": "u2_guess_clear",
+      "slot_id": "cat_wish",
+      "choice_id": "prompt_clear",
+      "guess_text": {
+        "id": "u2.guess.u2_guess_clear",
+        "audience": "child",
+        "text": { "zh-Hant": "我畫了一隻坐著的小黃貓。" },
+        "vo": "vo/u2/guess/u2_guess_clear",
+        "vo_status": "tts_placeholder"
+      },
+      "uncertainty_mark": "sure",
+      "safe": true,
+      "image": "img_u2_guess_cat_clear",
+      "a11y_label": { "zh-Hant": "一隻坐著的小黃貓" },
+      "approved_hash": "170374f8ae58"
+    }
+  ]
+}

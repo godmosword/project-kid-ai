@@ -106,3 +106,78 @@
 **行為差異：** 有答案的關卡最多試 2 次後揭曉並繼續（原稿可無限重試）；沒有答案的關卡選一次就揭曉。沙盒每個主題一張卡，`structured_choice` 是該卡的 id（原稿為 null）。
 
 **AI 猜測：** 3 筆猜測已由 Michael 核准（2026-09-25），核准碼寫在 `unit_1_recognize.guesses.json` 的 `approved_hash`。
+
+## 單元 2–4 取捨紀錄（依大綱新寫，Michael 核准 2026-09-25）
+
+計畫與兩審（工程、設計）的決定：D11–D18。所有孩子文字與 14 筆 AI 猜測都由 Michael 逐句核准。
+
+| 單元 | 與大綱不同之處 | 原因 |
+|---|---|---|
+| 全部 | 故事裡猜、犯錯、說話的是猜猜帽；點點只旁白；開場都有「我是點點，不是 AI 喔。」 | D11，避免孩子把點點當 AI |
+| 2 | 金句改成「說清楚，AI 才猜得準。」 | D15，不把 AI 說成會理解，也接上單元 1「AI 會猜」 |
+| 2 | 第 1 關選項改成「小熊說／小兔說」，句子放在聲音裡；兩句都有「請」 | 句子超過 6 字；讓兩句只差在具體程度 |
+| 2 | 拖曳組句改成把「拿什麼」「放哪裡」的圖卡拖進空格（match） | D17，排詞序練的是文法 |
+| 2 | 故事的模糊指令改成「拿那個來」 | 「種菜！」拿來玩具車不合理 |
+| 2 | 「魔法句子」一律改說「說清楚」；紅積木加上「小」、杯子用星星圖案 | 不讓孩子以為有咒語；不只靠顏色辨識 |
+| 3 | 5 關改 4 關，「抓怪怪句子」併進拖曳分組「留下／要改正」，不用垃圾桶 | D16，時間上限；避免和回顧題「生氣丟掉」衝突 |
+| 3 | 錯誤猜測為人工撰寫：看圖就查得出來、不碰安全事實、對錯都有 | D12；步驟 8 改用真模型錯誤時照同樣條件並重新核准 |
+| 3 | 不逐筆念出正確答案，改用通用查證揭曉句 | D14，維持 v1 格式；試玩後再評估 |
+| 3 | 故事結尾孩子告訴猜猜帽，猜猜帽道謝；「相信」路線有自己的回應 | 回顧題考「告訴它」；抓錯是幫忙，不是罵 AI |
+| 4 | 「碎片」改「點子」；AI 的 3 個點子就是 3 個結局方向；「再試一次」改「不放棄」 | D18，讓「我來決定」真的連到 AI 的點子 |
+| 4 | 「讓它全寫」路線不懲罰：猜猜帽寫完問「這樣好嗎？你來決定。」 | 不把用 AI 講成壞事 |
+| 4 | 排序圖改用「出門、下雨、撐傘」，接受兩種合理順序 | 大綱要求可多解 |
+
+**已知限制**
+- 單元 2 第 2 關：格式規定每張卡都要放進空格，無法放干擾卡，難度偏低。
+- 單元 4 沙盒：每個世界的 3 個點子依序對應「救朋友／分享食物／不放棄」，格式沒有欄位標明對應，App 要照順序顯示。
+
+## 素材清單（給路線圖步驟 7）
+
+所有旁白目前都是 `tts_placeholder`，共 301 段（key 為 `vo/<單元>/…`，由文字 id 產生）。「需核准」欄打勾的圖會影響教學判斷，製作後要 Michael 看過。
+
+| 單元 | key | 類型 | 用在 | 需核准 |
+|---|---|---|---|---|
+| 1 | `img_box_peek_cat_ear` | 圖片 | u1_gate2_box | ✅ |
+| 1 | `img_box_reveal_banana` | 圖片 | u1_gate2_box |  |
+| 1 | `img_box_reveal_car` | 圖片 | u1_gate2_box |  |
+| 1 | `img_box_reveal_cat` | 圖片 | u1_gate2_box |  |
+| 1 | `img_card_ai` | 圖片 | u1_gate1_listen |  |
+| 1 | `img_card_family` | 圖片 | u1_gate1_listen |  |
+| 1 | `img_card_toy` | 圖片 | u1_gate1_listen |  |
+| 1 | `img_hint_bag` | 圖片 | u1_story_hint |  |
+| 1 | `img_hint_bath` | 圖片 | u1_story_hint |  |
+| 1 | `img_hint_bed` | 圖片 | u1_story_hint |  |
+| 1 | `img_slot_animal` | 圖片 | u1_guess_01 |  |
+| 1 | `img_slot_breakfast` | 圖片 | u1_guess_01 |  |
+| 1 | `img_slot_weather` | 圖片 | u1_guess_01 |  |
+| 1 | `img_sticker_can_guess` | 圖片 | u1_sticker |  |
+| 1 | `sfx_voice_ai_short` | 聲音 | u1_gate1_listen |  |
+| 1 | `sfx_voice_family_short` | 聲音 | u1_gate1_listen |  |
+| 1 | `sfx_voice_toy_short` | 聲音 | u1_gate1_listen |  |
+| 2 | `img_sticker_say_clear` | 圖片 | u2_sticker |  |
+| 2 | `img_u2_bear` | 圖片 | u2_gate1_clear |  |
+| 2 | `img_u2_cup_star` | 圖片 | u2_gate2_blanks |  |
+| 2 | `img_u2_guess_cat_clear` | 圖片 | 猜測庫 | ✅ |
+| 2 | `img_u2_guess_cat_vague` | 圖片 | 猜測庫 | ✅ |
+| 2 | `img_u2_place_table` | 圖片 | u2_gate2_blanks |  |
+| 2 | `img_u2_rabbit` | 圖片 | u2_gate1_clear |  |
+| 2 | `img_u2_wish_cat` | 圖片 | u2_draw_01 | ✅ |
+| 2 | `sfx_u2_bear_vague` | 聲音 | u2_gate1_clear |  |
+| 2 | `sfx_u2_rabbit_clear` | 聲音 | u2_gate1_clear |  |
+| 3 | `img_sticker_detective` | 圖片 | u3_sticker |  |
+| 3 | `img_u3_apple_glasses` | 圖片 | u3_gate1_odd | ✅ |
+| 3 | `img_u3_apple_plain` | 圖片 | u3_gate1_odd | ✅ |
+| 3 | `img_u3_card_car` | 圖片 | u3_check_01 | ✅ |
+| 3 | `img_u3_card_dog` | 圖片 | u3_check_01 | ✅ |
+| 3 | `img_u3_card_night` | 圖片 | u3_check_01 | ✅ |
+| 3 | `sfx_u3_fish` | 聲音 | u3_gate2_sort |  |
+| 3 | `sfx_u3_ice` | 聲音 | u3_gate2_sort |  |
+| 3 | `sfx_u3_moon` | 聲音 | u3_gate2_sort |  |
+| 3 | `sfx_u3_sun` | 聲音 | u3_gate2_sort |  |
+| 4 | `img_sticker_director` | 圖片 | u4_sticker |  |
+| 4 | `img_u4_car_go_out` | 圖片 | u4_gate2_order |  |
+| 4 | `img_u4_car_umbrella` | 圖片 | u4_gate2_order |  |
+| 4 | `img_u4_rain` | 圖片 | u4_gate2_order |  |
+| 4 | `img_u4_world_animals` | 圖片 | u4_ideas_01 |  |
+| 4 | `img_u4_world_cars` | 圖片 | u4_ideas_01 |  |
+| 4 | `img_u4_world_picnic` | 圖片 | u4_ideas_01 |  |

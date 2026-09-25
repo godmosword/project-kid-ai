@@ -1,0 +1,781 @@
+{
+  "kind": "unit",
+  "schema_version": "1.0.0",
+  "unit_id": "unit_4_create",
+  "meta": {
+    "title": {
+      "id": "u4.title",
+      "audience": "child",
+      "text": { "zh-Hant": "創作島：我來決定結局" },
+      "vo": "vo/u4/title",
+      "vo_status": "tts_placeholder"
+    },
+    "golden_line": {
+      "id": "u4.golden",
+      "audience": "child",
+      "text": { "zh-Hant": "AI 出點子，我來決定。" },
+      "vo": "vo/u4/golden",
+      "vo_status": "tts_placeholder"
+    },
+    "max_seconds": 600
+  },
+  "narrator": { "id": "diandian", "is_ai": false },
+  "ai_persona": { "id": "guess_hat", "is_ai": true },
+  "beats": [
+    {
+      "id": "u4_intro",
+      "type": "intro",
+      "est_seconds": 30,
+      "transition_hint": "gentle",
+      "lines": [
+        {
+          "id": "u4.intro.1",
+          "audience": "child",
+          "text": { "zh-Hant": "我是點點，不是 AI 喔。" },
+          "vo": "vo/u4/intro/1",
+          "vo_status": "tts_placeholder"
+        },
+        {
+          "id": "u4.intro.2",
+          "audience": "child",
+          "text": { "zh-Hant": "今天我們一起編故事。" },
+          "vo": "vo/u4/intro/2",
+          "vo_status": "tts_placeholder"
+        },
+        {
+          "id": "u4.intro.3",
+          "audience": "child",
+          "text": { "zh-Hant": "記住這句：AI 出點子，我來決定。" },
+          "vo": "vo/u4/intro/3",
+          "vo_status": "tts_placeholder"
+        }
+      ]
+    },
+    {
+      "id": "u4_gate1_decide",
+      "type": "choice",
+      "est_seconds": 60,
+      "prompt": {
+        "id": "u4.gate1.prompt",
+        "audience": "child",
+        "text": { "zh-Hant": "誰來決定結局？" },
+        "vo": "vo/u4/gate1/prompt",
+        "vo_status": "tts_placeholder"
+      },
+      "hint": {
+        "id": "u4.gate1.hint",
+        "audience": "child",
+        "text": { "zh-Hant": "想想看，你是小導演。" },
+        "vo": "vo/u4/gate1/hint",
+        "vo_status": "tts_placeholder"
+      },
+      "options": [
+        {
+          "id": "me",
+          "label": {
+            "id": "u4.opt.me",
+            "audience": "child",
+            "text": { "zh-Hant": "我" },
+            "vo": "vo/u4/opt/me",
+            "vo_status": "tts_placeholder"
+          }
+        },
+        {
+          "id": "ai_all",
+          "label": {
+            "id": "u4.opt.ai_all",
+            "audience": "child",
+            "text": { "zh-Hant": "AI 全做" },
+            "vo": "vo/u4/opt/ai_all",
+            "vo_status": "tts_placeholder"
+          }
+        }
+      ],
+      "scoring": "graded",
+      "correct_option_ids": ["me"],
+      "feedback": {
+        "success": {
+          "id": "u4.gate1.ok",
+          "audience": "child",
+          "text": { "zh-Hant": "對！結局由你決定。" },
+          "vo": "vo/u4/gate1/ok",
+          "vo_status": "tts_placeholder"
+        },
+        "not_yet": {
+          "id": "u4.gate1.not_yet",
+          "audience": "child",
+          "text": { "zh-Hant": "再想想，AI 給點子，誰決定？" },
+          "vo": "vo/u4/gate1/not_yet",
+          "vo_status": "tts_placeholder"
+        },
+        "reveal": {
+          "id": "u4.gate1.reveal",
+          "audience": "child",
+          "text": { "zh-Hant": "AI 給點子，結局你來決定。" },
+          "vo": "vo/u4/gate1/reveal",
+          "vo_status": "tts_placeholder"
+        }
+      },
+      "max_attempts": 2,
+      "after_max": "reveal_and_continue"
+    },
+    {
+      "id": "u4_gate2_order",
+      "type": "drag",
+      "est_seconds": 60,
+      "mode": "order",
+      "prompt": {
+        "id": "u4.gate2.prompt",
+        "audience": "child",
+        "text": { "zh-Hant": "排排看，先發生什麼？" },
+        "vo": "vo/u4/gate2/prompt",
+        "vo_status": "tts_placeholder"
+      },
+      "hint": {
+        "id": "u4.gate2.hint",
+        "audience": "child",
+        "text": { "zh-Hant": "看看每張圖在做什麼" },
+        "vo": "vo/u4/gate2/hint",
+        "vo_status": "tts_placeholder"
+      },
+      "items": [
+        {
+          "id": "go_out",
+          "label": {
+            "id": "u4.opt.go_out",
+            "audience": "child",
+            "text": { "zh-Hant": "出門玩" },
+            "vo": "vo/u4/opt/go_out",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_u4_car_go_out",
+          "a11y_label": { "zh-Hant": "小車開出家門" }
+        },
+        {
+          "id": "rain",
+          "label": {
+            "id": "u4.opt.rain",
+            "audience": "child",
+            "text": { "zh-Hant": "下雨了" },
+            "vo": "vo/u4/opt/rain",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_u4_rain",
+          "a11y_label": { "zh-Hant": "天空下起雨" }
+        },
+        {
+          "id": "umbrella",
+          "label": {
+            "id": "u4.opt.umbrella",
+            "audience": "child",
+            "text": { "zh-Hant": "撐起傘" },
+            "vo": "vo/u4/opt/umbrella",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_u4_car_umbrella",
+          "a11y_label": { "zh-Hant": "小車撐起雨傘" }
+        }
+      ],
+      "correct_order": ["go_out", "rain", "umbrella"],
+      "alt_orders": [
+        ["rain", "umbrella", "go_out"]
+      ],
+      "feedback": {
+        "success": {
+          "id": "u4.gate2.ok",
+          "audience": "child",
+          "text": { "zh-Hant": "排好了！故事很通順。" },
+          "vo": "vo/u4/gate2/ok",
+          "vo_status": "tts_placeholder"
+        },
+        "not_yet": {
+          "id": "u4.gate2.not_yet",
+          "audience": "child",
+          "text": { "zh-Hant": "想想看，先發生什麼？" },
+          "vo": "vo/u4/gate2/not_yet",
+          "vo_status": "tts_placeholder"
+        },
+        "reveal": {
+          "id": "u4.gate2.reveal",
+          "audience": "child",
+          "text": { "zh-Hant": "先出門，下雨了，再撐傘。" },
+          "vo": "vo/u4/gate2/reveal",
+          "vo_status": "tts_placeholder"
+        }
+      },
+      "max_attempts": 2,
+      "after_max": "reveal_and_continue"
+    },
+    {
+      "id": "u4_ritual",
+      "type": "sandbox_ritual",
+      "est_seconds": 15,
+      "transition_hint": "celebrate",
+      "skippable": false,
+      "lines": [
+        {
+          "id": "u4.ritual.1",
+          "audience": "child",
+          "text": { "zh-Hant": "猜猜帽時間" },
+          "vo": "vo/u4/ritual/1",
+          "vo_status": "tts_placeholder"
+        },
+        {
+          "id": "u4.ritual.2",
+          "audience": "child",
+          "text": { "zh-Hant": "猜猜帽是 AI，請它出點子！" },
+          "vo": "vo/u4/ritual/2",
+          "vo_status": "tts_placeholder"
+        }
+      ]
+    },
+    {
+      "id": "u4_sandbox",
+      "type": "sandbox",
+      "est_seconds": 90,
+      "sandbox_ref": "u4_ideas_01",
+      "prompt": {
+        "id": "u4.sandbox.prompt",
+        "audience": "child",
+        "text": { "zh-Hant": "選一個世界，請猜猜帽出點子" },
+        "vo": "vo/u4/sandbox/prompt",
+        "vo_status": "tts_placeholder"
+      },
+      "reaction_prompt": {
+        "id": "u4.sandbox.react",
+        "audience": "child",
+        "text": { "zh-Hant": "你選哪個點子當結局？" },
+        "vo": "vo/u4/sandbox/react",
+        "vo_status": "tts_placeholder"
+      },
+      "reactions": [
+        {
+          "id": "rescue",
+          "label": {
+            "id": "u4.opt.rescue",
+            "audience": "child",
+            "text": { "zh-Hant": "救朋友" },
+            "vo": "vo/u4/opt/rescue",
+            "vo_status": "tts_placeholder"
+          }
+        },
+        {
+          "id": "share",
+          "label": {
+            "id": "u4.opt.share",
+            "audience": "child",
+            "text": { "zh-Hant": "分享食物" },
+            "vo": "vo/u4/opt/share",
+            "vo_status": "tts_placeholder"
+          }
+        },
+        {
+          "id": "keep_going",
+          "label": {
+            "id": "u4.opt.keep_going",
+            "audience": "child",
+            "text": { "zh-Hant": "不放棄" },
+            "vo": "vo/u4/opt/keep_going",
+            "vo_status": "tts_placeholder"
+          }
+        }
+      ],
+      "scoring": "open",
+      "closing_line": {
+        "id": "u4.sandbox.close",
+        "audience": "child",
+        "text": { "zh-Hant": "AI 出點子，我來決定。" },
+        "vo": "vo/u4/sandbox/close",
+        "vo_status": "tts_placeholder"
+      },
+      "feedback": {
+        "reveal": {
+          "id": "u4.sandbox.reveal",
+          "audience": "child",
+          "text": { "zh-Hant": "你選好了！結局由你決定。" },
+          "vo": "vo/u4/sandbox/reveal",
+          "vo_status": "tts_placeholder"
+        }
+      },
+      "max_attempts": 1,
+      "after_max": "reveal_and_continue"
+    },
+    {
+      "id": "u4_gate4_asr",
+      "type": "asr_repeat",
+      "est_seconds": 60,
+      "prompt": {
+        "id": "u4.u4_gate4_asr.prompt",
+        "audience": "child",
+        "text": { "zh-Hant": "說出你的結局" },
+        "vo": "vo/u4/u4_gate4_asr/prompt",
+        "vo_status": "tts_placeholder"
+      },
+      "hint": {
+        "id": "u4.u4_gate4_asr.hint",
+        "audience": "child",
+        "text": { "zh-Hant": "跟我一起說你的結局。" },
+        "vo": "vo/u4/u4_gate4_asr/hint",
+        "vo_status": "tts_placeholder"
+      },
+      "accept": { "zh-Hant": ["一起", "救朋友", "分享", "不放棄"] },
+      "match": "keyword_or_voice",
+      "feedback": {
+        "success": {
+          "id": "u4.u4_gate4_asr.ok",
+          "audience": "child",
+          "text": { "zh-Hant": "好棒的結局！" },
+          "vo": "vo/u4/u4_gate4_asr/ok",
+          "vo_status": "tts_placeholder"
+        }
+      },
+      "on_mic_denied": {
+        "mode": "say_together",
+        "lines": [
+          {
+            "id": "u4.u4_gate4_asr.mic_denied",
+            "audience": "child",
+            "text": { "zh-Hant": "按一下嘴巴按鈕，我們一起說。" },
+            "vo": "vo/u4/u4_gate4_asr/mic_denied",
+            "vo_status": "tts_placeholder"
+          }
+        ]
+      },
+      "on_device_unavailable": {
+        "mode": "say_together",
+        "lines": [
+          {
+            "id": "u4.u4_gate4_asr.unavailable",
+            "audience": "child",
+            "text": { "zh-Hant": "按一下嘴巴按鈕，我們一起說。" },
+            "vo": "vo/u4/u4_gate4_asr/unavailable",
+            "vo_status": "tts_placeholder"
+          }
+        ]
+      },
+      "on_no_match": {
+        "mode": "tap_to_read",
+        "after_attempts": 2,
+        "lines": [
+          {
+            "id": "u4.u4_gate4_asr.no_match",
+            "audience": "child",
+            "text": { "zh-Hant": "沒關係，按一下，聽我念一次。" },
+            "vo": "vo/u4/u4_gate4_asr/no_match",
+            "vo_status": "tts_placeholder"
+          }
+        ]
+      },
+      "target_lines_by_option": {
+        "from_beat": "u4_sandbox",
+        "lines": {
+          "rescue": {
+            "id": "u4.u4_gate4_asr.line.rescue",
+            "audience": "child",
+            "text": { "zh-Hant": "我們一起救朋友。" },
+            "vo": "vo/u4/u4_gate4_asr/line/rescue",
+            "vo_status": "tts_placeholder"
+          },
+          "share": {
+            "id": "u4.u4_gate4_asr.line.share",
+            "audience": "child",
+            "text": { "zh-Hant": "我們一起分享食物。" },
+            "vo": "vo/u4/u4_gate4_asr/line/share",
+            "vo_status": "tts_placeholder"
+          },
+          "keep_going": {
+            "id": "u4.u4_gate4_asr.line.keep_going",
+            "audience": "child",
+            "text": { "zh-Hant": "我們不放棄，一直努力。" },
+            "vo": "vo/u4/u4_gate4_asr/line/keep_going",
+            "vo_status": "tts_placeholder"
+          }
+        }
+      }
+    },
+    { "id": "u4_story", "type": "story", "est_seconds": 150, "story_ref": "u4_story_graph" },
+    {
+      "id": "u4_review",
+      "type": "review",
+      "est_seconds": 60,
+      "questions": [
+        {
+          "id": "u4_review_1",
+          "prompt": {
+            "id": "u4.review1.prompt",
+            "audience": "child",
+            "text": { "zh-Hant": "創作時，AI 比較像？" },
+            "vo": "vo/u4/review1/prompt",
+            "vo_status": "tts_placeholder"
+          },
+          "options": [
+            {
+              "id": "boss",
+              "label": {
+                "id": "u4.opt.boss",
+                "audience": "child",
+                "text": { "zh-Hant": "老闆" },
+                "vo": "vo/u4/opt/boss",
+                "vo_status": "tts_placeholder"
+              }
+            },
+            {
+              "id": "idea_helper",
+              "label": {
+                "id": "u4.opt.idea_helper",
+                "audience": "child",
+                "text": { "zh-Hant": "點子助手" },
+                "vo": "vo/u4/opt/idea_helper",
+                "vo_status": "tts_placeholder"
+              }
+            }
+          ],
+          "correct_option_ids": ["idea_helper"],
+          "feedback": {
+            "success": {
+              "id": "u4.review1.ok",
+              "audience": "child",
+              "text": { "zh-Hant": "對！AI 是點子助手。" },
+              "vo": "vo/u4/review1/ok",
+              "vo_status": "tts_placeholder"
+            },
+            "not_yet": {
+              "id": "u4.review1.not_yet",
+              "audience": "child",
+              "text": { "zh-Hant": "再想想，誰給點子，誰決定？" },
+              "vo": "vo/u4/review1/not_yet",
+              "vo_status": "tts_placeholder"
+            },
+            "reveal": {
+              "id": "u4.review1.reveal",
+              "audience": "child",
+              "text": { "zh-Hant": "AI 是給點子的助手。" },
+              "vo": "vo/u4/review1/reveal",
+              "vo_status": "tts_placeholder"
+            }
+          },
+          "max_attempts": 2,
+          "after_max": "reveal_and_continue"
+        },
+        {
+          "id": "u4_review_2",
+          "prompt": {
+            "id": "u4.review2.prompt",
+            "audience": "child",
+            "text": { "zh-Hant": "結局要誰決定？" },
+            "vo": "vo/u4/review2/prompt",
+            "vo_status": "tts_placeholder"
+          },
+          "options": [
+            {
+              "id": "decide_me",
+              "label": {
+                "id": "u4.opt.decide_me",
+                "audience": "child",
+                "text": { "zh-Hant": "我" },
+                "vo": "vo/u4/opt/decide_me",
+                "vo_status": "tts_placeholder"
+              }
+            },
+            {
+              "id": "decide_ai",
+              "label": {
+                "id": "u4.opt.decide_ai",
+                "audience": "child",
+                "text": { "zh-Hant": "AI" },
+                "vo": "vo/u4/opt/decide_ai",
+                "vo_status": "tts_placeholder"
+              }
+            }
+          ],
+          "correct_option_ids": ["decide_me"],
+          "feedback": {
+            "success": {
+              "id": "u4.review2.ok",
+              "audience": "child",
+              "text": { "zh-Hant": "對！你是小導演。" },
+              "vo": "vo/u4/review2/ok",
+              "vo_status": "tts_placeholder"
+            },
+            "not_yet": {
+              "id": "u4.review2.not_yet",
+              "audience": "child",
+              "text": { "zh-Hant": "再想想，故事是誰的？" },
+              "vo": "vo/u4/review2/not_yet",
+              "vo_status": "tts_placeholder"
+            },
+            "reveal": {
+              "id": "u4.review2.reveal",
+              "audience": "child",
+              "text": { "zh-Hant": "結局由你決定。" },
+              "vo": "vo/u4/review2/reveal",
+              "vo_status": "tts_placeholder"
+            }
+          },
+          "max_attempts": 2,
+          "after_max": "reveal_and_continue"
+        }
+      ]
+    },
+    {
+      "id": "u4_sticker",
+      "type": "sticker",
+      "est_seconds": 15,
+      "transition_hint": "celebrate",
+      "award": "on_reach",
+      "sticker": {
+        "id": "sticker_director",
+        "label": {
+          "id": "u4.sticker.label",
+          "audience": "child",
+          "text": { "zh-Hant": "小導演貼紙" },
+          "vo": "vo/u4/sticker/label",
+          "vo_status": "tts_placeholder"
+        },
+        "image": "img_sticker_director",
+        "a11y_label": { "zh-Hant": "小導演貼紙" }
+      },
+      "lines": [
+        {
+          "id": "u4.sticker.1",
+          "audience": "child",
+          "text": { "zh-Hant": "完成創作島！" },
+          "vo": "vo/u4/sticker/1",
+          "vo_status": "tts_placeholder"
+        },
+        {
+          "id": "u4.sticker.2",
+          "audience": "child",
+          "text": { "zh-Hant": "你得到「小導演貼紙」" },
+          "vo": "vo/u4/sticker/2",
+          "vo_status": "tts_placeholder"
+        }
+      ]
+    }
+  ],
+  "stories": [
+    {
+      "id": "u4_story_graph",
+      "start": "u4_story_start",
+      "nodes": [
+        {
+          "id": "u4_story_start",
+          "speaker": "narrator",
+          "lines": [
+            {
+              "id": "u4.story.u4_story_start.1",
+              "audience": "child",
+              "text": { "zh-Hant": "猜猜帽想自己寫完整個故事。" },
+              "vo": "vo/u4/story/u4_story_start/1",
+              "vo_status": "tts_placeholder"
+            },
+            {
+              "id": "u4.story.u4_story_start.2",
+              "audience": "child",
+              "text": { "zh-Hant": "你要怎麼做？" },
+              "vo": "vo/u4/story/u4_story_start/2",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "choices": [
+            {
+              "id": "let_ai",
+              "label": {
+                "id": "u4.story.u4_story_start.let_ai",
+                "audience": "child",
+                "text": { "zh-Hant": "讓它全寫" },
+                "vo": "vo/u4/story/u4_story_start/let_ai",
+                "vo_status": "tts_placeholder"
+              },
+              "next": "u4_story_ai"
+            },
+            {
+              "id": "i_choose",
+              "label": {
+                "id": "u4.story.u4_story_start.i_choose",
+                "audience": "child",
+                "text": { "zh-Hant": "我來選結局" },
+                "vo": "vo/u4/story/u4_story_start/i_choose",
+                "vo_status": "tts_placeholder"
+              },
+              "next": "u4_story_me"
+            }
+          ]
+        },
+        {
+          "id": "u4_story_ai",
+          "speaker": "ai_persona",
+          "lines": [
+            {
+              "id": "u4.story.u4_story_ai.1",
+              "audience": "child",
+              "text": { "zh-Hant": "我寫好了：大家回家睡覺。" },
+              "vo": "vo/u4/story/u4_story_ai/1",
+              "vo_status": "tts_placeholder"
+            },
+            {
+              "id": "u4.story.u4_story_ai.2",
+              "audience": "child",
+              "text": { "zh-Hant": "這樣好嗎？你來決定。" },
+              "vo": "vo/u4/story/u4_story_ai/2",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "choices": [
+            {
+              "id": "keep_it",
+              "label": {
+                "id": "u4.story.u4_story_ai.keep_it",
+                "audience": "child",
+                "text": { "zh-Hant": "就這樣" },
+                "vo": "vo/u4/story/u4_story_ai/keep_it",
+                "vo_status": "tts_placeholder"
+              },
+              "next": "u4_story_ending"
+            },
+            {
+              "id": "change_it",
+              "label": {
+                "id": "u4.story.u4_story_ai.change_it",
+                "audience": "child",
+                "text": { "zh-Hant": "我來改" },
+                "vo": "vo/u4/story/u4_story_ai/change_it",
+                "vo_status": "tts_placeholder"
+              },
+              "next": "u4_story_me"
+            }
+          ]
+        },
+        {
+          "id": "u4_story_me",
+          "speaker": "narrator",
+          "lines": [
+            {
+              "id": "u4.story.u4_story_me.1",
+              "audience": "child",
+              "text": { "zh-Hant": "你選：大家一起去野餐！" },
+              "vo": "vo/u4/story/u4_story_me/1",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "next": "u4_story_ending"
+        },
+        {
+          "id": "u4_story_ending",
+          "speaker": "ai_persona",
+          "lines": [
+            {
+              "id": "u4.story.u4_story_ending.1",
+              "audience": "child",
+              "text": { "zh-Hant": "這是你決定的結局！" },
+              "vo": "vo/u4/story/u4_story_ending/1",
+              "vo_status": "tts_placeholder"
+            },
+            {
+              "id": "u4.story.u4_story_ending.2",
+              "audience": "child",
+              "text": { "zh-Hant": "AI 出點子，你來決定。" },
+              "vo": "vo/u4/story/u4_story_ending/2",
+              "vo_status": "tts_placeholder"
+            }
+          ],
+          "end": true,
+          "transition_hint": "celebrate"
+        }
+      ]
+    }
+  ],
+  "sandboxes": [
+    {
+      "id": "u4_ideas_01",
+      "mode": "pregenerated",
+      "required_uncertainty": "sure",
+      "max_guess_chars": 12,
+      "slots": [
+        {
+          "id": "world_cars",
+          "label": {
+            "id": "u4.slot.world_cars",
+            "audience": "child",
+            "text": { "zh-Hant": "車車" },
+            "vo": "vo/u4/slot/world_cars",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_u4_world_cars",
+          "a11y_label": { "zh-Hant": "車車世界" },
+          "choices": [
+            {
+              "id": "world_cars_card",
+              "label": {
+                "id": "u4.opt.world_cars_card",
+                "audience": "child",
+                "text": { "zh-Hant": "車車" },
+                "vo": "vo/u4/opt/world_cars_card",
+                "vo_status": "tts_placeholder"
+              },
+              "image": "img_u4_world_cars",
+              "a11y_label": { "zh-Hant": "車車世界" }
+            }
+          ]
+        },
+        {
+          "id": "world_animals",
+          "label": {
+            "id": "u4.slot.world_animals",
+            "audience": "child",
+            "text": { "zh-Hant": "小動物" },
+            "vo": "vo/u4/slot/world_animals",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_u4_world_animals",
+          "a11y_label": { "zh-Hant": "小動物世界" },
+          "choices": [
+            {
+              "id": "world_animals_card",
+              "label": {
+                "id": "u4.opt.world_animals_card",
+                "audience": "child",
+                "text": { "zh-Hant": "小動物" },
+                "vo": "vo/u4/opt/world_animals_card",
+                "vo_status": "tts_placeholder"
+              },
+              "image": "img_u4_world_animals",
+              "a11y_label": { "zh-Hant": "小動物世界" }
+            }
+          ]
+        },
+        {
+          "id": "world_picnic",
+          "label": {
+            "id": "u4.slot.world_picnic",
+            "audience": "child",
+            "text": { "zh-Hant": "太空野餐" },
+            "vo": "vo/u4/slot/world_picnic",
+            "vo_status": "tts_placeholder"
+          },
+          "image": "img_u4_world_picnic",
+          "a11y_label": { "zh-Hant": "太空野餐世界" },
+          "choices": [
+            {
+              "id": "world_picnic_card",
+              "label": {
+                "id": "u4.opt.world_picnic_card",
+                "audience": "child",
+                "text": { "zh-Hant": "太空野餐" },
+                "vo": "vo/u4/opt/world_picnic_card",
+                "vo_status": "tts_placeholder"
+              },
+              "image": "img_u4_world_picnic",
+              "a11y_label": { "zh-Hant": "太空野餐世界" }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "parent_card": {
+    "id": "u4.parent_card",
+    "audience": "parent",
+    "text": { "zh-Hant": "請孩子用家裡三樣東西當點子，你當小書記，一起寫一句結局，最後由孩子決定怎麼收尾。" }
+  }
+}
