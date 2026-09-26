@@ -123,6 +123,7 @@ struct UnitView: View {
     private var topBar: some View {
         HStack {
             HoldToExitButton(action: onExit)
+                .accessibilityIdentifier("unit.exit")
             Spacer()
             ProgressDots(current: store.engine.beatIndex, total: store.engine.content.unit.beats.count)
             Spacer()

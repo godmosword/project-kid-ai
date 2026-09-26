@@ -48,8 +48,10 @@ class FakeRunner:
         self.ps_line = None
         self.shutdown_fails = False
         self.popen_log = ""
+        self.handshake_flags = []
+        self.xcodebuild_code = 0
 
-    def run(self, cmd, cwd=None, input=None):
+    def run(self, cmd, cwd=None, input=None, env=None):
         self.calls.append(list(cmd))
         text = " ".join(cmd)
         if cmd[:4] == ["xcrun", "simctl", "list", "devices"]:
@@ -84,13 +86,19 @@ class FakeRunner:
         if cmd[:2] == ["ps", "-p"]:
             line = self.ps_line() if callable(self.ps_line) else self.ps_line
             return ck.Result(0 if line else 1, line or "", "")
+        if cmd[:1] == ["xcodebuild"]:
+            return ck.Result(self.xcodebuild_code, "", "")
         if "shutdown" in cmd and self.shutdown_fails:
             return ck.Result(1, "", "busy")
         return ck.Result(0, "", "")
 
-    def popen(self, cmd, log_path):
+    def popen(self, cmd, log_path, env=None, cwd=None):
         self.calls.append(list(cmd))
         Path(log_path).write_text(self.popen_log)
+        folder = (env or {}).get("TEST_RUNNER_KIDSAI_HANDSHAKE")
+        if folder and cmd[:2] == ["/bin/sh", "-c"]:
+            for flag in self.handshake_flags:
+                Path(folder, flag).write_text(flag)
         return 4242
 
     def ran(self, *words):
@@ -127,7 +135,7 @@ class Base(unittest.TestCase):
         run_dir = self.repo / ".verify" / run_id
         run_dir.mkdir(parents=True)
         entries = []
-        for name, data in (files or {"map-islands.png": png_bytes(1170, 2532)}).items():
+        for name, data in ({"map-islands.png": png_bytes(1170, 2532)} if files is None else files).items():
             (run_dir / name).write_bytes(data)
             entries.append({"name": name, "sha256": hashlib.sha256(data).hexdigest(), "bytes": len(data),
                             "kind": "screenshot"})
@@ -244,6 +252,81 @@ class DoctorTests(Base):
         self.runner.apps = {"com.godmosword.kidsai": {"ApplicationType": "User"}, "com.example.chat": {"ApplicationType": "User"}}
         code, _ = self.call("doctor")
         self.assertEqual(code, ck.EXIT_ENV)
+
+
+class FlowTests(Base):
+    def fresh_runner(self):
+        """做一個和目前原始碼一致的 runner（build --for-testing 之後的狀態）。"""
+        runner = self.repo / ck.RUNNER_REL
+        (runner / "PlugIns/KidsAIUITests.xctest").mkdir(parents=True)
+        (runner / "KidsAIUITests-Runner").write_bytes(b"runner")
+        (runner / "PlugIns/KidsAIUITests.xctest/KidsAIUITests").write_bytes(b"tests")
+        ck.write_json(self.repo / ".verify" / "build.json",
+                      {"source_fingerprint": ck.source_fingerprint(self.ctx), "executable_sha256": "x",
+                       "runner_fingerprint": ck.runner_fingerprint(self.ctx), "configuration": "Debug"})
+        (self.repo / "app").mkdir(exist_ok=True)
+
+    def test_drive_requires_built_runner(self):
+        code, out = self.call("drive", "--flow", "map-to-unit1")
+        self.assertEqual(code, ck.EXIT_STALE)
+        self.assertIn("build --for-testing", out["fix"])
+
+    def test_drive_passes_and_fails(self):
+        self.fresh_runner()
+        code, out = self.call("drive", "--flow", "map-to-unit1")
+        self.assertEqual(code, 0, out)
+        self.assertTrue(any("-only-testing:KidsAIUITests/FlowMapToUnit1" in c for c in self.runner.calls))
+        self.runner.xcodebuild_code = 65
+        code, _ = self.call("drive", "--flow", "map-to-unit1")
+        self.assertEqual(code, ck.EXIT_EVIDENCE)
+
+    def test_stale_runner_is_rejected(self):
+        self.fresh_runner()
+        (self.repo / ck.RUNNER_REL / "KidsAIUITests-Runner").write_bytes(b"changed")
+        code, _ = self.call("drive", "--flow", "map-to-unit1")
+        self.assertEqual(code, ck.EXIT_STALE)
+
+    def test_record_flow_without_ready_is_discarded(self):
+        self.fresh_runner()
+        run_id, run_dir = self.make_run(files={}, review=False)
+        code, _ = self.call("record", "--flow", "map-to-unit1", "--run", run_id)
+        self.assertEqual(code, ck.EXIT_EVIDENCE)
+        self.assertEqual(json.loads((run_dir / "manifest.json").read_text())["files"], [])
+        self.assertNotIn("xcodebuild", json.loads(ck.session_path(self.ctx, "KidsAI-Verify").read_text()))
+
+    def test_record_flow_failure_after_go_is_discarded(self):
+        self.fresh_runner()
+        run_id, run_dir = self.make_run(files={}, review=False)
+        self.runner.handshake_flags = ["ready", "failed"]
+        self.runner.popen_log = "Recording started"
+        code, _ = self.call("record", "--flow", "map-to-unit1", "--run", run_id)
+        self.assertEqual(code, ck.EXIT_EVIDENCE)
+        folder = self.repo / ".verify" / "_handshake" / f"{run_id}-map-to-unit1"
+        self.assertTrue((folder / "go").exists(), "ready 之後要寫 go 才開始點擊")
+        self.assertEqual(json.loads((run_dir / "manifest.json").read_text())["files"], [], "失敗的錄影不進 manifest")
+
+
+class A11yPublishTests(Base):
+    def a11y_run(self, text):
+        run_id, run_dir = self.make_run(files={"sandbox-tree.json": text.encode()})
+        manifest = json.loads((run_dir / "manifest.json").read_text())
+        manifest["files"][0]["kind"] = "a11y"
+        (run_dir / "manifest.json").write_text(json.dumps(manifest))
+        return run_id
+
+    def test_clean_a11y_tree_can_be_published(self):
+        run_id = self.a11y_run('{"tree": "Button, identifier: option.closer, label: 比較像"}')
+        code, out = self.call("evidence", "publish", "--pr", "7", "--run", run_id, "--dry-run")
+        self.assertEqual(code, 0, out)
+
+    def test_a11y_tree_with_local_path_is_rejected(self):
+        run_id = self.a11y_run('{"tree": "/Users/someone/Library"}')
+        code, _ = self.call("evidence", "publish", "--pr", "7", "--run", run_id, "--dry-run")
+        self.assertEqual(code, ck.EXIT_EVIDENCE)
+
+    def test_manifest_json_cannot_be_listed_as_evidence(self):
+        self.assertIsNone(ck.FILE_RE.match("manifest.json"))
+        self.assertIsNotNone(ck.FILE_RE.match("sandbox-tree.json"))
 
 
 class DoctorDebugTests(Base):

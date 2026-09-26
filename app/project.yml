@@ -36,6 +36,8 @@ targets:
     scheme:
       testTargets:
         - KidsAITests
+        # 驗證 skill（verify-kidsai）用的真實點擊流程；只在測試時編譯，不進 App
+        - KidsAIUITests
 
   KidsAITests:
     type: bundle.unit-test
@@ -47,6 +49,20 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.godmosword.kidsai.tests
+        GENERATE_INFOPLIST_FILE: "YES"
+
+  # 真實點擊的流程測試（XCUITest）：給 .claude/skills/verify-kidsai 錄證據用
+  KidsAIUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - KidsAIUITests
+    dependencies:
+      - target: KidsAI
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.godmosword.kidsai.uitests
+        TEST_TARGET_NAME: KidsAI
         GENERATE_INFOPLIST_FILE: "YES"
 
   # 語音辨識 spike：只裝在大人的測試 iPhone 上，不上架、不併入 KidsAI（見 docs/spikes/）。

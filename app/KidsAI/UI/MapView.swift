@@ -105,5 +105,6 @@ struct MapView: View {
         .buttonStyle(.plain)
         .disabled(!playable)
         .accessibilityLabel(playable ? name : "\(name)，還沒開放")
+        .accessibilityIdentifier("map.island.\(index)")
     }
 }
