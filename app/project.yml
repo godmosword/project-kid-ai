@@ -16,6 +16,10 @@ targets:
     platform: iOS
     sources:
       - KidsAI
+      # 課程內容（唯讀）：以資料夾打包成 App 內的 units/，內容只改 content/，不在這裡複製
+      - path: ../content/units
+        type: folder
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.godmosword.kidsai
@@ -29,7 +33,21 @@ targets:
         INFOPLIST_KEY_UILaunchScreen_Generation: "YES"
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
-    scheme: {}
+    scheme:
+      testTargets:
+        - KidsAITests
+
+  KidsAITests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - KidsAITests
+    dependencies:
+      - target: KidsAI
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.godmosword.kidsai.tests
+        GENERATE_INFOPLIST_FILE: "YES"
 
   # 語音辨識 spike：只裝在大人的測試 iPhone 上，不上架、不併入 KidsAI（見 docs/spikes/）。
   ASRSpike:
