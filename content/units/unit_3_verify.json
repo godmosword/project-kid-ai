@@ -406,21 +406,21 @@
         "success": {
           "id": "u3.sandbox.ok",
           "audience": "child",
-          "text": { "zh-Hant": "你查到了！真是小偵探。" },
+          "text": { "zh-Hant": "你對過圖了，真是小偵探。" },
           "vo": "vo/u3/sandbox/ok",
           "vo_status": "tts_placeholder"
         },
         "not_yet": {
           "id": "u3.sandbox.not_yet",
           "audience": "child",
-          "text": { "zh-Hant": "不確定？再看看圖，數一數。" },
+          "text": { "zh-Hant": "再看看圖，想一想。" },
           "vo": "vo/u3/sandbox/not_yet",
           "vo_status": "tts_placeholder"
         },
         "reveal": {
           "id": "u3.sandbox.reveal",
           "audience": "child",
-          "text": { "zh-Hant": "AI 很確定，也可能說錯。" },
+          "text": { "zh-Hant": "AI 很確定，還是要自己看一看。" },
           "vo": "vo/u3/sandbox/reveal",
           "vo_status": "tts_placeholder"
         }
@@ -748,7 +748,7 @@
             "vo_status": "tts_placeholder"
           },
           "image": "img_u3_card_dog",
-          "a11y_label": { "zh-Hant": "一隻小狗，看得到四隻腳" },
+          "a11y_label": { "zh-Hant": "一隻站著的小狗" },
           "choices": [
             {
               "id": "dog_legs_card",
@@ -760,7 +760,7 @@
                 "vo_status": "tts_placeholder"
               },
               "image": "img_u3_card_dog",
-              "a11y_label": { "zh-Hant": "一隻小狗，看得到四隻腳" }
+              "a11y_label": { "zh-Hant": "一隻站著的小狗" }
             }
           ]
         },
