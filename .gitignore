@@ -11,3 +11,7 @@ __pycache__/
 .venv/
 *.p12
 *.mobileprovision
+
+# 驗證 skill 的本機證據與 build 輸出（證據發布到 godmosword/project-kid-ai-evidence）
+.verify/
+app/build/
