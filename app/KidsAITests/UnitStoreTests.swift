@@ -37,9 +37,12 @@ final class FakeSpeaker: LineSpeaker {
 struct UnitStoreTests {
     private let speaker = FakeSpeaker()
 
-    private func store(at beatID: String, hintDelay: Duration = .seconds(60), cooldown: Duration = .seconds(60)) throws -> UnitStore {
-        let content = try RepoContent.unit("unit_1_recognize")
-        let store = UnitStore(content: content, speaker: speaker, hintDelay: hintDelay, nextCooldown: cooldown)
+    private func store(at beatID: String, hintDelay: Duration = .seconds(60), cooldown: Duration = .seconds(60),
+                       deselect: Duration = .seconds(3)) throws -> UnitStore {
+        let unitID = beatID.hasPrefix("u2_") ? "unit_2_prompt" : "unit_1_recognize"
+        let content = try RepoContent.unit(unitID)
+        let store = UnitStore(content: content, speaker: speaker, hintDelay: hintDelay, nextCooldown: cooldown,
+                              deselectDelay: deselect)
         let index = try #require(content.unit.beats.firstIndex { $0.id == beatID })
         store.startBeat = index
         store.start()
@@ -120,6 +123,74 @@ struct UnitStoreTests {
         store.resume()
         await settle()
         #expect(speaker.batches.last?.map(\.text) == ["你和 AI 都會猜，有時對有時錯。"])
+    }
+
+    @Test("拖曳：點卡片聽一聽不上鎖；放滿後自動檢查；提示只念一次")
+    func dragCheckAndHint() async throws {
+        let store = try store(at: "u2_gate2_blanks", hintDelay: .milliseconds(20))
+        await settle()
+        store.send(.dragSelect("cup_star"))
+        #expect(!store.inputLocked)
+        store.send(.dragTapTarget("blank_what"))
+        store.send(.dragPlace(item: "place_table", target: "blank_where"))
+        try await Task.sleep(for: .milliseconds(900))
+        await settle()
+        guard case .drag(let d) = store.phase else { Issue.record("應該在拖曳"); return }
+        #expect(d.outcome == .success)
+        let hint = try #require(store.engine.dragBeat?.hint?.zhHant)
+        #expect(speaker.batches.filter { $0.contains { $0.text == hint } }.count <= 1)
+    }
+
+    @Test("拖曳中或進背景不自動檢查")
+    func pauseCancelsCheck() async throws {
+        let store = try store(at: "u2_gate2_blanks")
+        await settle()
+        store.send(.dragPlace(item: "cup_star", target: "blank_what"))
+        store.send(.dragPlace(item: "place_table", target: "blank_where"))
+        store.pause()
+        try await Task.sleep(for: .milliseconds(900))
+        guard case .drag(let d) = store.phase else { Issue.record("應該在拖曳"); return }
+        #expect(d.outcome == nil && d.attempts == 0)
+        let generation = store.beginDrag()
+        store.resume()
+        try await Task.sleep(for: .milliseconds(900))
+        guard case .drag(let still) = store.phase else { Issue.record("應該在拖曳"); return }
+        #expect(still.outcome == nil, "手指還拖著時不檢查")
+        store.endDrag(generation)
+        try await Task.sleep(for: .milliseconds(900))
+        await settle()
+        guard case .drag(let done) = store.phase else { Issue.record("應該在拖曳"); return }
+        #expect(done.outcome == .success)
+    }
+
+    @Test("拖到一半進背景或跳關：這次拖曳作廢，放開時不放卡、不檢查（CRITICAL-12）")
+    func backgroundInvalidatesDrag() async throws {
+        let store = try store(at: "u2_gate2_blanks")
+        await settle()
+        let generation = store.beginDrag()
+        #expect(store.isCurrentDrag(generation))
+        store.pause()
+        #expect(!store.isCurrentDrag(generation) && !store.isDragging)
+        store.endDrag(generation)
+        let again = store.beginDrag()
+        store.jump(to: 2)
+        #expect(!store.isCurrentDrag(again) && !store.isDragging, "跳關也要結束拖曳，捲動才會恢復")
+    }
+
+    @Test("全部放好但選著一張卡：先不檢查；太久沒動作就放下選取再檢查")
+    func selectionDelaysCheck() async throws {
+        let store = try store(at: "u2_gate2_blanks", deselect: .milliseconds(200))
+        await settle()
+        store.send(.dragPlace(item: "cup_star", target: "blank_what"))
+        store.send(.dragPlace(item: "place_table", target: "blank_where"))
+        store.send(.dragSelect("cup_star"))
+        try await Task.sleep(for: .milliseconds(150))
+        guard case .drag(let waiting) = store.phase else { Issue.record("應該在拖曳"); return }
+        #expect(waiting.outcome == nil && waiting.selected == "cup_star")
+        try await Task.sleep(for: .milliseconds(1200))
+        await settle()
+        guard case .drag(let done) = store.phase else { Issue.record("應該在拖曳"); return }
+        #expect(done.selected == nil && done.outcome == .success)
     }
 
     @Test("無效的點擊不會打斷旁白")

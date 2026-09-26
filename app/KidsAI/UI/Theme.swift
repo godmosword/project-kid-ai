@@ -30,3 +30,8 @@ extension Color {
         self.init(red: Double((hex >> 16) & 0xFF) / 255, green: Double((hex >> 8) & 0xFF) / 255, blue: Double(hex & 0xFF) / 255)
     }
 }
+
+extension EnvironmentValues {
+    /// 內容區可用的寬度（畫面寬度扣掉左右留白，最多 700），由單元畫面提供。
+    @Entry var contentWidth: CGFloat = 335
+}

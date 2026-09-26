@@ -76,6 +76,8 @@ struct OptionCard: View {
     let option: Option
     var state: OptionState = .normal
     var isHighlighted = false
+    /// 一列排三張的小卡（沙盒反應）：最小 88，不是 140。
+    var compact = false
     let onSelect: () -> Void
     @Environment(\.dynamicTypeSize) private var typeSize
 
@@ -90,7 +92,8 @@ struct OptionCard: View {
                 OptionMark(state: state)
             }
             .padding(12)
-            .frame(minWidth: Theme.optionCard, maxWidth: typeSize.isAccessibilitySize ? .infinity : nil, minHeight: Theme.optionCard)
+            .frame(minWidth: compact ? 88 : Theme.optionCard, maxWidth: typeSize.isAccessibilitySize || compact ? .infinity : nil,
+                   minHeight: compact ? 88 : Theme.optionCard)
             .modifier(CardChrome(state: state, isHighlighted: isHighlighted))
         }
         .buttonStyle(.plain)

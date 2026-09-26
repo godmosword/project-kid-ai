@@ -1,10 +1,14 @@
 import Foundation
 
 /// 單元的狀態機：純值，輸入事件 → 新狀態＋要念的話。不碰畫面與語音，可完整單元測試。
+/// 狀態只在這個檔案改；沙盒與拖曳的規則在 `UnitEngine+Sandbox.swift`、`UnitEngine+Drag.swift`，只回傳新狀態。
 struct UnitEngine: Sendable {
     let content: UnitContent
     private(set) var beatIndex = 0
     private(set) var phase: Phase = .lines
+    /// 本單元每個 beat 最後的選擇（選項或反應 id），給「依選擇的跟讀」用。
+    /// 只在記憶體、只存 id；開始、跳關、重玩時清掉（D30）。
+    private(set) var choices: [String: String] = [:]
 
     init(content: UnitContent) {
         self.content = content
@@ -12,19 +16,22 @@ struct UnitEngine: Sendable {
 
     var beat: Beat { content.unit.beats[beatIndex] }
 
-    /// 本版還不能玩的功能（D29'）。空陣列代表這個單元可以玩。
+    /// 本版還不能玩的功能。空陣列代表這個單元可以玩。
     static func unsupported(_ content: UnitContent) -> [String] {
-        content.unit.beats.compactMap(unsupportedFeature)
+        content.unit.beats.compactMap { unsupportedFeature($0, in: content) }
     }
 
-    private static func unsupportedFeature(_ beat: Beat) -> String? {
+    private static func unsupportedFeature(_ beat: Beat, in content: UnitContent) -> String? {
         switch beat.kind {
-        case .drag:
-            return "拖曳"
-        case .sandbox(let sandbox) where sandbox.scoring != .open:
-            return "有對錯的沙盒"
+        case .sandbox(let sandbox):
+            guard case .graded = sandbox.scoring, let definition = content.sandbox(sandbox.sandboxRef),
+                  let bank = content.banks[definition.id] else { return nil }
+            let keys = bank.guesses.map { "\($0.slotID)|\($0.choiceID)" }
+            return Set(keys).count == keys.count ? nil : "有對錯、同一張卡多筆猜測的沙盒"
         case .asr(let asr):
-            if case .byOption = asr.target { return "依選擇決定的跟讀句" }
+            guard case .byOption(let from, _) = asr.target,
+                  let source = content.unit.beats.first(where: { $0.id == from }) else { return nil }
+            if case .drag = source.kind { return "依拖曳結果決定的跟讀句" }
             return nil
         default:
             return nil
@@ -35,6 +42,7 @@ struct UnitEngine: Sendable {
 
     mutating func start() -> [SpeechLine] {
         beatIndex = 0
+        choices = [:]
         return enterBeat()
     }
 
@@ -44,7 +52,8 @@ struct UnitEngine: Sendable {
         case .lines, .sticker: true
         case .question(let q): q.outcome != nil
         case .sayTogether(let done): done
-        case .sandbox(let s): s.closing || s.reaction != nil || (s.choiceID != nil && s.guesses.isEmpty)
+        case .sandbox(let s): sandboxCanProceed(s)
+        case .drag(let d): d.outcome != nil
         case .story(let id): storyNode(id).map { if case .choices = $0.exit { false } else { true } } ?? true
         case .finished: false
         }
@@ -52,14 +61,28 @@ struct UnitEngine: Sendable {
 
     mutating func send(_ event: EngineEvent) -> [SpeechLine] {
         switch (phase, event) {
-        case (_, .next) where canProceed: advance()
-        case (.question(var q), .select(let id)): answer(&q, id)
-        case (.sayTogether, .sayTogether): readAlong()
-        case (.sandbox(var s), .pickCard(let id)): pick(&s, id)
-        case (.sandbox(var s), .react(let id)): react(&s, id)
-        case (.story(let id), .chooseStory(let choice)): chooseStory(at: id, choice)
-        default: []
+        case (_, .next) where canProceed: return advance()
+        case (.question(var q), .select(let id)): return answer(&q, id)
+        case (.sayTogether, .sayTogether): return readAlong()
+        case (.sandbox(let s), .pickCard(let id)):
+            return apply(sandboxPick(s, id))
+        case (.sandbox(let s), .react(let id)):
+            guard let step = sandboxReact(s, id) else { return [] }
+            choices[beat.id] = id
+            return apply(step)
+        case (.drag(let d), _):
+            guard let (next, lines) = dragStep(d, event) else { return [] }
+            phase = .drag(next)
+            return lines
+        case (.story(let id), .chooseStory(let choice)): return chooseStory(at: id, choice)
+        default: return []
         }
+    }
+
+    private mutating func apply(_ step: (SandboxState, [SpeechLine])?) -> [SpeechLine] {
+        guard let (state, lines) = step else { return [] }
+        phase = .sandbox(state)
+        return lines
     }
 
     private mutating func advance() -> [SpeechLine] {
@@ -68,7 +91,7 @@ struct UnitEngine: Sendable {
             phase = .question(QuestionState(index: q.index + 1))
             return questionPrompt()
         case .sandbox(let s) where !s.closing:
-            return nextSlot(after: s)
+            return apply(sandboxNext(s))
         case .story(let id):
             if let node = storyNode(id), case .next(let next) = node.exit { return enterNode(next) }
         case .sticker:
@@ -97,15 +120,16 @@ struct UnitEngine: Sendable {
             phase = .sayTogether(done: false)
             return say([asr.prompt] + asr.sayTogether.lines)
         case .sandbox:
-            return enterSlot(SandboxState())
+            phase = .sandbox(SandboxState())
+            return apply(sandboxEnter(SandboxState()))
+        case .drag:
+            phase = .drag(DragState())
+            return dragPrompt()
         case .story(let ref):
             return enterNode(content.story(ref)?.start ?? "")
         case .sticker(_, let lines):
             phase = .sticker
             return say(lines)
-        case .drag:
-            phase = .lines
-            return []
         }
     }
 
@@ -143,18 +167,23 @@ struct UnitEngine: Sendable {
         return 1
     }
 
-    /// 題目＋（有聲音的選項）依序播放三段聲音。🔊 重念也用這個。
+    /// 題目＋（有聲音的選項）依序播放聲音。🔊 重念也用這個。
     func questionPrompt() -> [SpeechLine] {
         guard let question else { return [] }
-        let sounds = question.options.compactMap { option in
+        return say([question.prompt]) + soundLines(question.options)
+    }
+
+    /// 有聲音的卡依序播放，並標出念到哪一張。
+    func soundLines(_ options: [Option]) -> [SpeechLine] {
+        options.compactMap { option in
             option.soundScript.map { SpeechLine(text: $0, role: .sound(key: option.sound ?? ""), pauseAfter: 0.6, highlight: option.id) }
         }
-        return say([question.prompt]) + sounds
     }
 
     private mutating func answer(_ q: inout QuestionState, _ id: String) -> [SpeechLine] {
         guard let question, q.outcome == nil, !q.disabled.contains(id), question.options.contains(where: { $0.id == id }) else { return [] }
         defer { phase = .question(q) }
+        choices[beat.id] = id
         guard let correct = question.correct else {
             q.outcome = .revealed(selected: id, correct: [])
             return say([question.feedback.reveal].compactMap { $0 })
@@ -175,73 +204,35 @@ struct UnitEngine: Sendable {
 
     // MARK: - 一起說
 
+    /// 這一關要一起說的句子：固定句，或依前面的選擇決定（D38）。
+    var readAlongLine: TextItem? {
+        guard case .asr(let asr) = beat.kind else { return nil }
+        switch asr.target {
+        case .line(let line):
+            return line
+        case .byOption(let from, let lines):
+            // 沒有紀錄（例如跳關）時，用來源選項順序的第一句，不靠 Dictionary 的順序
+            let order = content.unit.beats.first { $0.id == from }.map(Self.optionIDs) ?? []
+            if let chosen = choices[from], let line = lines[chosen] { return line }
+            return order.lazy.compactMap { lines[$0] }.first
+        }
+    }
+
+    /// 一個 beat 可被記住的選項 id（選擇題的選項、沙盒的反應），依內容順序。
+    static func optionIDs(of beat: Beat) -> [String] {
+        switch beat.kind {
+        case .choice(let c): c.options.map(\.id)
+        case .sandbox(let s): s.reactions.map(\.id)
+        case .drag(let d): d.items.map(\.id)
+        default: []
+        }
+    }
+
     /// 只念目標句；開念前停 0.5 秒讓孩子準備。做完後可以再按一次。
     private mutating func readAlong() -> [SpeechLine] {
-        guard case .asr(let asr) = beat.kind, case .line(let line) = asr.target else { return [] }
+        guard let line = readAlongLine else { return [] }
         phase = .sayTogether(done: true)
         return [SpeechLine(text: line.zhHant, role: .readAlong, pauseAfter: 0.6, pauseBefore: 0.5)]
-    }
-
-    // MARK: - 沙盒
-
-    var sandboxBeat: SandboxBeat? {
-        if case .sandbox(let s) = beat.kind { return s }
-        return nil
-    }
-
-    var sandboxDefinition: SandboxDefinition? {
-        sandboxBeat.flatMap { content.sandbox($0.sandboxRef) }
-    }
-
-    private mutating func enterSlot(_ state: SandboxState) -> [SpeechLine] {
-        var s = state
-        phase = .sandbox(s)
-        guard let sandbox = sandboxBeat, let definition = sandboxDefinition, s.slotIndex < definition.slots.count else { return [] }
-        let slot = definition.slots[s.slotIndex]
-        // 主題只有一張卡時直接選好，也不念「選一張卡」（孩子沒有卡可選）
-        guard slot.choices.count == 1, let only = slot.choices.first else { return say([sandbox.prompt]) }
-        return pick(&s, only.id)
-    }
-
-    private mutating func pick(_ s: inout SandboxState, _ choiceID: String) -> [SpeechLine] {
-        guard s.choiceID == nil, let sandbox = sandboxBeat, let definition = sandboxDefinition else { return [] }
-        let slot = definition.slots[s.slotIndex]
-        guard slot.choices.contains(where: { $0.id == choiceID }) else { return [] }
-        let request = SandboxRequest(sandboxID: definition.id, slotID: slot.id, structuredChoice: choiceID)
-        s.choiceID = choiceID
-        // 缺猜測庫等同查不到：走揭曉句，不卡住
-        s.guesses = content.banks[definition.id].map { SandboxLookup.guesses(for: request, definition: definition, bank: $0) } ?? []
-        phase = .sandbox(s)
-        // 查不到合格的猜測：念揭曉句繼續，不卡住
-        guard !s.guesses.isEmpty else { return say([sandbox.feedback.reveal].compactMap { $0 }) }
-        return guessLines(s.guesses) + say([sandbox.reactionPrompt])
-    }
-
-    private func guessLines(_ guesses: [Guess]) -> [SpeechLine] {
-        guesses.flatMap { guess -> [SpeechLine] in
-            var lines = [SpeechLine(text: guess.text.zhHant, role: .aiPersona, pauseAfter: 0.3)]
-            if guess.uncertainty == .unsure { lines.append(SpeechLine(text: EngineText.unsure, role: .aiPersona)) }
-            return lines
-        }
-    }
-
-    private mutating func react(_ s: inout SandboxState, _ id: String) -> [SpeechLine] {
-        guard let sandbox = sandboxBeat, s.reaction == nil, !s.guesses.isEmpty, sandbox.scoring == .open,
-              sandbox.reactions.contains(where: { $0.id == id }) else { return [] }
-        s.reaction = id
-        phase = .sandbox(s)
-        return say([sandbox.feedback.reveal].compactMap { $0 })
-    }
-
-    private mutating func nextSlot(after s: SandboxState) -> [SpeechLine] {
-        guard let sandbox = sandboxBeat, let definition = sandboxDefinition else { return [] }
-        if s.slotIndex + 1 < definition.slots.count {
-            return enterSlot(SandboxState(slotIndex: s.slotIndex + 1))
-        }
-        var closing = s
-        closing.closing = true
-        phase = .sandbox(closing)
-        return say([sandbox.closingLine])
     }
 
     // MARK: - 故事
@@ -275,12 +266,8 @@ struct UnitEngine: Sendable {
         case .sayTogether:
             guard case .asr(let asr) = beat.kind else { return [] }
             return say([asr.prompt] + asr.sayTogether.lines)
-        case .sandbox(let s):
-            guard let sandbox = sandboxBeat else { return [] }
-            if s.closing { return say([sandbox.closingLine]) }
-            if s.reaction != nil || (s.choiceID != nil && s.guesses.isEmpty) { return say([sandbox.feedback.reveal].compactMap { $0 }) }
-            if s.choiceID == nil { return say([sandbox.prompt]) }
-            return guessLines(s.guesses) + say([sandbox.reactionPrompt])
+        case .sandbox(let s): return sandboxReplay(s)
+        case .drag: return dragPrompt()
         case .story(let id):
             guard let node = storyNode(id) else { return [] }
             return say(node.lines, role: node.speaker == .aiPersona ? .aiPersona : .narrator)
@@ -296,16 +283,21 @@ struct UnitEngine: Sendable {
         }
     }
 
-    /// 觀察員選單：直接跳到第幾個 beat。
+    /// 觀察員選單：直接跳到第幾個 beat。記住的選擇一併清掉。
     mutating func jump(to index: Int) -> [SpeechLine] {
         guard content.unit.beats.indices.contains(index) else { return [] }
         beatIndex = index
+        choices = [:]
         return enterBeat()
     }
 
     var attemptsUsed: Int {
-        if case .question(let q) = phase { return q.attempts }
-        return 0
+        switch phase {
+        case .question(let q): q.attempts
+        case .sandbox(let s): s.attempts
+        case .drag(let d): d.attempts
+        default: 0
+        }
     }
 
     // MARK: - 小工具
@@ -313,5 +305,10 @@ struct UnitEngine: Sendable {
     /// 只念給孩子的文字；家長文字一律不念。
     func say(_ items: [TextItem], role: VoiceRole = .narrator) -> [SpeechLine] {
         items.filter { $0.audience == .child }.map { SpeechLine(text: $0.zhHant, role: role) }
+    }
+
+    /// 依序念出每個標籤並標出念到哪一個（選項、反應、目標）。
+    func labelLines(_ labels: [(id: String, text: TextItem)]) -> [SpeechLine] {
+        labels.filter { $0.text.audience == .child }.map { SpeechLine(text: $0.text.zhHant, role: .narrator, pauseAfter: 0.3, highlight: $0.id) }
     }
 }

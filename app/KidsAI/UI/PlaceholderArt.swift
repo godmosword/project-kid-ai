@@ -13,6 +13,11 @@ enum PlaceholderArt {
         case corner(String)
         case guessHat
         case boxWithEar
+        /// 單元 2：坐著的小黃貓（願望與說清楚的猜測）、站著的大白貓（說不清楚的猜測）。
+        case sittingCat
+        case standingCat
+        /// 四隻腳分開、數得出來的小狗（單元 3 要孩子數腳）。
+        case countableDog
     }
 
     static let table: [String: Art] = [
@@ -26,13 +31,12 @@ enum PlaceholderArt {
         // 單元 2
         "img_u2_bear": .emoji("🐻"), "img_u2_rabbit": .emoji("🐰"), "img_u2_cup_star": .emoji("☕️"),
         "img_u2_place_table": .symbol("table.furniture", color: Color(hex: 0x8B5E3C)),
-        "img_u2_wish_cat": .symbol("cat.fill", color: Color(hex: 0xF5B82E), scale: 0.7),
-        "img_u2_guess_cat_clear": .symbol("cat.fill", color: Color(hex: 0xF5B82E), scale: 0.7),
-        "img_u2_guess_cat_vague": .symbol("cat.fill", color: Color(hex: 0xDADADA), scale: 1.1),
+        "img_u2_wish_cat": .sittingCat, "img_u2_guess_cat_clear": .sittingCat,
+        "img_u2_guess_cat_vague": .standingCat,
         "img_sticker_say_clear": .emoji("💬"),
         // 單元 3
         "img_u3_apple_plain": .emoji("🍎"), "img_u3_apple_glasses": .emoji("🍎👓"),
-        "img_u3_card_dog": .symbol("dog.fill", color: Color(hex: 0x8B5E3C), scale: 1.2),
+        "img_u3_card_dog": .countableDog,
         "img_u3_card_night": .emoji("🌙"), "img_u3_card_car": .emoji("🚗"), "img_sticker_detective": .emoji("🔍"),
         // 單元 4
         "img_u4_car_go_out": .emoji("🚗🏠"), "img_u4_rain": .emoji("🌧️"), "img_u4_car_umbrella": .emoji("🚗☂️"),
@@ -62,7 +66,7 @@ struct ArtView: View {
         Group {
             switch key.flatMap({ PlaceholderArt.table[$0] }) {
             case .emoji(let text)?:
-                Text(text).font(.system(size: size))
+                Text(text).font(.system(size: size)).lineLimit(1).minimumScaleFactor(0.3)
             case .symbol(let name, let color, let scale)?:
                 Image(systemName: name).font(.system(size: size * scale)).foregroundStyle(color)
             case .silhouette(let name)?:
@@ -81,6 +85,12 @@ struct ArtView: View {
                 GuessHat(size: size)
             case .boxWithEar?:
                 BoxWithEar(size: size * 1.6)
+            case .sittingCat?:
+                SittingCat(size: size * 1.1)
+            case .standingCat?:
+                StandingCat(size: size * 1.5)
+            case .countableDog?:
+                CountableDog(size: size * 1.4)
             case nil:
                 RoundedRectangle(cornerRadius: 12).fill(Theme.neutralRetry).frame(width: size, height: size)
             }
@@ -117,5 +127,101 @@ private struct Triangle: Shape {
             p.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
             p.closeSubpath()
         }
+    }
+}
+
+/// 小狗：側面，四隻腳分開畫，數得出來（身體、頭、耳朵、眼睛、尾巴都是簡單形狀）。
+private struct CountableDog: View {
+    let size: CGFloat
+    private let fur = Color(hex: 0x8B5E3C)
+    private let ear = Color(hex: 0x5E3B22)
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            Capsule().fill(fur)
+                .frame(width: size * 0.2, height: size * 0.06)
+                .rotationEffect(.degrees(-35))
+                .offset(x: size * 0.02, y: size * 0.3)
+            ForEach(0..<4, id: \.self) { leg in
+                RoundedRectangle(cornerRadius: size * 0.03).fill(fur)
+                    .frame(width: size * 0.07, height: size * 0.26)
+                    .offset(x: size * (0.2 + Double(leg) * 0.155), y: size * 0.56)
+            }
+            Capsule().fill(fur)
+                .frame(width: size * 0.62, height: size * 0.28)
+                .offset(x: size * 0.16, y: size * 0.34)
+            Circle().fill(fur)
+                .frame(width: size * 0.3, height: size * 0.3)
+                .offset(x: size * 0.62, y: size * 0.16)
+            Ellipse().fill(ear)
+                .frame(width: size * 0.1, height: size * 0.18)
+                .offset(x: size * 0.64, y: size * 0.12)
+            Circle().fill(Theme.ink)
+                .frame(width: size * 0.05, height: size * 0.05)
+                .offset(x: size * 0.8, y: size * 0.25)
+        }
+        .frame(width: size, height: size * 0.85, alignment: .topLeading)
+    }
+}
+
+/// 坐著的小黃貓：正面、身體是豎著的圓、尾巴繞在腳邊（和站著的貓一眼就分得出來）。
+private struct SittingCat: View {
+    let size: CGFloat
+    private let fur = Color(hex: 0xF5B82E)
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            Ellipse().fill(fur)
+                .frame(width: size * 0.5, height: size * 0.56)
+                .offset(x: size * 0.25, y: size * 0.4)
+            Capsule().fill(fur)
+                .frame(width: size * 0.36, height: size * 0.08)
+                .offset(x: size * 0.52, y: size * 0.86)
+            ForEach([0.29, 0.55], id: \.self) { x in
+                Triangle().fill(fur)
+                    .frame(width: size * 0.14, height: size * 0.16)
+                    .offset(x: size * x, y: size * 0.04)
+            }
+            Circle().fill(fur)
+                .frame(width: size * 0.42, height: size * 0.42)
+                .offset(x: size * 0.29, y: size * 0.12)
+            ForEach([0.39, 0.54], id: \.self) { x in
+                Circle().fill(Theme.ink).frame(width: size * 0.05, height: size * 0.05)
+                    .offset(x: size * x, y: size * 0.27)
+            }
+        }
+        .frame(width: size, height: size, alignment: .topLeading)
+    }
+}
+
+/// 站著的大白貓：側面、四隻腳站著、白色加深色外框（在白底上也看得清楚）。
+private struct StandingCat: View {
+    let size: CGFloat
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            part(Capsule(), width: 0.08, height: 0.3, x: 0.06, y: 0.2, angle: -20)
+            ForEach([0.22, 0.34, 0.56, 0.68], id: \.self) { x in
+                part(RoundedRectangle(cornerRadius: size * 0.03), width: 0.07, height: 0.24, x: x, y: 0.5)
+            }
+            part(Capsule(), width: 0.62, height: 0.26, x: 0.16, y: 0.3)
+            ForEach([0.66, 0.8], id: \.self) { x in
+                Triangle().fill(.white).overlay(Triangle().stroke(Theme.ink, lineWidth: 2))
+                    .frame(width: size * 0.1, height: size * 0.12)
+                    .offset(x: size * x, y: size * 0.08)
+            }
+            part(Circle(), width: 0.28, height: 0.28, x: 0.64, y: 0.14)
+            Circle().fill(Theme.ink).frame(width: size * 0.04, height: size * 0.04)
+                .offset(x: size * 0.82, y: size * 0.24)
+        }
+        .frame(width: size, height: size * 0.8, alignment: .topLeading)
+    }
+
+    private func part(_ shape: some Shape, width: CGFloat, height: CGFloat, x: CGFloat, y: CGFloat, angle: Double = 0) -> some View {
+        shape.fill(.white)
+            .overlay(shape.stroke(Theme.ink, lineWidth: 2))
+            .frame(width: size * width, height: size * height)
+            .rotationEffect(.degrees(angle))
+            .offset(x: size * x, y: size * y)
     }
 }

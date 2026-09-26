@@ -109,9 +109,17 @@ enum ContractCheck {
                 guard let definition = content.sandbox(sandbox.sandboxRef) else { throw fail("\(beat.id) 找不到沙盒 \(sandbox.sandboxRef)") }
                 guard let bank = content.banks[definition.id] else { throw fail("沙盒 \(definition.id) 沒有猜測庫") }
                 try verify(bank, definition, fail: fail)
+                try verify(sandbox, bank, beatID: beat.id, fail: fail)
+            case .drag(let drag):
+                try verify(drag, beatID: beat.id, fail: fail)
             case .asr(let asr):
-                if case .byOption(let from, _) = asr.target, !unit.beats[..<index].contains(where: { $0.id == from }) {
-                    throw fail("\(beat.id) 的 from_beat 必須是前面的 beat")
+                if case .byOption(let from, let lines) = asr.target {
+                    guard let source = unit.beats[..<index].first(where: { $0.id == from }) else {
+                        throw fail("\(beat.id) 的 from_beat 必須是前面的 beat")
+                    }
+                    guard Set(lines.keys) == Set(UnitEngine.optionIDs(of: source)) else {
+                        throw fail("\(beat.id) 的跟讀句必須剛好對應 \(from) 的每個選項")
+                    }
                 }
             default:
                 break
@@ -136,6 +144,45 @@ enum ContractCheck {
         let choices = Dictionary(uniqueKeysWithValues: definition.slots.map { ($0.id, Set($0.choices.map(\.id))) })
         for guess in bank.guesses where choices[guess.slotID]?.contains(guess.choiceID) != true {
             throw fail("猜測 \(guess.id) 對應到不存在的 slot／選項")
+        }
+        // 同 pipeline：每張卡至少一筆猜測（多筆可以）
+        for slot in definition.slots {
+            for choice in slot.choices where !bank.guesses.contains(where: { $0.slotID == slot.id && $0.choiceID == choice.id }) {
+                throw fail("沙盒 \(definition.id) 的 \(slot.id)／\(choice.id) 沒有猜測")
+            }
+        }
+    }
+
+    /// 有對錯的沙盒：每筆猜測都有 truth、open 沒有；反應對照指向存在的反應。
+    private static func verify(_ sandbox: SandboxBeat, _ bank: GuessBank, beatID: String, fail: (String) -> ContentError) throws {
+        let reactions = Set(sandbox.reactions.map(\.id))
+        switch sandbox.scoring {
+        case .open:
+            if bank.guesses.contains(where: { $0.truth != nil }) { throw fail("\(beatID) 沒有對錯，猜測不得有 truth") }
+        case .graded(let right, let wrong):
+            guard reactions.contains(right), reactions.contains(wrong) else { throw fail("\(beatID) 的 reaction_for_truth 指向不存在的反應") }
+            if bank.guesses.contains(where: { $0.truth != "right" && $0.truth != "wrong" }) {
+                throw fail("\(beatID) 有對錯，每筆猜測都要有 truth（right／wrong）")
+            }
+        }
+    }
+
+    /// 拖曳：每張卡都有答案、答案指向存在的目標；每個順序都剛好是所有卡各一次。
+    private static func verify(_ drag: DragBeat, beatID: String, fail: (String) -> ContentError) throws {
+        let items = Set(drag.items.map(\.id))
+        switch drag.mode {
+        case .match(let targets, let pairs):
+            guard Set(pairs.keys) == items, Set(pairs.values).isSubset(of: targets.map(\.id)) else { throw fail("\(beatID) 的配對不完整") }
+        case .group(let groups, let assignments):
+            guard Set(assignments.keys) == items, Set(assignments.values).isSubset(of: groups.map(\.id)) else { throw fail("\(beatID) 的分組不完整") }
+        case .order(let correct, let alternatives):
+            for order in [correct] + alternatives where order.count != items.count || Set(order) != items {
+                throw fail("\(beatID) 的順序必須剛好包含每張卡各一次")
+            }
+            // 同 pipeline：不得重複列出同一個順序
+            guard Set(([correct] + alternatives).map { $0.joined(separator: "|") }).count == alternatives.count + 1 else {
+                throw fail("\(beatID) 重複列出同一個順序")
+            }
         }
     }
 }

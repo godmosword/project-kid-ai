@@ -58,15 +58,18 @@ struct DragBeat: Hashable, Sendable {
     static let keys: Set<String> = ["prompt", "hint", "mode", "items", "targets", "pairs", "correct_order", "alt_orders",
                                     "groups", "assignments", "feedback", "max_attempts", "after_max"]
     let prompt: TextItem
+    let hint: TextItem?
     let items: [Option]
     let mode: DragMode
+    let feedback: Feedback
+    let attempts: Attempts
 
     init(_ c: StrictContainer) throws {
         prompt = try c.required("prompt")
-        let _: TextItem? = try c.optional("hint")
+        hint = try c.optional("hint")
         items = try c.required("items")
-        _ = try Feedback.graded(c)
-        _ = try Attempts(c)
+        feedback = try Feedback.graded(c)
+        attempts = try Attempts(c)
         switch try c.required("mode") as String {
         case "match":
             try c.forbid(["correct_order", "alt_orders", "groups", "assignments"])
@@ -147,6 +150,7 @@ struct SandboxBeat: Hashable, Sendable {
     let scoring: SandboxScoring
     let closingLine: TextItem
     let feedback: Feedback
+    let attempts: Attempts
 
     init(_ c: StrictContainer) throws {
         sandboxRef = try c.required("sandbox_ref")
@@ -154,7 +158,7 @@ struct SandboxBeat: Hashable, Sendable {
         reactionPrompt = try c.required("reaction_prompt")
         reactions = try c.required("reactions")
         closingLine = try c.required("closing_line")
-        let attempts = try Attempts(c)
+        attempts = try Attempts(c)
         switch try c.required("scoring") as String {
         case "open":
             try c.forbid(["reaction_for_truth"])

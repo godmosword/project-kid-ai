@@ -41,4 +41,22 @@ struct PlaceholderArtTests {
         #expect(PlaceholderArt.table["img_slot_breakfast"] == .corner("🍽️"), "早餐卡只露一角")
         #expect(PlaceholderArt.table["img_card_ai"] == .guessHat, "AI 卡和猜猜帽一致")
     }
+
+    @Test("單元 3 要孩子看圖檢查：小狗畫得出四隻腳；單元 2 模糊貓和願望圖不同")
+    func artSupportsTruth() {
+        #expect(PlaceholderArt.table["img_u3_card_dog"] == .countableDog)
+        #expect(PlaceholderArt.table["img_u2_wish_cat"] == .sittingCat, "願望：坐著的小黃貓")
+        #expect(PlaceholderArt.table["img_u2_guess_cat_clear"] == .sittingCat, "說清楚：畫對了")
+        #expect(PlaceholderArt.table["img_u2_guess_cat_vague"] == .standingCat, "說不清楚：站著的大白貓")
+    }
+
+    @Test("單元 2 第 1 關：小熊和小兔的聲音不同")
+    @MainActor
+    func bearAndRabbitSoundDifferent() {
+        let bear = Narrator.voice(for: .sound(key: "sfx_u2_bear_vague"))
+        let rabbit = Narrator.voice(for: .sound(key: "sfx_u2_rabbit_clear"))
+        let fallback = Narrator.voice(for: .sound(key: "unknown"))
+        #expect(bear != rabbit)
+        #expect(bear != fallback && rabbit != fallback)
+    }
 }

@@ -36,12 +36,6 @@ struct ContentLoaderTests {
         #expect(Approval.hash("我猜是一隻狐狸") == "6567aff2ccaa")
     }
 
-    @Test("本版只讓單元 1 可玩（D29'）")
-    func onlyUnitOnePlayable() throws {
-        let units = try RepoContent.all()
-        #expect(UnitEngine.unsupported(units[0]).isEmpty)
-        #expect(units.dropFirst().allSatisfy { !UnitEngine.unsupported($0).isEmpty })
-    }
 
     @Test("格式錯誤的內容一律失敗", arguments: [
         #"{"id":"b","type":"dance","est_seconds":1}"#,

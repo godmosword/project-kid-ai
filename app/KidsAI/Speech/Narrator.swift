@@ -122,6 +122,14 @@ final class Narrator: NSObject, LineSpeaker, AVSpeechSynthesizerDelegate {
         "sfx_voice_family_short": (0.44, 0.9),
         "sfx_voice_toy_short": (0.5, 1.5),
         "sfx_voice_ai_short": (0.45, 1.28),
+        // 單元 2 第 1 關：小熊（低、慢）和小兔（高、快）要聽得出是不同角色
+        "sfx_u2_bear_vague": (0.4, 0.78),
+        "sfx_u2_rabbit_clear": (0.47, 1.35),
+        // 單元 3 分組字卡：用旁白的聲音念句子
+        "sfx_u3_fish": (0.42, 1.0),
+        "sfx_u3_moon": (0.42, 1.0),
+        "sfx_u3_ice": (0.42, 1.0),
+        "sfx_u3_sun": (0.42, 1.0),
     ]
 
     static func voice(for role: VoiceRole) -> (rate: Float, pitch: Float) {

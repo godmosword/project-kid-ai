@@ -8,6 +8,10 @@ final class AppModel {
     private(set) var units: [UnitContent] = []
     private(set) var loadError: String?
     private(set) var completed: Set<String> = []
+    #if DEBUG
+    /// 試玩用：`-unlockAll` 直接開放所有能玩的單元（只在 Debug build，不寫入完成進度）。
+    private var unlockAll = false
+    #endif
     var active: UnitStore?
     let narrator = Narrator()
 
@@ -26,17 +30,24 @@ final class AppModel {
     /// 截圖驗證用：`-openUnit 0 -beat 5` 直接打開單元 1 的第 6 關（只在 Debug build）。
     private func openFromLaunchArguments() {
         let arguments = ProcessInfo.processInfo.arguments
+        unlockAll = arguments.contains("-unlockAll")
         func value(_ name: String) -> Int? {
             arguments.firstIndex(of: name).flatMap { arguments.indices.contains($0 + 1) ? Int(arguments[$0 + 1]) : nil }
         }
         guard let unit = value("-openUnit"), units.indices.contains(unit) else { return }
         open(unit)
         active?.startBeat = value("-beat")
+        if let index = arguments.firstIndex(of: "-events"), arguments.indices.contains(index + 1) {
+            active?.debugEvents = DebugEvents.parse(arguments[index + 1])
+        }
     }
     #endif
 
     func isPlayable(_ index: Int) -> Bool {
         guard units.indices.contains(index), UnitEngine.unsupported(units[index]).isEmpty else { return false }
+        #if DEBUG
+        if unlockAll { return true }
+        #endif
         return index == 0 || completed.contains(units[index - 1].unit.id)
     }
 

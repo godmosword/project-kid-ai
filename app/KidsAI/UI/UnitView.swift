@@ -10,6 +10,7 @@ struct UnitView: View {
     @AccessibilityFocusState private var headingFocused: Bool
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     private static let topID = "top"
     private static let bottomID = "bottom"
@@ -17,28 +18,33 @@ struct UnitView: View {
     var body: some View {
         VStack(spacing: 0) {
             topBar
-            ScrollViewReader { proxy in
-                ScrollView {
-                    VStack(spacing: 0) {
-                        Color.clear.frame(height: 1).id(Self.topID)
-                        content
-                            .id(store.engine.beatIndex)
-                            .transition(.opacity)
-                        Color.clear.frame(height: 1).id(Self.bottomID)
+            GeometryReader { geometry in
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        VStack(spacing: 0) {
+                            Color.clear.frame(height: 1).id(Self.topID)
+                            content
+                                .id(store.engine.beatIndex)
+                                .transition(.opacity)
+                            Color.clear.frame(height: 1).id(Self.bottomID)
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 12)
+                        .frame(maxWidth: 700)
+                        .frame(maxWidth: .infinity)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
-                    .frame(maxWidth: 700)
-                    .frame(maxWidth: .infinity)
+                    .scrollDisabled(store.isDragging)
+                    .onChange(of: store.phase) { old, new in follow(proxy, from: old, to: new) }
+                    .onChange(of: store.hintShown) { _, shown in
+                        if shown { scroll(proxy, to: Self.bottomID) }
+                    }
+                    .onChange(of: store.isNarrating) { _, narrating in
+                        // 沙盒的反應鈕在猜測念完才出現：捲到看得到的地方；
+                        // 要「看圖檢查」的沙盒捲到圖的頂端，不捲到底（CRITICAL-11）
+                        if !narrating, case .sandbox(let s) = store.phase { scroll(proxy, to: sandboxAnchor(s)) }
+                    }
                 }
-                .onChange(of: store.phase) { follow(proxy) }
-                .onChange(of: store.hintShown) { _, shown in
-                    if shown { scroll(proxy, to: Self.bottomID) }
-                }
-                .onChange(of: store.isNarrating) { _, narrating in
-                    // 沙盒的反應鈕在猜測念完才出現：捲到看得到的地方
-                    if !narrating, case .sandbox = store.phase { scroll(proxy, to: Self.bottomID) }
-                }
+                .environment(\.contentWidth, min(700, geometry.size.width) - 40)
             }
             bottomBar
         }
@@ -65,6 +71,7 @@ struct UnitView: View {
         case .question: QuestionView(store: store, focus: $headingFocused)
         case .sayTogether: SayTogetherView(store: store, focus: $headingFocused)
         case .sandbox: SandboxView(store: store, focus: $headingFocused)
+        case .drag: DragView(store: store, focus: $headingFocused)
         case .story: StoryView(store: store, focus: $headingFocused)
         case .sticker, .finished: StickerView(store: store, focus: $headingFocused)
         case .lines: LinesView(store: store, focus: $headingFocused)
@@ -72,18 +79,37 @@ struct UnitView: View {
     }
 
     /// 換了畫面：回到最上面、VoiceOver 焦點移到題目；同一畫面多了回饋：捲到下面。
-    private func follow(_ proxy: ScrollViewProxy) {
+    /// 拖曳時放卡不捲（手下的目標不會跑走）；最大字級選起卡時捲到目標區。
+    private func follow(_ proxy: ScrollViewProxy, from old: Phase, to new: Phase) {
         if store.screenKey != shownScreen {
             shownScreen = store.screenKey
             scroll(proxy, to: Self.topID)
             focusHeading()
-        } else {
+            return
+        }
+        switch (old, new) {
+        case (.drag(let before), .drag(let after)):
+            if before.attempts != after.attempts || before.outcome != after.outcome {
+                scroll(proxy, to: Self.bottomID)
+            } else if before.selected == nil, after.selected != nil, typeSize.isAccessibilitySize {
+                scroll(proxy, to: DragView.targetsID)
+            }
+        case (.sandbox, .sandbox(let after)):
+            scroll(proxy, to: sandboxAnchor(after))
+        default:
             scroll(proxy, to: Self.bottomID)
         }
     }
 
+    /// 沙盒要捲到哪：有對錯的（看圖檢查）捲到主題圖；兩張卡並排比較回到最上面；其他捲到底。
+    private func sandboxAnchor(_ s: SandboxState) -> String {
+        guard !s.closing, let sandbox = store.engine.sandboxBeat, let slot = store.engine.sandboxSlot(s) else { return Self.bottomID }
+        if SandboxView.isComparing(s, slot, store.engine) { return Self.topID }
+        return sandbox.scoring == .open ? Self.bottomID : SandboxView.artID
+    }
+
     private func scroll(_ proxy: ScrollViewProxy, to id: String) {
-        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.25)) { proxy.scrollTo(id, anchor: id == Self.topID ? .top : .bottom) }
+        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.25)) { proxy.scrollTo(id, anchor: id == Self.bottomID ? .bottom : .top) }
     }
 
     private func focusHeading() {

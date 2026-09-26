@@ -81,7 +81,7 @@ struct SayTogetherView: View {
     let focus: HeadingFocus
 
     var body: some View {
-        if case .asr(let asr) = store.engine.beat.kind, case .line(let line) = asr.target {
+        if case .asr(let asr) = store.engine.beat.kind, let line = store.engine.readAlongLine {
             let active = store.isNarrating && store.caption?.role == .readAlong
             VStack(spacing: 24) {
                 Text(asr.prompt.zhHant).font(.largeTitle.bold())
@@ -109,66 +109,6 @@ struct SayTogetherView: View {
         var rest = AttributedString(ns.substring(from: cut))
         rest.foregroundColor = Theme.ink
         return done + rest
-    }
-}
-
-/// 沙盒：猜猜帽對每張卡說出猜測；孩子對猜測做反應。三張卡都玩一次（D36）。
-struct SandboxView: View {
-    let store: UnitStore
-    let focus: HeadingFocus
-
-    var body: some View {
-        if let sandbox = store.engine.sandboxBeat, let definition = store.engine.sandboxDefinition,
-           case .sandbox(let s) = store.phase, s.slotIndex < definition.slots.count {
-            let slot = definition.slots[s.slotIndex]
-            VStack(spacing: 20) {
-                if s.closing {
-                    GuessHat(size: 120)
-                    NarratorLine(store: store, item: sandbox.closingLine).accessibilityFocused(focus)
-                } else {
-                    Text(slot.label.zhHant).font(.title.bold())
-                        .accessibilityAddTraits(.isHeader)
-                        .accessibilityFocused(focus)
-                    ArtView(key: slot.image, size: 110, label: slot.a11yLabel ?? slot.label.zhHant)
-                    if s.choiceID == nil {
-                        NarratorLine(store: store, item: sandbox.prompt)
-                        OptionGrid(options: slot.choices) { option in
-                            OptionCard(option: option) { store.send(.pickCard(option.id)) }
-                        }
-                    }
-                    ForEach(s.guesses, id: \.id) { guess in
-                        VStack(alignment: .leading, spacing: 8) {
-                            SpeechBubble(text: guess.text.zhHant, isAI: true, isSpeaking: store.isSpeaking(guess.text.zhHant))
-                            if guess.uncertainty == .unsure {
-                                Label(EngineText.unsure, systemImage: "questionmark.bubble.fill")
-                                    .font(.title3.bold())
-                                    .foregroundStyle(.white)
-                                    .padding(.horizontal, 12).padding(.vertical, 6)
-                                    .background(Theme.ai, in: Capsule())
-                                    .padding(.leading, 64)
-                            }
-                        }
-                    }
-                    if !s.guesses.isEmpty {
-                        NarratorLine(store: store, item: sandbox.reactionPrompt)
-                        // 猜測念完才出現反應鈕，孩子先聽完再反應
-                        if !store.isNarrating || s.reaction != nil {
-                            OptionGrid(options: sandbox.reactions) { option in
-                                OptionCard(option: option, state: reactionState(option, s)) { store.send(.react(option.id)) }
-                            }
-                        }
-                    }
-                    if s.reaction != nil || (s.choiceID != nil && s.guesses.isEmpty) {
-                        NarratorLine(store: store, item: sandbox.feedback.reveal)
-                    }
-                }
-            }
-        }
-    }
-
-    private func reactionState(_ option: Option, _ s: SandboxState) -> OptionState {
-        if s.reaction == option.id { return .chosen }
-        return s.reaction != nil || store.inputLocked ? .disabled : .normal
     }
 }
 
