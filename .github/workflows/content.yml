@@ -1,0 +1,35 @@
+# 每次 push／PR 自動驗證課程內容與驗證規則（見 content/README.md）。
+name: content
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: 安裝固定版本的驗證套件
+        run: pip install -r pipeline/requirements.txt
+
+      - name: 驗證 content/（不允許未核准的猜測）
+        run: python pipeline/validate_content.py
+
+      - name: 正反例必須和產生器一致
+        run: |
+          python pipeline/fixtures/make_fixtures.py
+          git diff --exit-code -- pipeline/fixtures
+
+      - name: 跑正反例
+        run: python pipeline/validate_content.py --fixtures
