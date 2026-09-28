@@ -22,9 +22,10 @@ Preconditions:
 
 - baseline；`doctor` 通過。
 
-- **打開單元（from-map）。** 點「認識島」。needs-V2-driver。
+- **打開單元（from-map）。** 點「認識島」。`record --flow map-to-unit1 --run $RUN`。看得到：單元 1 開場、頂列 X。
 - **看開場畫面（前置狀態）。** `launch --unit 0 --beat 0`。看得到：點點的大頭像、三個點點說話框（「我是點點，不是 AI 喔。」等）、頂列 X／進度點（第 1 格）／🔊。這只是前置狀態截圖，不能當「點島進單元」的證明。
-- **下一步、重念、長按離開、進背景。** needs-V2-driver。
+- **下一步（next）。** `record --flow story-branch --run $RUN`（念完才出現 `unit.next`，點了之後故事往下走）。
+- **重念、長按離開、進背景。** needs-flow（長按 1.5 秒與進背景還沒有流程測試）。
 
 ## Gotchas
 

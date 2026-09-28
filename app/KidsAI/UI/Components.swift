@@ -100,6 +100,7 @@ struct OptionCard: View {
         .disabled(state == .disabled)
         .accessibilityLabel(option.a11yLabel.map { "\(option.label.zhHant)，\($0)" } ?? option.label.zhHant)
         .accessibilityAddTraits(state == .correct || state == .chosen ? .isSelected : [])
+        .accessibilityIdentifier("option.\(option.id)")
     }
 }
 
@@ -134,8 +135,10 @@ struct SoundOptionRow: View {
             .disabled(state == .disabled)
             .accessibilityLabel(option.a11yLabel.map { "\(option.label.zhHant)，\($0)" } ?? option.label.zhHant)
             .accessibilityAddTraits(state == .correct || state == .chosen ? .isSelected : [])
+            .accessibilityIdentifier("option.\(option.id)")
             IconButton(systemImage: "play.circle.fill", label: "再聽一次\(option.label.zhHant)", action: onPlay)
                 .disabled(state == .disabled)
+                .accessibilityIdentifier("option.\(option.id).play")
         }
         .padding(12)
         .modifier(CardChrome(state: state, isHighlighted: isHighlighted))

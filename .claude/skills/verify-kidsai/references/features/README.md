@@ -15,7 +15,19 @@
 ## Driving conventions
 
 - 從 baseline 開始，除非功能檔的 Preconditions 另有寫明。
-- 啟動參數（`--unit`、`--beat`、`--unlock-all`、`--events`）只能準備前置狀態；要證明的操作本身一定要是孩子真的做的動作。V1 還沒有點擊自動化，這類步驟標 `needs-V2-driver`。
+- 啟動參數（`--unit`、`--beat`、`--unlock-all`、`--events`）只能準備前置狀態；要證明的操作本身一定要是孩子真的做的動作：用 `record --flow`（XCUITest 真實點擊）。還沒有流程測試的操作標 `needs-flow`，寫明原因。
+- 流程測試用 `accessibilityIdentifier` 找元素（不假設元素型別）：
+
+| identifier | 元素 | 何時存在 |
+|---|---|---|
+| `map.island.<0-3>` | 地圖的島（按鈕） | 地圖 |
+| `unit.exit`、`unit.replay` | 頂列的 X（長按離開）、🔊 | 單元內 |
+| `unit.next`、`unit.backToMap` | 下方「下一步」、貼紙頁「回地圖」 | 可前進時、貼紙頁 |
+| `say.button` | 「一起說／再說一次」 | 跟讀關、沒上鎖時 |
+| `option.<id>`、`option.<id>.play` | 選項卡、反應卡、沙盒句子卡；第 1 關的重聽鈕 | 題目、沙盒 |
+| `story.choice.<id>` | 故事分歧 | 分歧節點、旁白念完 |
+| `drag.card.<id>`、`drag.target.<id>`、`drag.tray` | 拖曳的卡、目標、卡片區 | 拖曳關 |
+| `feedback` | 點點框裡的回饋句 | 只有出現回饋時 |
 - 單元編號（`--unit`，0 起算）與關卡編號（`--beat`）：
 
 | `--unit` | 單元 | `--beat` 0–8 |
@@ -33,26 +45,31 @@
 
 - 同一段錄影裡要有觸發動作和最終狀態；另外截一張最終狀態。
 - 每個證據都記 feature id 與進入點（`run new --feature <id> --entry <entry>`）。
-- 走不到的進入點：寫明進入點、試過的命令和缺的前提（例如 `needs-V2-driver`）。不得用別的進入點代替後宣稱已驗證。
+- 走不到的進入點：寫明進入點、試過的命令和缺的前提（例如 `needs-flow`）。不得用別的進入點代替後宣稱已驗證。
 - 截圖與錄影證明不了語音（模擬器可能沒有 zh-TW 語音，錄影沒有聲音）。
 - 發布前逐張看過畫面內容（SKILL.md 的 Evidence）。
 
 ## Full sweep
 
-回歸掃描時依下表由上而下走；V1 只有標「V1 可證明」的格子能產生證據，其他照實回報 `needs-V2-driver`。
+回歸掃描時依下表由上而下走；只有「可證明」的格子能產生證據，其他照實回報 `needs-flow`（還沒有流程測試）並寫原因。
 
-| 功能 | 進入點 | V1 |
+| 功能 | 進入點 | 怎麼證明 |
 |---|---|---|
-| [map](./map.md) | `app-launch`：從主畫面打開 App → 地圖 | **V1 可證明** |
-| map | `unlock-all`：Debug `--unlock-all` 啟動 → 四個島都可進 | **V1 可證明**（Debug 前置狀態，只證明地圖外觀） |
-| map | `tap-island`：點島進單元 | needs-V2-driver |
-| [unit-flow](./unit-flow.md) | `from-map` 點島 → 單元開場 | needs-V2-driver |
-| unit-flow | `next`、`replay`、`hold-to-exit` | needs-V2-driver |
-| [say-together](./say-together.md) | `button`：按「一起說」 | needs-V2-driver |
-| [sandbox](./sandbox.md) | `open`、`multi-card`、`graded` 的反應 | needs-V2-driver |
-| [review-and-sticker](./review-and-sticker.md) | `answer`、`finish` | needs-V2-driver |
+| [map](./map.md) | `app-launch`：從主畫面打開 App → 地圖 | 可證明：`launch`＋`record start/stop` |
+| map | `unlock-all`：Debug `--unlock-all` → 四個島都可進 | 可證明（Debug 前置狀態，只證明地圖外觀） |
+| map | `tap-island`：點島進單元 | 可證明：`record --flow map-to-unit1` |
+| map | `map-unlock`：完成單元 → 下一島解鎖 | 可證明：`record --flow sticker` |
+| [unit-flow](./unit-flow.md) | `from-map`、`next` | 可證明：`map-to-unit1`、`story-branch` |
+| unit-flow | `replay`、`hold-to-exit`、進背景 | needs-flow（長按與進背景還沒有流程） |
+| [say-together](./say-together.md) | `button`：按「一起說」 | 可證明：`record --flow say-together` |
+| [sandbox](./sandbox.md) | `multi-card`：選卡＋反應＋第二張卡 | 可證明：`record --flow sandbox-pick-and-react` |
+| sandbox | `open`、`graded` 的反應 | needs-flow（V3 補） |
+| [drag](./drag.md) | `tap-to-place`：點卡再點空格 | 可證明：`record --flow drag-tap-to-place` |
+| drag | 手指拖曳、分組、排序 | needs-flow（手指拖曳留給實機） |
+| [review-and-sticker](./review-and-sticker.md) | `finish`：回地圖 | 可證明：`record --flow sticker` |
+| review-and-sticker | `answer`：回顧題作答 | needs-flow（V3 補） |
 
-之後要補的功能檔（V3）：選擇題（choice-question）、拖曳（drag）、故事（story）、觀察員選單（observer-menu）、系統狀態（system-states：進背景、VoiceOver、最大字級）。
+之後要補的功能檔（V3）：選擇題（choice-question）、故事（story）、觀察員選單（observer-menu）、系統狀態（system-states：進背景、VoiceOver、最大字級）。
 
 ## Feature entry contract
 
@@ -71,4 +88,5 @@
 - [單元共通流程](./unit-flow.md)：頂列（長按離開、進度點、重念）、下一步、進背景再回來。
 - [一起說](./say-together.md)：固定句、依前面選擇決定的句子、再說一次。
 - [沙盒](./sandbox.md)：猜猜帽猜測、反應、多張卡比較、有對錯的看圖檢查。
+- [拖曳](./drag.md)：配對、分組、排序；點選放卡、交換、自動檢查。
 - [回顧與貼紙](./review-and-sticker.md)：回顧題、貼紙頁、家長卡、回地圖。

@@ -25,8 +25,8 @@ Preconditions:
 - **打開 App（app-launch）。** 從主畫面打開。先 `record start --run $RUN --name map-launch`，再 `launch`。看得到：地圖上四個島，「認識島」全彩、其他三個有鎖並變淡；下方點點的框寫著「我們去哪個島？」。
 - **最終狀態截圖。** 等上面的畫面出現後 `screenshot --run $RUN --name map-islands`，再 `record stop --run $RUN --name map-launch`。截圖 1170×2532。
 - **全部解鎖（unlock-all）。** 新開一個 run（`--entry unlock-all`），`launch --unlock-all`。看得到：四個島都全彩、沒有鎖。這只證明 Debug 參數有效，不是孩子的路徑。
-- **點島進單元（tap-island）。** needs-V2-driver。
-- **完成單元後出現星星（map-unlock）。** needs-V2-driver（要走完一個單元）。
+- **點島進單元（tap-island）。** 真實點擊 `map.island.0`。`run new --feature map --entry tap-island`，`record --flow map-to-unit1 --run $RUN`。看得到：地圖 → 點認識島（橘框）→ 單元 1 開場（頂列 X 出現、地圖消失）。
+- **完成單元後解鎖（map-unlock）。** 從貼紙頁按「回地圖」。`record --flow sticker --run $RUN`。看得到：回到地圖，提問島可以點。
 
 ## Gotchas
 

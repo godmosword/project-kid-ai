@@ -123,10 +123,12 @@ struct UnitView: View {
     private var topBar: some View {
         HStack {
             HoldToExitButton(action: onExit)
+                .accessibilityIdentifier("unit.exit")
             Spacer()
             ProgressDots(current: store.engine.beatIndex, total: store.engine.content.unit.beats.count)
             Spacer()
             IconButton(systemImage: "speaker.wave.2.fill", label: "再念一次", action: store.replay)
+                .accessibilityIdentifier("unit.replay")
         }
         .padding(.horizontal, 16)
         .padding(.top, 8)
@@ -140,15 +142,18 @@ struct UnitView: View {
                         store.send(.next)
                         onFinish()
                     }
+                    .accessibilityIdentifier("unit.backToMap")
                 }
             } else {
                 if case .sayTogether(let done) = store.phase, !store.inputLocked {
                     PrimaryButton(title: done ? "再說一次" : "一起說", systemImage: "mouth.fill", secondary: done) {
                         store.send(.sayTogether)
                     }
+                    .accessibilityIdentifier("say.button")
                 }
                 if store.canShowNext {
                     PrimaryButton(title: "下一步", systemImage: "arrow.right") { store.send(.next) }
+                        .accessibilityIdentifier("unit.next")
                 }
             }
         }
