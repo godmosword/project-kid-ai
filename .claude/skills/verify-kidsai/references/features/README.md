@@ -70,6 +70,7 @@
 | sandbox | `open` 的反應 | needs-flow（還沒有流程） |
 | [drag](./drag.md) | `tap-to-place`：點卡再點空格 | 可證明：`record --flow drag-tap-to-place` |
 | drag | 手指拖曳、分組、排序 | needs-flow（手指拖曳留給實機） |
+| drag | VoiceOver「放到〇〇」動作 | verified-unreachable（需要實機） |
 | [review-and-sticker](./review-and-sticker.md) | `finish`：回地圖 | 可證明：`record --flow sticker` |
 | review-and-sticker | `answer`：回顧題作答 | needs-flow（還沒有流程；不得拿第 1 關選擇題的證據代替） |
 | [story](./story.md) | `branch`：下一步＋分歧 | 可證明：`record --flow story-branch` |
@@ -77,6 +78,7 @@
 | [system-states](./system-states.md) | `background`：進背景再回來 | 可證明：`record --flow background-resume` |
 | system-states | 遮罩、字級、減少動態效果 | needs-flow（見功能檔） |
 | system-states | 螢幕不變暗、VoiceOver | verified-unreachable（需要實機） |
+| system-states | 內容載入失敗畫面 | verified-unreachable（需要壞掉的內容檔） |
 | [observer-menu](./observer-menu.md) | `two-finger-hold` | verified-unreachable（兩指長按，需要人手） |
 
 `verified-unreachable` 表示自動化到不了，功能檔寫明缺的前提（例如需要實機或人手）；不是壞掉。設計稿對照見 [design-map.md](../design-map.md)。
