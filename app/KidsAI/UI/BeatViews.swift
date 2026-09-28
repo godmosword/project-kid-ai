@@ -6,10 +6,13 @@ typealias HeadingFocus = AccessibilityFocusState<Bool>.Binding
 struct NarratorLine: View {
     let store: UnitStore
     let item: TextItem?
+    /// 給 UI 測試找的識別名稱（例如回饋句是 `feedback`）；不影響 VoiceOver。
+    var identifier: String? = nil
 
     var body: some View {
         if let item, item.audience == .child {
             SpeechBubble(text: item.zhHant, isAI: false, isSpeaking: store.isSpeaking(item.zhHant))
+                .accessibilityIdentifier(identifier ?? "")
         }
     }
 }
@@ -47,7 +50,7 @@ struct QuestionView: View {
                         }
                     }
                 }
-                NarratorLine(store: store, item: feedback(q, question))
+                NarratorLine(store: store, item: feedback(q, question), identifier: "feedback")
             }
         }
     }
@@ -138,6 +141,7 @@ struct StoryView: View {
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(choice.a11yLabel.map { "\(choice.label.zhHant)，\($0)" } ?? choice.label.zhHant)
+                        .accessibilityIdentifier("story.choice.\(choice.id)")
                     }
                 }
             }

@@ -22,76 +22,123 @@ enum Flow {
         app.descendants(matching: .any)[id].firstMatch
     }
 
-    /// 等元素出現而且可以點。
+    /// identifier 以某個字首開頭的第一個元素（例如故事分歧 `story.choice.`）。
+    static func first(_ app: XCUIApplication, prefix: String) -> XCUIElement {
+        app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@", prefix)).firstMatch
+    }
+
+    /// 等元素出現而且可以點（前置階段用，不截圖）。
     static func waitHittable(_ element: XCUIElement, timeout: TimeInterval = timeout,
                              file: StaticString = #filePath, line: UInt = #line) {
         let predicate = NSPredicate(format: "exists == true AND hittable == true")
         let expectation = XCTNSPredicateExpectation(predicate: predicate, object: element)
-        let result = XCTWaiter().wait(for: [expectation], timeout: timeout)
-        XCTAssertEqual(result, .completed, "等不到可以點：\(element)", file: file, line: line)
+        XCTAssertEqual(XCTWaiter().wait(for: [expectation], timeout: timeout), .completed, "等不到可以點：\(element)",
+                       file: file, line: line)
     }
 
-    /// 等元素消失。
-    static func waitGone(_ element: XCUIElement, timeout: TimeInterval = timeout,
-                         file: StaticString = #filePath, line: UInt = #line) {
-        let expectation = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: element)
-        XCTAssertEqual(XCTWaiter().wait(for: [expectation], timeout: timeout), .completed, "一直沒有消失：\(element)", file: file, line: line)
-    }
-
-    /// 等到可以點再點（真實點擊）。
-    static func tap(_ element: XCUIElement, file: StaticString = #filePath, line: UInt = #line) {
-        waitHittable(element, file: file, line: line)
-        element.tap()
-    }
+    static func hittable(_ element: XCUIElement) -> Bool { element.exists && element.isHittable }
 }
 
-/// 和 control-kidsai 的錄影握手（只在 `record --flow` 時啟用；`drive --flow` 沒有設定就跳過）。
-/// 路徑由 `TEST_RUNNER_KIDSAI_HANDSHAKE` 傳入；順序：ready → 等 go → 點擊 → done／failed → 等 end。
-/// 等 end：CLI 停好錄影才讓測試結束（錄影還在跑時結束測試，xcodebuild 會卡在收尾）。
-/// 只讀寫檔案，不碰 UI，所以不綁 main actor（tearDown 也能呼叫）。
+/// 和 control-kidsai 的約定（只在 `record --flow` 時有；`drive --flow` 沒設定就全部跳過）：
+/// 路徑由 `TEST_RUNNER_KIDSAI_HANDSHAKE` 傳入；測試把截圖（frame-NNN.png）、點擊位置（taps.json）寫進去，
+/// 結束時寫 done（所有斷言都通過）或 failed。CLI 以這個旗標判斷通過：Xcode 27 的 xcodebuild 偶爾會卡在收尾，不能只看它的結束碼。
+/// UI 測試執行期間不能錄影（會讓 xcodebuild 卡住），所以用截圖接成縮時影片。
 enum Handshake {
     static var directory: URL? {
         ProcessInfo.processInfo.environment["KIDSAI_HANDSHAKE"].map { URL(fileURLWithPath: $0, isDirectory: true) }
     }
 
-    /// 前置狀態就緒：通知 CLI 開始錄影，等 CLI 回 go（最多 30 秒）。
-    static func ready(file: StaticString = #filePath, line: UInt = #line) {
-        guard directory != nil else { return }
-        signal("ready")
-        if !wait(for: "go", seconds: 30) {
-            XCTFail("等不到錄影開始（go）", file: file, line: line)
-        }
-    }
-
-    /// 結束訊號：寫 done 或 failed，再等 CLI 停好錄影（end，最多 30 秒）。
     static func finish(passed: Bool) {
-        guard directory != nil else { return }
-        signal(passed ? "done" : "failed")
-        _ = wait(for: "end", seconds: 30)
-    }
-
-    private static func wait(for name: String, seconds: TimeInterval) -> Bool {
-        guard let directory else { return true }
-        let path = directory.appendingPathComponent(name).path
-        let deadline = Date().addingTimeInterval(seconds)
-        while !FileManager.default.fileExists(atPath: path) {
-            if Date() > deadline { return false }
-            Thread.sleep(forTimeInterval: 0.1)
-        }
-        return true
-    }
-
-    /// 原子寫入：先寫暫存檔再改名，CLI 不會讀到寫一半的檔。
-    private static func signal(_ name: String) {
         guard let directory else { return }
+        let name = passed ? "done" : "failed"
         let temporary = directory.appendingPathComponent(".\(name).tmp")
         try? Data(name.utf8).write(to: temporary)
         try? FileManager.default.moveItem(at: temporary, to: directory.appendingPathComponent(name))
     }
 }
 
+/// 測試裡的截圖：影片的每一格。點擊前兩格會記下被點元素的位置，CLI 在那兩格畫框標出「點了這裡」。
+@MainActor
+enum Frames {
+    /// 最多 80 格（4 fps＝20 秒）；最後 4 格保留給最終狀態。
+    static let limit = 80
+    private static var index = 0
+    private static var taps: [[String: Int]] = []
+
+    /// `drive --flow` 只要通過與否，不截圖（`TEST_RUNNER_KIDSAI_FRAMES=0`）。
+    static var enabled: Bool { ProcessInfo.processInfo.environment["KIDSAI_FRAMES"] != "0" }
+
+    @discardableResult
+    static func snap(final: Bool = false) -> Int? {
+        guard enabled, let directory = Handshake.directory, index < (final ? limit : limit - 4) else { return nil }
+        index += 1
+        let data = XCUIScreen.main.screenshot().pngRepresentation
+        try? data.write(to: directory.appendingPathComponent(String(format: "frame-%03d.png", index)))
+        return index
+    }
+
+    /// 前置狀態：先截兩格當開頭。
+    static func begin() {
+        snap()
+        snap()
+    }
+
+    /// 真實點擊：點之前截兩格並記下位置（像素），再點。
+    static func tap(_ element: XCUIElement, file: StaticString = #filePath, line: UInt = #line) {
+        Flow.waitHittable(element, file: file, line: line)
+        let screen = XCUIScreen.main.screenshot().image
+        let scale = screen.scale
+        let frame = element.frame
+        for _ in 0..<2 {
+            guard let at = snap() else { break }
+            taps.append(["frame": at, "x": Int(frame.minX * scale), "y": Int(frame.minY * scale),
+                         "w": Int(frame.width * scale), "h": Int(frame.height * scale)])
+        }
+        saveTaps()
+        element.tap()
+    }
+
+    /// 點到有效果為止：畫面上看得到按鈕、但 App 還在念上一段（上鎖）時，點擊會被忽略（設計如此：外觀不變、只擋點擊）。
+    /// 點完等最多 3 秒看效果；沒有就像孩子一樣再點一次，最多 8 次。
+    static func tap(_ element: XCUIElement, until what: String, file: StaticString = #filePath, line: UInt = #line,
+                    _ effect: () -> Bool) {
+        for _ in 0..<8 {
+            tap(element, file: file, line: line)
+            let deadline = Date().addingTimeInterval(3)
+            repeat {
+                snap()
+                if effect() { return }
+                Thread.sleep(forTimeInterval: 0.3)
+            } while Date() < deadline
+        }
+        XCTFail("點了沒有效果：\(what)", file: file, line: line)
+    }
+
+    /// 一邊截圖一邊等條件成立（約每 0.5 秒一格）；逾時算失敗。
+    static func until(_ what: String, timeout: TimeInterval = Flow.timeout, file: StaticString = #filePath, line: UInt = #line,
+                      _ condition: () -> Bool) {
+        let deadline = Date().addingTimeInterval(timeout)
+        repeat {
+            snap()
+            if condition() { return }
+            Thread.sleep(forTimeInterval: 0.3)
+        } while Date() < deadline
+        XCTFail("等不到：\(what)", file: file, line: line)
+    }
+
+    /// 最終狀態：再截 4 格。
+    static func end() {
+        for _ in 0..<4 { snap(final: true) }
+    }
+
+    private static func saveTaps() {
+        guard let directory = Handshake.directory,
+              let data = try? JSONSerialization.data(withJSONObject: taps) else { return }
+        try? data.write(to: directory.appendingPathComponent("taps.json"))
+    }
+}
+
 /// 每支流程一個類別、一個 `testFlow`，給 `-only-testing:KidsAIUITests/<類別>` 用。
-/// 失敗（任何斷言失敗）時寫 failed，讓 CLI 丟棄這段錄影。
 class FlowTestCase: XCTestCase {
     override func setUp() {
         super.setUp()
@@ -102,29 +149,5 @@ class FlowTestCase: XCTestCase {
         let failures = (testRun?.failureCount ?? 0) + (testRun?.unexpectedExceptionCount ?? 0)
         Handshake.finish(passed: failures == 0)
         super.tearDown()
-    }
-}
-
-/// 原型：測試裡每 0.25 秒截一張圖（只在有握手資料夾時），給 CLI 接成影片。
-@MainActor
-enum Frames {
-    private static var index = 0
-
-    static func snap() {
-        guard let directory = Handshake.directory else { return }
-        index += 1
-        let data = XCUIScreen.main.screenshot().pngRepresentation
-        try? data.write(to: directory.appendingPathComponent(String(format: "frame-%03d.png", index)))
-    }
-
-    /// 一邊截圖一邊等條件成立（取代固定等待）。
-    static func record(until condition: () -> Bool, timeout: TimeInterval = 30) -> Bool {
-        let deadline = Date().addingTimeInterval(timeout)
-        repeat {
-            snap()
-            if condition() { return true }
-            Thread.sleep(forTimeInterval: 0.2)
-        } while Date() < deadline
-        return false
     }
 }

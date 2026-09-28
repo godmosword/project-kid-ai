@@ -48,18 +48,42 @@ C=.claude/skills/verify-kidsai/control-kidsai   # 在 repo 根目錄執行
 
 ## Drive
 
-V1 沒有點擊自動化（V2 才加 XCUITest＋accessibilityIdentifier）。現在能做的只有：
+兩種操作方式：
 
-- **打開 App**：`$C launch`（真實使用者路徑：從主畫面打開）。
-- **準備前置狀態**：`$C launch --unit/--beat/--unlock-all/--events`。
-- **看結果**：`$C screenshot`、`$C record start/stop`。
-- 需要點擊才能證明的步驟，在功能檔標 `needs-V2-driver`。**不得**用 `--events` 或 `--beat` 冒充點擊的證明：它們跳過了孩子實際的操作。
-- 語音：模擬器可能沒有 zh-TW 語音，這時字會一次全部顯示（CRITICAL-9 的路徑）；錄影沒有聲音。截圖與錄影**證明不了語音**，只能證明畫面。
-- 旁白時間不固定：等畫面出現最終狀態再截圖，不要只睡固定秒數就宣稱完成。
+**1. 真實點擊（XCUITest，首選）。** 流程測試在 `app/KidsAIUITests/Flows.swift`，每支一個類別，靠 `accessibilityIdentifier` 找元素（表列在 `references/features/README.md`）。
+
+```bash
+$C build --for-testing && $C install && $C doctor      # doctor 的 ui-tests 要是「和目前原始碼一致」
+$C drive --flow sandbox-pick-and-react                 # 只跑、不截圖：回報通過或失敗（連跑 3 次抓不穩定）
+```
+
+可用的流程：`map-to-unit1`、`say-together`、`sandbox-pick-and-react`、`drag-tap-to-place`、`story-branch`、`sticker`。每支流程只用啟動參數準備前置狀態，要證明的動作一定是真的點擊；等待一律等「元素可點」（30 秒上限），不用固定秒數。
+
+**2. 只打開 App 或準備前置狀態。** `$C launch`（從主畫面打開）、`$C launch --unit/--beat/--unlock-all/--events`。**不得**用 `--events` 或 `--beat` 冒充點擊的證明：它們跳過了孩子實際的操作。
+
+- 語音：模擬器可能沒有 zh-TW 語音，這時字會一次全部顯示（CRITICAL-9 的路徑）；影片沒有聲音。截圖與影片**證明不了語音**，只能證明畫面。
+- 旁白時間不固定：等畫面出現最終狀態，不要只睡固定秒數就宣稱完成。
+- **Xcode 27 的限制（2026-09 實測）**：
+  - UI 測試執行期間**不能用 `simctl` 錄影**，否則 `xcodebuild` 會一直卡在收尾（"waiting for test log to finish recording"）。所以真實點擊的證據用「測試裡的截圖接成縮時影片」（見 Evidence）。
+  - 即使不錄影，`xcodebuild` 偶爾也會在測試結束後卡住（常見於重開模擬器、重新 build 後的第一次）。CLI 以測試自己寫的 `done`／`failed` 判斷通過；旗標出現 30 秒後還沒結束，就停掉 `xcodebuild` 並重開專用模擬器（輸出 `"xcodebuild_hung": true`）。卡住後不重開，之後每次都會卡。
+- Mac 閒置睡著時模擬器會停住，測試會慢到逾時：CLI 用 `caffeinate -i` 包住 UI 測試；手動跑 `xcodebuild test` 時也要這樣做。
+- 一般跑 App 的單元測試時略過 UI 測試：`xcodebuild … test -skip-testing:KidsAIUITests`。
 
 ## Evidence
 
 每次證明是一個 run，放在 repo 根目錄的 `.verify/<run-id>/`（gitignore；cleanup 不會刪）。run-id＝`YYYYMMDD-HHMMSS-<7 碼 sha>`（台北時間）。
+
+**真實點擊的證據（首選）：**
+
+```bash
+RUN=$($C run new --feature sandbox --entry multi-card | python3 -c 'import sys,json;print(json.load(sys.stdin)["run"])')
+$C record --flow sandbox-pick-and-react --run $RUN     # 前置畫面 → 真實點擊 → 最終狀態
+$C snapshot --run $RUN --name sandbox-tree --unit 1 --beat 5   # 需要時：無障礙元素樹（JSON）
+```
+
+`record --flow` 不錄影：測試約每 0.5 秒截一張圖，CLI 以 4 fps 接成 ≤20 秒的**縮時影片**（MP4＋GIF），點擊前兩格用橘色框標出被點的元素，最後一格另存成 `<flow>-end.png`。流程沒通過就不留任何證據（exit 6）。
+
+**只打開 App 的證據（V1 的做法，例如 `map/app-launch`）：**
 
 ```bash
 RUN=$($C run new --feature map --entry app-launch | python3 -c 'import sys,json;print(json.load(sys.stdin)["run"])')
@@ -75,7 +99,7 @@ $C record stop --run $RUN --name map-launch      # ≤20 秒、h264；另產 GIF
 - 走真實使用者路徑。啟動參數只能準備前置狀態。
 - 同一段錄影裡要有**觸發動作**和**最終狀態**；截圖是最終狀態的清楚畫面。
 - 先跑 doctor；舊 build（exit 7）錄的不算。
-- 讀 `references/features/` 裡相關的功能檔，每個受影響的進入點都要走到；走不到的要寫明進入點和原因（例如 `needs-V2-driver`），不得用別的路徑代替後宣稱已驗證。
+- 讀 `references/features/` 裡相關的功能檔，每個受影響的進入點都要走到；走不到的要寫明進入點和原因（例如 `needs-flow`：還沒有流程測試），不得用別的路徑代替後宣稱已驗證。
 - 每個證據都寫明 feature id 和進入點（`run new --feature --entry`）。
 - 回歸掃描：依 `references/features/README.md` 由上而下走。
 
@@ -101,7 +125,8 @@ $C cleanup             # 只停本次啟動的：錄影（核對 pid 身分）�
 
 ## Helpers
 
-- `control-kidsai`（本目錄，可執行，Python 3 標準函式庫）：`$C --help`。子命令：`doctor`、`sim ensure|boot|shutdown|erase|statusbar`、`build`、`install`、`launch`、`terminate`、`run new`、`screenshot`、`record start|stop`、`cleanup`、`evidence frames|review|md|publish`。破壞性命令有 `--dry-run`；`sim erase` 一定要 `--yes`。
+- `control-kidsai`（本目錄，可執行，Python 3 標準函式庫；程式在 `lib/kidsai_core.py`、`kidsai_evidence.py`、`kidsai_flows.py`）：`$C --help`。子命令：`doctor`、`sim ensure|boot|shutdown|erase|statusbar`、`build [--for-testing]`、`install`、`launch`、`terminate`、`run new`、`screenshot`、`record start|stop`、`record --flow`、`drive --flow`、`snapshot`、`cleanup`、`evidence frames|review|md|publish`。破壞性命令有 `--dry-run`；`sim erase` 一定要 `--yes`。
+- 流程測試：`app/KidsAIUITests/`（`FlowSupport.swift` 的 `Flow`／`Frames`／`Handshake`、`Flows.swift` 的 6 支流程與 `SnapshotTree`）。新增流程：在 `Flows.swift` 加類別，再加進 `lib/kidsai_flows.py` 的 `FLOWS`。
 - 測試：`python3 -m unittest discover .claude/skills/verify-kidsai/tests`（不需要 Xcode、模擬器或網路）。
 - 需要：Xcode、XcodeGen、ffmpeg／ffprobe（`brew install ffmpeg`，產生 GIF 與驗證錄影）、已登入的 `gh`（發布證據）。
 - 功能地圖：[`references/features/`](references/features/)（每個功能一個檔，四個 H2：`Sub-features`、`How to get to it (user POV)`、`Driving it with control-kidsai`、`Gotchas`）。這裡刻意用 `references/features/`，不是 generator 預設的 `features/`，和 pstack 範例 repo 一致。

@@ -48,7 +48,7 @@ class FakeRunner:
         self.ps_line = None
         self.shutdown_fails = False
         self.popen_log = ""
-        self.handshake_flags = []
+        self.handshake_files = {}
         self.xcodebuild_code = 0
 
     def run(self, cmd, cwd=None, input=None, env=None):
@@ -97,8 +97,8 @@ class FakeRunner:
         Path(log_path).write_text(self.popen_log)
         folder = (env or {}).get("TEST_RUNNER_KIDSAI_HANDSHAKE")
         if folder and cmd[:2] == ["/bin/sh", "-c"]:
-            for flag in self.handshake_flags:
-                Path(folder, flag).write_text(flag)
+            for flag, content in self.handshake_files.items():
+                Path(folder, flag).write_text(content)
         return 4242
 
     def ran(self, *words):
@@ -273,12 +273,28 @@ class FlowTests(Base):
 
     def test_drive_passes_and_fails(self):
         self.fresh_runner()
+        self.runner.handshake_files = {"done": "done", "exit": "0"}
         code, out = self.call("drive", "--flow", "map-to-unit1")
         self.assertEqual(code, 0, out)
-        self.assertTrue(any("-only-testing:KidsAIUITests/FlowMapToUnit1" in c for c in self.runner.calls))
-        self.runner.xcodebuild_code = 65
+        self.assertTrue(any("-only-testing:KidsAIUITests/FlowMapToUnit1" in " ".join(c) for c in self.runner.calls))
+        self.runner.handshake_files = {"failed": "failed", "exit": "65"}
         code, _ = self.call("drive", "--flow", "map-to-unit1")
         self.assertEqual(code, ck.EXIT_EVIDENCE)
+
+    def test_tests_run_under_caffeinate(self):
+        self.fresh_runner()
+        self.runner.handshake_files = {"done": "done", "exit": "0"}
+        self.call("drive", "--flow", "map-to-unit1")
+        shell = next(c for c in self.runner.calls if c[:2] == ["/bin/sh", "-c"])
+        self.assertTrue(shell[2].startswith("caffeinate -i xcodebuild"), "測試期間 Mac 不能睡著")
+
+    def test_hung_xcodebuild_after_done_still_passes_and_resets_simulator(self):
+        self.fresh_runner()
+        self.runner.handshake_files = {"done": "done"}  # 測試通過，但 xcodebuild 卡在收尾（沒有 exit）
+        code, out = self.call("drive", "--flow", "map-to-unit1")
+        self.assertEqual(code, 0, out)
+        self.assertTrue(out["xcodebuild_hung"])
+        self.assertTrue(self.runner.ran("shutdown") and self.runner.ran("boot"), "卡住後要重開模擬器")
 
     def test_stale_runner_is_rejected(self):
         self.fresh_runner()
@@ -286,24 +302,36 @@ class FlowTests(Base):
         code, _ = self.call("drive", "--flow", "map-to-unit1")
         self.assertEqual(code, ck.EXIT_STALE)
 
-    def test_record_flow_without_ready_is_discarded(self):
+    def test_record_flow_timeout_points_to_simulator_reset(self):
         self.fresh_runner()
         run_id, run_dir = self.make_run(files={}, review=False)
-        code, _ = self.call("record", "--flow", "map-to-unit1", "--run", run_id)
-        self.assertEqual(code, ck.EXIT_EVIDENCE)
+        code, out = self.call("record", "--flow", "map-to-unit1", "--run", run_id)
+        self.assertEqual(code, ck.EXIT_EXTERNAL)
+        self.assertIn("重開模擬器", out["error"])
+        self.assertTrue(self.runner.ran("shutdown"), "卡住後要重開模擬器")
         self.assertEqual(json.loads((run_dir / "manifest.json").read_text())["files"], [])
         self.assertNotIn("xcodebuild", json.loads(ck.session_path(self.ctx, "KidsAI-Verify").read_text()))
 
-    def test_record_flow_failure_after_go_is_discarded(self):
+    def test_record_flow_failed_test_leaves_no_evidence(self):
         self.fresh_runner()
         run_id, run_dir = self.make_run(files={}, review=False)
-        self.runner.handshake_flags = ["ready", "failed"]
-        self.runner.popen_log = "Recording started"
+        self.runner.handshake_files = {"frame-001.png": "x", "failed": "failed", "exit": "65"}
         code, _ = self.call("record", "--flow", "map-to-unit1", "--run", run_id)
         self.assertEqual(code, ck.EXIT_EVIDENCE)
-        folder = self.repo / ".verify" / "_handshake" / f"{run_id}-map-to-unit1"
-        self.assertTrue((folder / "go").exists(), "ready 之後要寫 go 才開始點擊")
-        self.assertEqual(json.loads((run_dir / "manifest.json").read_text())["files"], [], "失敗的錄影不進 manifest")
+        self.assertEqual(json.loads((run_dir / "manifest.json").read_text())["files"], [], "失敗的流程不留證據")
+
+    def test_record_flow_does_not_screen_record(self):
+        self.fresh_runner()
+        run_id, _ = self.make_run(files={}, review=False)
+        self.runner.handshake_files = {"done": "done", "exit": "0"}
+        self.call("record", "--flow", "map-to-unit1", "--run", run_id)
+        self.assertEqual(self.runner.ran("recordVideo"), [], "UI 測試執行期間不能錄影（xcodebuild 會卡住）")
+
+    def test_tap_filter_marks_tapped_frames(self):
+        text = ck.tap_filter([{"frame": 3, "x": 10, "y": 20, "w": 30, "h": 40}, {"frame": "bad"}])
+        self.assertIn("drawbox=x=10:y=20:w=30:h=40", text)
+        self.assertIn("eq(n\\,2)", text, "frame-003 是第 3 格（n=2）")
+        self.assertTrue(text.endswith("format=yuv420p"))
 
 
 class A11yPublishTests(Base):

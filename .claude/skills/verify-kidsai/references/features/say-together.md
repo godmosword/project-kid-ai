@@ -22,7 +22,8 @@ Preconditions:
 
 - **看跟讀畫面（前置狀態）。** `launch --unit 0 --beat 3`。看得到：「跟著說」、點點的框「按一下嘴巴按鈕，我們一起說。」、句子卡「AI 會猜。」、下方綠色「一起說」按鈕。
 - **單元 4 依選擇的句子（前置狀態）。** `launch --unit 3 --beat 4 --events "react:rescue;next;react:share;next;react:keep_going;next;next"`。看得到句子卡「我們不放棄，一直努力。」。這是前置狀態，不是孩子選結局的證明。
-- **按一起說、再說一次、逐字變色。** needs-V2-driver。
+- **按一起說（button）。** 真實點擊 `say.button`。`record --flow say-together --run $RUN`。看得到：按鈕先消失（念目標句時上鎖），念完變成「再說一次」，下方出現「下一步」。
+- **逐字變色。** 只有有 zh-TW 語音時看得到；截圖證明不了語音。
 
 ## Gotchas
 

@@ -36,8 +36,10 @@ struct DragCard: View {
                 .accessibilityValue(heard ? item.soundScript ?? "" : "")
                 .accessibilityAddTraits(isSelected ? .isSelected : [])
                 .accessibilityActions { ForEach(actions) { Button($0.name, action: $0.perform) } }
+                .accessibilityIdentifier("drag.card.\(item.id)")
             if case .strip(true) = style, item.soundScript != nil {
                 IconButton(systemImage: "play.circle.fill", label: "再聽一次\(item.label.zhHant)", action: onPlay)
+                    .accessibilityIdentifier("drag.card.\(item.id).play")
             }
         }
         .padding(.horizontal, isStrip ? 10 : 8)

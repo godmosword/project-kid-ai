@@ -34,7 +34,7 @@ struct SandboxView: View {
                         NarratorLine(store: store, item: sandbox.reactionPrompt)
                         if reactionsVisible(s, sandbox) { reactions(s, sandbox) }
                     }
-                    NarratorLine(store: store, item: feedback(s, sandbox))
+                    NarratorLine(store: store, item: feedback(s, sandbox), identifier: "feedback")
                 }
             }
             .onChange(of: reactionsReady(s, sandbox), initial: true) { _, ready in

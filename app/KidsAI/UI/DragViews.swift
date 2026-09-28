@@ -35,7 +35,7 @@ struct DragView: View {
                     .zIndex(dragging.map { d.placements[$0] != nil } == true ? 1 : 0)
                 tray(drag, d)
                     .zIndex(dragging.map { d.placements[$0] == nil } == true ? 1 : 0)
-                NarratorLine(store: store, item: feedback(drag, d))
+                NarratorLine(store: store, item: feedback(drag, d), identifier: "feedback")
                     .accessibilityFocused($feedbackFocused)
             }
             .coordinateSpace(name: DragArea.name)
@@ -101,6 +101,7 @@ struct DragView: View {
         .accessibilityElement(children: placed.isEmpty ? .ignore : .contain)
         .accessibilityLabel(target.label?.zhHant ?? "")
         .accessibilityValue(placed.isEmpty ? DragA11y.empty : "")
+        .accessibilityIdentifier("drag.target.\(target.id)")
     }
 
     /// 排序的第幾格：左邊大號數字，右邊放卡。
@@ -127,6 +128,7 @@ struct DragView: View {
         .accessibilityElement(children: placed.isEmpty ? .ignore : .contain)
         .accessibilityLabel(DragA11y.slot(target.position ?? 0))
         .accessibilityValue(placed.isEmpty ? DragA11y.empty : "")
+        .accessibilityIdentifier("drag.target.\(target.id)")
     }
 
     // MARK: - 卡片區
@@ -152,6 +154,7 @@ struct DragView: View {
             .allowsHitTesting(false))
         .reportFrame(DragArea.tray)
         .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("drag.tray")
     }
 
     /// 圖卡的寬度：最多 140；iPhone SE 縮到一排放得下全部卡（最小 88，D44）。依畫面寬度計算。
