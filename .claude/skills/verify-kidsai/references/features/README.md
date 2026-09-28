@@ -76,7 +76,8 @@
 | [story](./story.md) | `branch`：下一步＋分歧 | 可證明：`record --flow story-branch` |
 | story | 走到結局 | needs-flow（還沒有流程） |
 | [system-states](./system-states.md) | `background`：進背景再回來 | 可證明：`record --flow background-resume` |
-| system-states | 遮罩、字級、減少動態效果 | needs-flow（見功能檔） |
+| system-states | 遮罩 | 部分證明：`background-resume` 影片的轉場格（流程不斷言） |
+| system-states | 字級、減少動態效果 | needs-flow（見功能檔） |
 | system-states | 螢幕不變暗、VoiceOver | verified-unreachable（需要實機） |
 | system-states | 內容載入失敗畫面 | verified-unreachable（需要壞掉的內容檔） |
 | [observer-menu](./observer-menu.md) | `two-finger-hold` | verified-unreachable（兩指長按，需要人手） |

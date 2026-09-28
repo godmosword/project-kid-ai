@@ -24,7 +24,7 @@ Preconditions:
 - baseline；`doctor` 通過；真實點擊先 `build --for-testing`。
 
 - **進背景再回來（background-resume）。** 真實按 Home 鍵再回到 App。`run new --feature system-states --entry background`，`record --flow background-resume --run $RUN`。看得到：單元 1 一起說 → 專用模擬器主畫面 → 回到同一關，「一起說」按鈕還在。
-- **遮罩（privacy-cover）。** needs-flow：遮罩只在 App 不在前景時畫出來（多工切換畫面），流程截圖拍不到那一刻。
+- **遮罩（privacy-cover）。** 部分證明：`background-resume` 的縮時影片在進出背景的轉場格裡看得到遮罩（空白底＋點點，沒有題目和選項），但流程沒有斷言它；沒拍到不算失敗。要完整證明需要 needs-flow（在多工切換畫面截圖）。
 - **螢幕不變暗（idle-timer）。** verified-unreachable：模擬器不會自動變暗；前提「需要實機」。
 - **字級（dynamic-type）。** needs-flow：`control-kidsai` 還沒有調整模擬器字級的命令。
 - **減少動態效果（reduce-motion）。** needs-flow：還沒有切換設定的命令，而且縮時影片（約每 0.5 秒一格）看不出動畫有沒有關掉。
