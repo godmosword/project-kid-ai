@@ -41,6 +41,7 @@
 - [ ] 找 1–2 位 6–8 歲孩子試玩 mid-fi 15–30 分鐘，記下卡住的地方和笑點（步驟 3；只記彙總，孩子用代號）
 - [ ] 把 Notion 路線圖狀態的更新 prompt 貼給 Grok（如果還沒貼）
 - [ ] 請 Grok 修正 Notion 線框裡已過時的地方：家長閘、Sign in with Apple、按住說話、「給點點猜」、垃圾桶
+- [ ] 請 Grok 把 mid-fi 04／04b 的反應改成內容 v1 的三個鈕「好像對／好像錯／不知道」（2026-09-28 定，見 [design-map](.claude/skills/verify-kidsai/references/design-map.md)）
 - [ ] 修正電腦的全域 git 身分（目前是範本預設值「你的名稱」）；本 repo 已單獨設好
 - [ ] Figma 額度恢復或升級後通知 Claude
 - [ ] 上架前諮詢律師（T1）

@@ -16,8 +16,8 @@
 | 01 地圖首頁（v1.2） | [map](./features/map.md)：`app-launch`、`map-unlock` | ![01](../../../../design/midfi/01-map.png) |
 | 02 單元 1 跟讀（v1.2.1） | [say-together](./features/say-together.md)：`button`（單元 1 `--beat 3`） | ![02](../../../../design/midfi/02-readalong.png) |
 | 03 沙盒 A｜猜猜帽（v1.2） | [sandbox](./features/sandbox.md)：`sandbox-ritual`＋單元 1 沙盒開頭（`--unit 0 --beat 4`、`--beat 5`） | ![03](../../../../design/midfi/03-sandbox-hat.png) |
-| 04 沙盒 B｜猜對示範（v1.2.2） | [sandbox](./features/sandbox.md)：`sandbox-open` 的反應畫面（單元 1 `--beat 5`）— **對應待 Michael 確認** | ![04](../../../../design/midfi/04-sandbox-judge.png) |
-| 04b 沙盒 B｜猜錯變體（v1.2.2） | 同 04 — **對應待 Michael 確認** | ![04b](../../../../design/midfi/04b-sandbox-judge-wrong.png) |
+| 04 沙盒 B｜猜對示範（v1.2.2） | [sandbox](./features/sandbox.md)：`sandbox-open` 的反應畫面（單元 1 `--beat 5`） | ![04](../../../../design/midfi/04-sandbox-judge.png) |
+| 04b 沙盒 B｜猜錯變體（v1.2.2） | 同 04 | ![04b](../../../../design/midfi/04b-sandbox-judge-wrong.png) |
 | 05 家長閘（v1.2） | 沒有對到的功能（尚未實作） | ![05](../../../../design/midfi/05-parent-gate.png) |
 | 06 家長本週摘要＋匯出（v1.2.2） | 沒有對到的功能（尚未實作） | ![06](../../../../design/midfi/06-parent-week.png) |
 
@@ -43,9 +43,9 @@
 
 ### 04／04b 沙盒 B｜判斷
 
-對應提案（Plan v3 P6，待 Michael 在 PR 裡確認）：04 與 04b 是單元 1 沙盒的反應畫面（mid-fi 版本紀錄寫「單元1 兩鈕」），04 是猜測和孩子的卡一致、04b 是不一致。另一個可能是對到單元 3 有對錯的沙盒（AI 說對→同意、說錯→抓到了）。
+對應（已定，2026-09-28；Michael 授權 Claude 選定）：04 與 04b 是單元 1 沙盒的反應畫面（mid-fi 版本紀錄寫「單元1 兩鈕」），04 是猜測和孩子的卡一致、04b 是不一致。不對到單元 3 有對錯的沙盒。
 
-- **待確認**：設計稿只有兩個鈕「猜對了／猜錯了」（v1.2 拿掉「不知道」）；App 單元 1 是三個反應「好像對／好像錯／不知道」，來自內容 v1（`docs/content-schema-v1-mapping.md` 單元 1 沙盒列，2026-09-25 核准）。兩者衝突，要決定以哪個為準。
+- **有出處**：設計稿只有兩個鈕「猜對了／猜錯了」（v1.2 拿掉「不知道」）；App 單元 1 是三個反應「好像對／好像錯／不知道」。以內容 v1 為準（2026-09-28 定；Michael 授權 Claude 選定）：內容 v1 比 mid-fi 晚、經三審與 Michael 核准（`docs/content-schema-v1-mapping.md` 單元 1 沙盒列，2026-09-25），且 AGENTS.md 規定內容以 repo 為準。mid-fi 的 04／04b 待 Grok 改成三鈕（TODOS.md）。
 - **待確認**：設計稿有三欄「你選的／AI 看到的（只看到一點點，馬賽克）／AI 猜的」；App 是主題圖＋猜猜帽框裡的猜測（可能附「我不確定」標籤），沒有「AI 看到的」欄。
 - **有出處**：旁白文字設計稿是「猜猜帽猜完了。你覺得呢？」，App 是「你覺得 AI 猜得怎樣？」— 以內容 JSON 的 `reaction_prompt` 為準。
 

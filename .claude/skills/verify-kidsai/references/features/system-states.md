@@ -33,6 +33,6 @@ Preconditions:
 
 ## Gotchas
 
-- 背景流程的證據一定會出現專用模擬器主畫面：除了 Apple 內建圖示，還會有本專案的 KidsAI 與 UI 測試 runner（KidsAIUITests-Runner）圖示；有通知或別的 App 內容就重錄。
+- 背景流程的證據一定會出現專用模擬器主畫面：除了 Apple 內建圖示，還會有本專案的 KidsAI 與 UI 測試 runner（KidsAIUITests-Runner）圖示，這是允許的（2026-09-28 定）；有通知或別的 App 內容就重錄。
 - 用 `--unit/--beat` 冷啟動時，App 會觸發一次「回到前景」而重念；這是啟動參數造成的，不是 `background-resume` 的證明。
 - 字級、減少動態效果這類模擬器設定改過之後要改回來，否則之後每個 run 的證據都會不同。

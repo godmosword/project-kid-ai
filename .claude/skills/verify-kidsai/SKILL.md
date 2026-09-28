@@ -107,7 +107,7 @@ $C record stop --run $RUN --name map-launch      # ≤20 秒、h264；另產 GIF
 **發布到證據 repo（PR 用）：**
 
 1. 開 draft PR 取得編號 `N`。
-2. **畫面內容審查（一定要做）**：`$C evidence frames --run $RUN` 把影片每 2 秒抽一格；**逐張看過**所有截圖、GIF 和抽出的格，確認畫面只有 KidsAI，或專用模擬器的主畫面（只有 Apple 內建 App 圖示；從主畫面打開 App 就是孩子的真實路徑），加上覆寫後的 status bar；沒有通知、系統對話框、其他 App 的內容或任何個人資料（Michael 2026-09-26 定案）。有 `snapshot` 的元素樹 JSON 時，**整份讀過**，確認裡面只有 App 的內容文字與 identifier，沒有任何個人資料（CLI 只擋得住本機路徑、使用者名稱與裝置 ID）。看完才 `$C evidence review --run $RUN --ok`。沒有這一步，publish 會拒絕（exit 6）。
+2. **畫面內容審查（一定要做）**：`$C evidence frames --run $RUN` 把影片每 2 秒抽一格；**逐張看過**所有截圖、GIF 和抽出的格，確認畫面只有 KidsAI，或專用模擬器的主畫面（只有 Apple 內建 App 圖示，加上本專案的 KidsAI 與 UI 測試 runner 圖示——2026-09-28 定；從主畫面打開 App、進背景再回來都是孩子的真實路徑），加上覆寫後的 status bar；沒有通知、系統對話框、其他 App 的內容或任何個人資料（Michael 2026-09-26 定案）。有 `snapshot` 的元素樹 JSON 時，**整份讀過**，確認裡面只有 App 的內容文字與 identifier，沒有任何個人資料（CLI 只擋得住本機路徑、使用者名稱與裝置 ID）。看完才 `$C evidence review --run $RUN --ok`。沒有這一步，publish 會拒絕（exit 6）。
 3. `$C evidence publish --pr N --run $RUN --dry-run`（完全不寫入、不連網：只做本機檢查、列出會做的事）。
 4. `$C evidence publish --pr N --run $RUN`：只接受 CLI 產生的檔（manifest 以外的檔、連結、子目錄都拒絕）、副檔名 png／gif／mp4／json、每檔 ≤10 MB、manifest 不含本機路徑／使用者名稱／裝置 ID、sha256 對得上、目標路徑已存在就不覆寫。推到 `pr-N/<run-id>/`，用 Mac 既有的 gh 登入；CLI 不讀取、不保存 token。
 5. 把輸出的 `markdown` 放進 PR 描述的「證據」區：`gh pr edit N --body-file <檔>`。PNG／GIF 以 raw 連結內嵌（手機 App 看得到），MP4 與 manifest 是連結。
