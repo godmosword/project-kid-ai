@@ -25,7 +25,7 @@ Preconditions:
 
 - **點選放卡（tap-to-place）。** 單元 2 配對：點 `drag.card.cup_star` → `drag.target.blank_what` → `drag.card.place_table` → `drag.target.blank_where`。`record --flow drag-tap-to-place --run $RUN`。看得到：兩張卡放進空格、自動檢查後出現回饋（`feedback`）與「下一步」。
 - **答錯退回、揭曉（前置狀態）。** `launch --unit 2 --beat 2 --events "place:fish:keep;place:square_moon:keep;place:hot_ice:fix;place:bright_sun:keep;check"`：看得到方月亮退回卡片區、其他三張固定、回饋「再聽一次，說得通嗎？」。只是前置狀態，不是點擊的證明。
-- **手指拖曳、分組與排序的點擊。** needs-flow（手指拖曳留給實機；分組、排序的流程 V3 補）。
+- **手指拖曳、分組與排序的點擊。** needs-flow（手指拖曳留給實機；分組、排序還沒有流程）。
 
 ## Gotchas
 

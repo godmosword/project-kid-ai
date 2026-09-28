@@ -57,7 +57,7 @@ $C build --for-testing && $C install && $C doctor      # doctor 的 ui-tests 要
 $C drive --flow sandbox-pick-and-react                 # 只跑、不截圖：回報通過或失敗（連跑 3 次抓不穩定）
 ```
 
-可用的流程：`map-to-unit1`、`say-together`、`sandbox-pick-and-react`、`drag-tap-to-place`、`story-branch`、`sticker`。每支流程只用啟動參數準備前置狀態，要證明的動作一定是真的點擊；等待一律等「元素可點」（30 秒上限），不用固定秒數。
+可用的流程：`map-to-unit1`、`say-together`、`sandbox-pick-and-react`、`drag-tap-to-place`、`story-branch`、`sticker`、`choice-answer`、`sandbox-graded`、`hold-to-exit`、`background-resume`（各自證明什麼見 `references/features/README.md` 的 Full sweep）。每支流程只用啟動參數準備前置狀態，要證明的動作一定是真的點擊；等待一律等「元素可點」（30 秒上限），不用固定秒數。
 
 **2. 只打開 App 或準備前置狀態。** `$C launch`（從主畫面打開）、`$C launch --unit/--beat/--unlock-all/--events`。**不得**用 `--events` 或 `--beat` 冒充點擊的證明：它們跳過了孩子實際的操作。
 
@@ -99,14 +99,15 @@ $C record stop --run $RUN --name map-launch      # ≤20 秒、h264；另產 GIF
 - 走真實使用者路徑。啟動參數只能準備前置狀態。
 - 同一段錄影裡要有**觸發動作**和**最終狀態**；截圖是最終狀態的清楚畫面。
 - 先跑 doctor；舊 build（exit 7）錄的不算。
-- 讀 `references/features/` 裡相關的功能檔，每個受影響的進入點都要走到；走不到的要寫明進入點和原因（例如 `needs-flow`：還沒有流程測試），不得用別的路徑代替後宣稱已驗證。
+- 讀 `references/features/` 裡相關的功能檔，每個受影響的進入點都要走到；走不到的要寫明進入點和原因（`needs-flow`：還沒有流程測試；`verified-unreachable`：自動化到不了，寫明缺的前提），不得用別的路徑代替後宣稱已驗證。
+- 改到的畫面要對照 `references/design-map.md` 的設計稿，列出新的差異。
 - 每個證據都寫明 feature id 和進入點（`run new --feature --entry`）。
 - 回歸掃描：依 `references/features/README.md` 由上而下走。
 
 **發布到證據 repo（PR 用）：**
 
 1. 開 draft PR 取得編號 `N`。
-2. **畫面內容審查（一定要做）**：`$C evidence frames --run $RUN` 把影片每 2 秒抽一格；**逐張看過**所有截圖、GIF 和抽出的格，確認畫面只有 KidsAI，或專用模擬器的主畫面（只有 Apple 內建 App 圖示；從主畫面打開 App 就是孩子的真實路徑），加上覆寫後的 status bar；沒有通知、系統對話框、其他 App 的內容或任何個人資料（Michael 2026-09-26 定案）。看完才 `$C evidence review --run $RUN --ok`。沒有這一步，publish 會拒絕（exit 6）。
+2. **畫面內容審查（一定要做）**：`$C evidence frames --run $RUN` 把影片每 2 秒抽一格；**逐張看過**所有截圖、GIF 和抽出的格，確認畫面只有 KidsAI，或專用模擬器的主畫面（只有 Apple 內建 App 圖示；從主畫面打開 App 就是孩子的真實路徑），加上覆寫後的 status bar；沒有通知、系統對話框、其他 App 的內容或任何個人資料（Michael 2026-09-26 定案）。有 `snapshot` 的元素樹 JSON 時，**整份讀過**，確認裡面只有 App 的內容文字與 identifier，沒有任何個人資料（CLI 只擋得住本機路徑、使用者名稱與裝置 ID）。看完才 `$C evidence review --run $RUN --ok`。沒有這一步，publish 會拒絕（exit 6）。
 3. `$C evidence publish --pr N --run $RUN --dry-run`（完全不寫入、不連網：只做本機檢查、列出會做的事）。
 4. `$C evidence publish --pr N --run $RUN`：只接受 CLI 產生的檔（manifest 以外的檔、連結、子目錄都拒絕）、副檔名 png／gif／mp4／json、每檔 ≤10 MB、manifest 不含本機路徑／使用者名稱／裝置 ID、sha256 對得上、目標路徑已存在就不覆寫。推到 `pr-N/<run-id>/`，用 Mac 既有的 gh 登入；CLI 不讀取、不保存 token。
 5. 把輸出的 `markdown` 放進 PR 描述的「證據」區：`gh pr edit N --body-file <檔>`。PNG／GIF 以 raw 連結內嵌（手機 App 看得到），MP4 與 manifest 是連結。
@@ -126,8 +127,9 @@ $C cleanup             # 只停本次啟動的：錄影（核對 pid 身分）�
 ## Helpers
 
 - `control-kidsai`（本目錄，可執行，Python 3 標準函式庫；程式在 `lib/kidsai_core.py`、`kidsai_evidence.py`、`kidsai_flows.py`）：`$C --help`。子命令：`doctor`、`sim ensure|boot|shutdown|erase|statusbar`、`build [--for-testing]`、`install`、`launch`、`terminate`、`run new`、`screenshot`、`record start|stop`、`record --flow`、`drive --flow`、`snapshot`、`cleanup`、`evidence frames|review|md|publish`。破壞性命令有 `--dry-run`；`sim erase` 一定要 `--yes`。
-- 流程測試：`app/KidsAIUITests/`（`FlowSupport.swift` 的 `Flow`／`Frames`／`Handshake`、`Flows.swift` 的 6 支流程與 `SnapshotTree`）。新增流程：在 `Flows.swift` 加類別，再加進 `lib/kidsai_flows.py` 的 `FLOWS`。
+- 流程測試：`app/KidsAIUITests/`（`FlowSupport.swift` 的 `Flow`／`Frames`／`Handshake`、`Flows.swift` 的 10 支流程與 `SnapshotTree`）。新增流程：在 `Flows.swift` 加類別，再加進 `lib/kidsai_flows.py` 的 `FLOWS`。
 - 測試：`python3 -m unittest discover .claude/skills/verify-kidsai/tests`（不需要 Xcode、模擬器或網路）。
 - 需要：Xcode、XcodeGen、ffmpeg／ffprobe（`brew install ffmpeg`，產生 GIF 與驗證錄影）、已登入的 `gh`（發布證據）。
 - 功能地圖：[`references/features/`](references/features/)（每個功能一個檔，四個 H2：`Sub-features`、`How to get to it (user POV)`、`Driving it with control-kidsai`、`Gotchas`）。這裡刻意用 `references/features/`，不是 generator 預設的 `features/`，和 pstack 範例 repo 一致。
+- 設計對照：[`references/design-map.md`](references/design-map.md)（功能 → Notion mid-fi 屏號與版本 → 目前的差異；參考圖在 repo 的 `design/midfi/`）。
 - 維護：用 `/maintain-verification-skill`（來源 pstack `cursor/plugins@ecc249f`，放在 `~/.claude/skills/`）保持地圖和 App 一致。只能改這個目錄；最多開一個 PR；不得自己合併。

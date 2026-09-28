@@ -85,9 +85,21 @@ enum Frames {
 
     /// 真實點擊：點之前截兩格並記下位置（像素），再點。
     static func tap(_ element: XCUIElement, file: StaticString = #filePath, line: UInt = #line) {
+        mark(element, file: file, line: line)
+        element.tap()
+    }
+
+    /// 真實長按（例如長按 X 離開）：和點擊一樣先標出位置。
+    static func press(_ element: XCUIElement, forDuration duration: TimeInterval,
+                      file: StaticString = #filePath, line: UInt = #line) {
+        mark(element, file: file, line: line)
+        element.press(forDuration: duration)
+    }
+
+    /// 等元素可點，截兩格並記下它的位置（像素），CLI 在這兩格畫框。
+    private static func mark(_ element: XCUIElement, file: StaticString, line: UInt) {
         Flow.waitHittable(element, file: file, line: line)
-        let screen = XCUIScreen.main.screenshot().image
-        let scale = screen.scale
+        let scale = XCUIScreen.main.screenshot().image.scale
         let frame = element.frame
         for _ in 0..<2 {
             guard let at = snap() else { break }
@@ -95,7 +107,6 @@ enum Frames {
                          "w": Int(frame.width * scale), "h": Int(frame.height * scale)])
         }
         saveTaps()
-        element.tap()
     }
 
     /// 點到有效果為止：畫面上看得到按鈕、但 App 還在念上一段（上鎖）時，點擊會被忽略（設計如此：外觀不變、只擋點擊）。

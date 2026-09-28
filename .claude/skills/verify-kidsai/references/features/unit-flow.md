@@ -9,7 +9,6 @@
 - `unit-replay`：右上 🔊 重念目前畫面。
 - `unit-progress`：進度點顯示第幾關。
 - `unit-hold-to-exit`：長按 X 1.5 秒回地圖；輕點出現「按住不放」。
-- `unit-resume`：進背景再回來，補念被打斷的句子。
 
 ## How to get to it (user POV)
 
@@ -25,7 +24,9 @@ Preconditions:
 - **打開單元（from-map）。** 點「認識島」。`record --flow map-to-unit1 --run $RUN`。看得到：單元 1 開場、頂列 X。
 - **看開場畫面（前置狀態）。** `launch --unit 0 --beat 0`。看得到：點點的大頭像、三個點點說話框（「我是點點，不是 AI 喔。」等）、頂列 X／進度點（第 1 格）／🔊。這只是前置狀態截圖，不能當「點島進單元」的證明。
 - **下一步（next）。** `record --flow story-branch --run $RUN`（念完才出現 `unit.next`，點了之後故事往下走）。
-- **重念、長按離開、進背景。** needs-flow（長按 1.5 秒與進背景還沒有流程測試）。
+- **長按離開（hold-to-exit）。** 真實長按 `unit.exit` 2 秒。`run new --feature unit-flow --entry hold-to-exit`，`record --flow hold-to-exit --run $RUN`。看得到：單元 1 開場 → 長按 X（橘框）→ 回到地圖。
+- **重念（replay）。** needs-flow：點 `unit.replay` 做得到，但要證明的是重念的聲音，證據沒有聲音。
+- **進背景再回來。** 見 [system-states](./system-states.md) 的 `background-resume`。
 
 ## Gotchas
 

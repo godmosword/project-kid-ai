@@ -51,7 +51,7 @@
 
 ## Full sweep
 
-回歸掃描時依下表由上而下走；只有「可證明」的格子能產生證據，其他照實回報 `needs-flow`（還沒有流程測試）並寫原因。
+回歸掃描時依下表由上而下走；只有「可證明」的格子能產生證據，其他照實回報 `needs-flow`（還沒有流程測試）或 `verified-unreachable`（自動化到不了），並寫原因。
 
 | 功能 | 進入點 | 怎麼證明 |
 |---|---|---|
@@ -60,16 +60,26 @@
 | map | `tap-island`：點島進單元 | 可證明：`record --flow map-to-unit1` |
 | map | `map-unlock`：完成單元 → 下一島解鎖 | 可證明：`record --flow sticker` |
 | [unit-flow](./unit-flow.md) | `from-map`、`next` | 可證明：`map-to-unit1`、`story-branch` |
-| unit-flow | `replay`、`hold-to-exit`、進背景 | needs-flow（長按與進背景還沒有流程） |
+| unit-flow | `hold-to-exit`：長按 X 回地圖 | 可證明：`record --flow hold-to-exit` |
+| unit-flow | `replay`：🔊 重念 | needs-flow（要證明的是聲音，證據沒有聲音） |
+| [choice-question](./choice-question.md) | `answer`：答錯一次再答對 | 可證明：`record --flow choice-answer` |
+| choice-question | 揭曉、重聽鈕、提示 | needs-flow（見功能檔） |
 | [say-together](./say-together.md) | `button`：按「一起說」 | 可證明：`record --flow say-together` |
 | [sandbox](./sandbox.md) | `multi-card`：選卡＋反應＋第二張卡 | 可證明：`record --flow sandbox-pick-and-react` |
-| sandbox | `open`、`graded` 的反應 | needs-flow（V3 補） |
+| sandbox | `graded`：點錯變淡、再點對 | 可證明：`record --flow sandbox-graded` |
+| sandbox | `open` 的反應 | needs-flow（還沒有流程） |
 | [drag](./drag.md) | `tap-to-place`：點卡再點空格 | 可證明：`record --flow drag-tap-to-place` |
 | drag | 手指拖曳、分組、排序 | needs-flow（手指拖曳留給實機） |
 | [review-and-sticker](./review-and-sticker.md) | `finish`：回地圖 | 可證明：`record --flow sticker` |
-| review-and-sticker | `answer`：回顧題作答 | needs-flow（V3 補） |
+| review-and-sticker | `answer`：回顧題作答 | needs-flow（還沒有流程；不得拿第 1 關選擇題的證據代替） |
+| [story](./story.md) | `branch`：下一步＋分歧 | 可證明：`record --flow story-branch` |
+| story | 走到結局 | needs-flow（還沒有流程） |
+| [system-states](./system-states.md) | `background`：進背景再回來 | 可證明：`record --flow background-resume` |
+| system-states | 遮罩、字級、減少動態效果 | needs-flow（見功能檔） |
+| system-states | 螢幕不變暗、VoiceOver | verified-unreachable（需要實機） |
+| [observer-menu](./observer-menu.md) | `two-finger-hold` | verified-unreachable（兩指長按，需要人手） |
 
-之後要補的功能檔（V3）：選擇題（choice-question）、故事（story）、觀察員選單（observer-menu）、系統狀態（system-states：進背景、VoiceOver、最大字級）。
+`verified-unreachable` 表示自動化到不了，功能檔寫明缺的前提（例如需要實機或人手）；不是壞掉。設計稿對照見 [design-map.md](../design-map.md)。
 
 ## Feature entry contract
 
@@ -85,8 +95,12 @@
 ## Features
 
 - [地圖](./map.md)：打開 App、四個島、鎖與完成星星、念出問句。
-- [單元共通流程](./unit-flow.md)：頂列（長按離開、進度點、重念）、下一步、進背景再回來。
+- [單元共通流程](./unit-flow.md)：頂列（長按離開、進度點、重念）、下一步。
+- [選擇題](./choice-question.md)：第 1 關作答、答錯變淡、揭曉、有聲音的選項。
 - [一起說](./say-together.md)：固定句、依前面選擇決定的句子、再說一次。
 - [沙盒](./sandbox.md)：猜猜帽猜測、反應、多張卡比較、有對錯的看圖檢查。
 - [拖曳](./drag.md)：配對、分組、排序；點選放卡、交換、自動檢查。
+- [故事](./story.md)：點點與猜猜帽的句子、分歧選項、結局。
 - [回顧與貼紙](./review-and-sticker.md)：回顧題、貼紙頁、家長卡、回地圖。
+- [系統狀態](./system-states.md)：進背景再回來、遮罩、螢幕不變暗、字級、減少動態效果、VoiceOver。
+- [觀察員選單](./observer-menu.md)：Debug 限定的大人工具（兩指長按 3 秒）。

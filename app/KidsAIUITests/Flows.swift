@@ -111,6 +111,78 @@ final class FlowSticker: FlowTestCase {
     }
 }
 
+/// 單元 1 第 1 關選擇題：先點錯「家人」→ 變淡、點點說再聽一次；再點對「AI」→ 打勾、出現下一步。
+final class FlowChoiceAnswer: FlowTestCase {
+    @MainActor
+    func testFlow() {
+        let app = Flow.launch(unit: 0, beat: 1)
+        let wrong = Flow.element(app, "option.family")
+        let right = Flow.element(app, "option.ai")
+        let feedback = Flow.element(app, "feedback")
+        let next = Flow.element(app, "unit.next")
+        Flow.waitHittable(wrong)
+        Frames.begin()
+        Frames.tap(wrong, until: "家人變淡") { wrong.exists && !wrong.isEnabled }
+        Frames.until("點點說再聽一次、還沒有下一步") { feedback.exists && feedback.label.contains("再聽一次") && !next.exists }
+        Frames.tap(right, until: "AI 打勾") { right.isSelected }
+        Frames.until("出現下一步") { Flow.hittable(next) }
+        Frames.end()
+    }
+}
+
+/// 單元 3 有對錯的沙盒：AI 說「小狗有三隻腳」（說錯）→ 點「同意」變淡、還不能下一步 → 點「抓到了」→ 出現下一步。
+final class FlowSandboxGraded: FlowTestCase {
+    @MainActor
+    func testFlow() {
+        let app = Flow.launch(unit: 2, beat: 5)
+        let agree = Flow.element(app, "option.agree")
+        let caught = Flow.element(app, "option.catch")
+        let feedback = Flow.element(app, "feedback")
+        let next = Flow.element(app, "unit.next")
+        Flow.waitHittable(agree)
+        Frames.begin()
+        Frames.tap(agree, until: "同意變淡") { agree.exists && !agree.isEnabled }
+        Frames.until("點點說再看看圖、還沒有下一步") { feedback.exists && feedback.label.contains("再看看圖") && !next.exists }
+        Frames.tap(caught, until: "選了抓到了") { caught.isSelected }
+        Frames.until("出現下一步") { Flow.hittable(next) }
+        Frames.end()
+    }
+}
+
+/// 長按左上 X（App 要 1.5 秒）→ 回地圖。
+final class FlowHoldToExit: FlowTestCase {
+    @MainActor
+    func testFlow() {
+        let app = Flow.launch(unit: 0, beat: 0)
+        let exit = Flow.element(app, "unit.exit")
+        Flow.waitHittable(exit)
+        Frames.begin()
+        Frames.press(exit, forDuration: 2)
+        let island = Flow.element(app, "map.island.0")
+        Frames.until("回到地圖") { Flow.hittable(island) && !exit.exists }
+        Frames.end()
+    }
+}
+
+/// 單元 1 一起說：按 Home 進背景 → 回到 App → 還在同一關（「一起說」還在）。
+final class FlowBackgroundResume: FlowTestCase {
+    @MainActor
+    func testFlow() {
+        let app = Flow.launch(unit: 0, beat: 3)
+        let button = Flow.element(app, "say.button")
+        Flow.waitHittable(button)
+        Frames.begin()
+        XCUIDevice.shared.press(.home)
+        // iOS 27 模擬器上 app.state 按 Home 後仍回報前景，改看 App 的按鈕點不點得到
+        Frames.until("App 進背景、看到主畫面") { !Flow.hittable(button) }
+        Frames.snap()
+        Frames.snap()
+        app.activate()
+        Frames.until("回到同一關") { Flow.hittable(button) }
+        Frames.end()
+    }
+}
+
 /// `control-kidsai snapshot`：把目前畫面的無障礙元素樹寫到握手資料夾（tree.txt）。
 /// 前置狀態由 `TEST_RUNNER_KIDSAI_LAUNCH` 傳入（例如 "-openUnit 1 -beat 5"）。
 final class SnapshotTree: FlowTestCase {

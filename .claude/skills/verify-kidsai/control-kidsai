@@ -90,7 +90,7 @@ def parser() -> argparse.ArgumentParser:
     ev.add_argument("action", choices=["frames", "review", "md", "publish"])
     ev.add_argument("--run")
     ev.add_argument("--pr", type=int)
-    ev.add_argument("--ok", action="store_true", help="review：確認逐張看過、畫面只有 KidsAI 或專用模擬器主畫面")
+    ev.add_argument("--ok", action="store_true", help="review：確認逐張看過、畫面只有 KidsAI 或專用模擬器主畫面；元素樹 JSON 整份讀過")
     ev.add_argument("--dry-run", action="store_true", help="publish：完全不寫入、不連網")
     return p
 
