@@ -1,0 +1,34 @@
+# 選擇題
+
+每個單元的第 1 關是一題有答案的選擇題：點點念題目，孩子點一個選項就作答。答對時選項打勾、點點念成功句；答錯時那個選項變淡、不能再點，點點說「再試一次」的話；錯到上限（2 次）就揭曉正解並打勾。第 1 關的選項如果有聲音（單元 1、2），每個選項是一整列，右邊另有重聽鈕，聽過之後卡上會寫出聲音裡的話。8 秒沒動作，點點會給提示。
+
+## Sub-features
+
+- `choice-answer`：點選項即作答；答對打勾＋成功句，出現「下一步」。
+- `choice-retry`：答錯的選項變淡、不能點，點點說再試一次的話（第一次錯不揭曉）。
+- `choice-reveal`：錯到上限（2 次）揭曉正解並打勾，出現「下一步」。
+- `choice-sound`：有聲音的選項（單元 1「家人／電子玩具／AI」、單元 2「小熊說／小兔說」）：一整列＋重聽鈕；聽過後卡上出現聲音裡的話。
+- `choice-hint`：8 秒沒動作，點點的框出現提示。
+
+## How to get to it (user POV)
+
+- 各單元的第 1 關（`--beat 1`）：開場念完按「下一步」就到。
+- 單元 1：「聽一聽，誰說『我猜』？」（正解 AI）；單元 2：「誰說得比較清楚？」（小兔說）；單元 3：「哪張怪怪的？查一查」（第二張）；單元 4：「誰來決定結局？」（我）。
+
+## Driving it with control-kidsai
+
+Preconditions:
+
+- baseline；`doctor` 通過；要真實點擊時先 `build --for-testing`（見 SKILL.md 的 Drive）。
+
+- **看題目（前置狀態）。** `launch --unit 0 --beat 1`。看得到：題目「聽一聽，誰說『我猜』？」、三列有聲音的選項（家人、電子玩具、AI），每列右邊有播放鈕。
+- **答錯一次再答對（choice-answer、choice-retry）。** 真實點擊 `option.family` → `option.ai`。`run new --feature choice-question --entry answer`，`record --flow choice-answer --run $RUN`。看得到：點「家人」（橘框）→ 家人變淡、點點框「再聽一次，誰說『我猜』？」→ 點「AI」（橘框）→ AI 打勾、點點框「對！AI 常常用猜的。」、下方「下一步」。
+- **揭曉（choice-reveal）。** needs-flow（錯兩次的流程還沒寫；可用前置狀態 `launch --unit 0 --beat 1 --events "select:family;select:toy"` 看揭曉畫面，但那不是孩子點的證明）。
+- **重聽鈕、提示（choice-sound、choice-hint）。** needs-flow：重聽要證明的是聲音；提示要等 8 秒不動，還沒有流程。
+
+## Gotchas
+
+- 第 1 關一開始會依序念三個選項的聲音，念的時候點選項沒有反應；流程會「點到有效果為止」，截圖前等畫面穩定。
+- 變淡的選項是 `isEnabled == false`，不是被移除；用 identifier 找得到。
+- 回顧題（`--beat 7`）用同一種作答方式，但它是另一個進入點，見 [review-and-sticker](./review-and-sticker.md)；不要拿第 1 關的證據當回顧題的證明。
+- 卡上的「聲音裡的話」要等那個選項的聲音開始播才出現；截圖前等三個聲音都播完。

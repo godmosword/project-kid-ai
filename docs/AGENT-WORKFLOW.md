@@ -52,10 +52,12 @@ L0／L1 是 AGENTS.md「先計畫再動手」的例外：可直接做，但做�
   - L3：Claude Code 實作，並做三審。
 - **同一檔案**：不能讓多個 agent 同時修改；顧問一律 readonly，不得改檔。
 - **子任務 prompt**：必須包含 Goal、Context paths、Constraints、Do NOT、Verification、Deliverable。
+- **審查 UI 改動**：審查 prompt 要附證據連結（evidence repo 的 raw 連結）和對應的功能檔、`design-map.md`，請審查者對照設計稿列出不一致。
 - **驗證**：挑最小集合。
   - 只改文件或規則：確認連結與路徑正確。
   - 改到 `app/`：`cd app && xcodegen generate`，再 `xcodebuild -project KidsAI.xcodeproj -scheme KidsAI -destination 'generic/platform=iOS Simulator' build`。
-  - 有測試 target 之後：加跑 `xcodebuild test`。
+  - 有測試 target 之後：加跑 `xcodebuild test`（App 單元測試用 `-skip-testing:KidsAIUITests`）。
+  - 改到 UI（定義見 AGENTS.md「UI 證據」）：照 `.claude/skills/verify-kidsai/SKILL.md` 用 `record --flow` 錄受影響功能的證據，逐張審查後 `evidence publish`，把證據放進 PR 描述；同步更新 Feature Map 與 `design-map.md`。
   - L3 或發布：另在模擬器實際啟動並截圖確認。
 - **commit／push**：預設不做。Michael 明確要求時，只 stage 本次相關的檔案，不用 `git add -A`。
 

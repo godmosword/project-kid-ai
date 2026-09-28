@@ -281,6 +281,20 @@ class FlowTests(Base):
         code, _ = self.call("drive", "--flow", "map-to-unit1")
         self.assertEqual(code, ck.EXIT_EVIDENCE)
 
+    def test_new_flows_run_their_own_test_class(self):
+        self.fresh_runner()
+        self.runner.handshake_files = {"done": "done", "exit": "0"}
+        for flow, test_class in {"choice-answer": "FlowChoiceAnswer", "sandbox-graded": "FlowSandboxGraded",
+                                 "hold-to-exit": "FlowHoldToExit", "background-resume": "FlowBackgroundResume"}.items():
+            code, out = self.call("drive", "--flow", flow)
+            self.assertEqual(code, 0, out)
+            self.assertTrue(any(f"-only-testing:KidsAIUITests/{test_class}" in " ".join(c) for c in self.runner.calls), flow)
+
+    def test_every_flow_class_exists_in_ui_tests(self):
+        source = (Path(__file__).resolve().parents[4] / "app/KidsAIUITests/Flows.swift").read_text()
+        for test_class in ck.FLOWS.values():
+            self.assertIn(f"final class {test_class}: FlowTestCase", source)
+
     def test_done_but_xcodebuild_failed_is_not_passed(self):
         self.fresh_runner()
         self.runner.handshake_files = {"done": "done", "exit": "65"}  # 測試寫了 done，xcodebuild 自己結束卻是非 0

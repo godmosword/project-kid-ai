@@ -14,7 +14,8 @@
 ## 工作流程
 - **先計畫再動手：** 每個任務先提出計畫（要改哪些檔、怎麼驗證、有什麼風險），等 Michael 同意後才寫程式。
 - **風險分級與審查：** 以 [docs/AGENT-WORKFLOW.md](docs/AGENT-WORKFLOW.md) 為準（L0／L1 可直接做、事後回報；L2／L3 用 `/agent-plan`、`/agent-action`）。
-- **Git：** 可直接 commit 並 push 到 `main`，也可走分支＋PR；不得 force push。
+- **Git：** 可直接 commit 並 push 到 `main`，也可走分支＋PR；不得 force push。例外：碰到 UI 的改動一律走 PR，不得直接 push `main`。
+- **UI 證據：** 「碰到 UI」指改到孩子或家長看得到的畫面或流程，包括 `app/KidsAI/UI/`、`app/KidsAI/KidsAIApp.swift`、`content/units/` 的文字或流程，以及進 App 的 design token。這類 PR 必須附上照 `.claude/skills/verify-kidsai/SKILL.md` 產出、並用 `control-kidsai evidence publish` 推到 `godmosword/project-kid-ai-evidence` 的證據：受影響功能的 `record --flow` 縮時影片（同一段裡要有觸發動作和最終狀態）加上最終畫面截圖，並寫明 feature id 和進入點。同一個 PR 要同步更新 Feature Map（`references/features/`、`references/design-map.md`）。用啟動參數跳關只能準備前置狀態，不能當證明本身。審查者（Codex、Grok）要拿證據對照功能檔和 `design-map.md` 的設計稿，列出不一致的地方。證據永遠不得出現兒童資料。
 - **一個 PR 只做一件事。** PR 描述寫清楚：做了什麼、怎麼驗證、已知限制。
 - **不確定就問，不要猜。** 規格互相衝突時，列出衝突並詢問 Michael。
 
@@ -36,6 +37,7 @@
 - `pipeline/` — 離線猜測生成（Python）
 - `design/` — mid-fi HTML，參考用，不打包進 App
 - `docs/` — spike 報告與決策紀錄
+- `.claude/skills/verify-kidsai/` — 驗證 skill、`control-kidsai` CLI、Feature Map 與設計對照（所有 agent 都要讀）
 
 ## 文件來源
 - **決策：** 以 Notion「專案架構定稿 v1」中的「需 Michael 確認」區塊為準。

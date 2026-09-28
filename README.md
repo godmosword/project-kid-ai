@@ -12,6 +12,10 @@
 
 `.xcodeproj` 由 XcodeGen 產生、不進 git。專案設定只改 `app/project.yml`，改完重跑第 1 步。
 
+## 驗證層（agent 用）
+
+改到孩子或家長看得到的畫面時，agent 照 [verify-kidsai](.claude/skills/verify-kidsai/SKILL.md) 在專用模擬器上真的點過一遍，錄下縮時影片與最終截圖，推到公開的證據 repo [project-kid-ai-evidence](https://github.com/godmosword/project-kid-ai-evidence)，再放進 PR 描述（手機上就看得到）。每個功能怎麼走、哪些還驗證不到，見 [Feature Map](.claude/skills/verify-kidsai/references/features/README.md)；和 mid-fi 設計稿的對照見 [design-map](.claude/skills/verify-kidsai/references/design-map.md)。
+
 ## 語音辨識 spike（ASRSpike，只給大人在實機測試）
 
 `ASRSpike` 是獨立的測試 App，不上架、不併入 KidsAI。測試步驟與規則見 [docs/spikes/asr-spike-protocol.md](docs/spikes/asr-spike-protocol.md)。
