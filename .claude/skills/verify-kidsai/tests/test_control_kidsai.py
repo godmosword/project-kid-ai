@@ -281,6 +281,12 @@ class FlowTests(Base):
         code, _ = self.call("drive", "--flow", "map-to-unit1")
         self.assertEqual(code, ck.EXIT_EVIDENCE)
 
+    def test_done_but_xcodebuild_failed_is_not_passed(self):
+        self.fresh_runner()
+        self.runner.handshake_files = {"done": "done", "exit": "65"}  # 測試寫了 done，xcodebuild 自己結束卻是非 0
+        code, _ = self.call("drive", "--flow", "map-to-unit1")
+        self.assertEqual(code, ck.EXIT_EVIDENCE)
+
     def test_tests_run_under_caffeinate(self):
         self.fresh_runner()
         self.runner.handshake_files = {"done": "done", "exit": "0"}
