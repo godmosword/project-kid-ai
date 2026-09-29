@@ -17,6 +17,14 @@ fail() {
 }
 
 mkdir -p "$ROOT" || fail "建不了 $ROOT"
+# 上一次還在跑（鎖裡的 PID 還活著）：不要動它的 clone，直接跳過；鎖的回收與紀錄由 maintain run 負責
+if [ -f "$ROOT/.lock/owner.json" ]; then
+  pid=$(grep -o '"pid": *[0-9]*' "$ROOT/.lock/owner.json" | grep -o '[0-9]*$')
+  if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+    echo "$(date '+%F %T') skip：上一次每日維護還在跑（PID ${pid}）"
+    exit 0
+  fi
+fi
 if [ ! -d "$CLONE/.git" ]; then
   git clone -q "$REPO_URL" "$CLONE" || fail "git clone"
 fi
