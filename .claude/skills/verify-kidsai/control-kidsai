@@ -111,11 +111,21 @@ HANDLERS = {"doctor": cmd_doctor, "sim": cmd_sim, "build": cmd_build, "install":
             "maintain": cmd_maintain}
 
 
-def refuse_in_agent_mode(ctx: Context, args) -> None:
-    """每日維護的無頭 agent（KIDSAI_MAINTAIN_AGENT=1）：不能發布證據、不能動排程、只能用 KidsAI-Maintain。"""
-    if args.command == "maintain" or (args.command == "evidence" and args.action == "publish") or ctx.sim != MAINTAIN_SIM:
-        raise Fail(EXIT_REFUSED, "每日自動維護的 agent 不能執行這個命令（發布證據、maintain、或 KidsAI-Maintain 以外的模擬器）",
-                   "證據留在 .verify/；其他寫進 run notes")
+def refuse_in_maintain_mode(ctx: Context, args) -> None:
+    """每日維護的限制：從專用 clone 執行（agent 改不掉位置），或在 agent 的環境（KIDSAI_MAINTAIN_AGENT=1）。
+    不能發布證據、只能用 KidsAI-Maintain；maintain 只准 wrapper 從 clone 跑 run，agent 一律不行。"""
+    agent = os.environ.get("KIDSAI_MAINTAIN_AGENT") == "1"
+    in_clone = ctx.repo.resolve() == clone_dir(ctx).resolve()
+    if not (agent or in_clone):
+        return
+    if args.command == "maintain":
+        if agent or args.action != "run":
+            raise Fail(EXIT_REFUSED, "每日維護的專用 clone 與 agent 不能安裝、移除或查看排程", "在平常工作的 checkout 執行 maintain")
+        return
+    if args.command == "evidence" and args.action == "publish":
+        raise Fail(EXIT_REFUSED, "每日維護不發布證據", "證據留在 .verify/；要發布請在平常工作的 checkout 由人執行")
+    if ctx.sim != MAINTAIN_SIM:
+        raise Fail(EXIT_REFUSED, f"每日維護只能用 {MAINTAIN_SIM}", f"--sim {MAINTAIN_SIM}")
 
 
 def emit(result: dict, human: bool) -> None:
@@ -140,8 +150,7 @@ def main(argv=None, ctx: Optional[Context] = None) -> int:
             raise Fail(EXIT_REFUSED, f"只能操作專用模擬器 {' 或 '.join(SIMS)}，不能用 {ctx.sim}", "--sim KidsAI-Verify")
         if args.command == "evidence" and args.action in ("md", "publish") and args.pr is None:
             raise Fail(EXIT_USAGE, "需要 --pr <編號>", "先開 draft PR 取得編號")
-        if os.environ.get("KIDSAI_MAINTAIN_AGENT") == "1":
-            refuse_in_agent_mode(ctx, args)
+        refuse_in_maintain_mode(ctx, args)
         result = HANDLERS[args.command](ctx, args)
         code = result.pop("exit", EXIT_OK) if args.command in ("doctor", "maintain") else EXIT_OK
         emit(result, args.human)

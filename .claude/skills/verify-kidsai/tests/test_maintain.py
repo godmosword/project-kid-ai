@@ -76,7 +76,7 @@ class MaintainBase(unittest.TestCase):
         root = Path(self.tmp.name)
         self.home = root / "home"
         self.home.mkdir()
-        seed = root / "seed"
+        seed = self.checkout = root / "seed"  # 當作 Michael 平常工作的 checkout（install 從這裡跑）
         (seed / SKILL / "references").mkdir(parents=True)
         (seed / SKILL / "SKILL.md").write_text("# verify\n")
         (seed / SKILL / "maintain").mkdir()
@@ -123,18 +123,22 @@ class MaintainBase(unittest.TestCase):
         (clone / ".verify" / "maintain-notes.md").write_text(f"outcome: {outcome}\n- 涵蓋：map\n")
 
     @staticmethod
-    def commit(clone, rel, text="改了\n"):
+    def commit(clone, rel, text="改了\n", message="docs: fix"):
         path = clone / rel
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(text) if isinstance(text, bytes) else path.write_text(text)
         git(clone, "add", "-A", "--", rel)
-        git(clone, "commit", "-q", "-m", "docs: fix")
+        git(clone, "commit", "-q", "-m", message)
 
     def remote_branches(self):
         return git(self.origin, "branch", "--list", "maintain/*").split()
 
 
 class InstallTests(MaintainBase):
+    def setUp(self):
+        super().setUp()
+        self.ctx.repo = self.checkout
+
     def test_install_dry_run_prints_plist_and_writes_nothing(self):
         code, out = self.call("maintain", "install", "--dry-run")
         self.assertEqual(code, 0, out)
@@ -151,6 +155,8 @@ class InstallTests(MaintainBase):
         bootstrap = self.home / "kidsai-maintain/bin/run-daily.sh"
         self.assertTrue(plist.exists() and bootstrap.exists())
         self.assertTrue(os.access(bootstrap, os.X_OK))
+        config = json.loads((self.home / "kidsai-maintain/config.json").read_text())
+        self.assertIn("git_email", config)
         self.assertTrue(self.runner.ran("launchctl", "bootstrap"))
         code, out = self.call("maintain", "uninstall")
         self.assertEqual(code, 0, out)
@@ -321,6 +327,12 @@ class GuardTests(MaintainBase):
                     self.notes(c, "changed")
                 self.assert_blocked(agent, "leak")
 
+    def test_leak_in_commit_message_blocks(self):
+        def agent(c):
+            self.commit(c, f"{SKILL}/SKILL.md", message="docs: 見 /Users/someone/.ssh/id_ed25519")
+            self.notes(c, "changed")
+        self.assert_blocked(agent, "leak")
+
     def test_notes_must_match_git_state(self):
         cases = {
             "missing": lambda c: None,
@@ -391,10 +403,58 @@ class LockAndStateTests(MaintainBase):
     def test_status_reports_history(self):
         self.runner.agent = lambda c: self.notes(c, "clean")
         self.call("maintain", "run")
+        self.ctx.repo = self.checkout
         code, out = self.call("maintain", "status")
         self.assertEqual(code, 0)
         self.assertFalse(out["installed"])
         self.assertEqual(out["recent"][-1]["outcome"], "clean")
+
+
+class CloneGuardTests(MaintainBase):
+    """從專用 clone 執行的 control-kidsai，不看環境變數也一律受限（agent 改不掉位置）。"""
+
+    def test_clone_refuses_dangerous_commands_without_env(self):
+        for argv in (["evidence", "publish", "--pr", "1", "--run", "20260930-031700-abcdef0", "--dry-run"],
+                     ["maintain", "install", "--dry-run"], ["maintain", "uninstall", "--dry-run"], ["maintain", "status"],
+                     ["doctor"], ["--sim", "KidsAI-Verify", "doctor"]):
+            with self.subTest(argv=" ".join(argv)):
+                with mock.patch.dict(os.environ):
+                    os.environ.pop("KIDSAI_MAINTAIN_AGENT", None)
+                    os.environ.pop("KIDSAI_SIM", None)
+                    code, out = self.call(*argv)
+                self.assertEqual(code, ck.EXIT_REFUSED, out)
+
+    def test_clone_allows_maintain_run_and_maintain_sim(self):
+        self.runner.agent = lambda c: self.notes(c, "clean")
+        code, out = self.call("maintain", "run")
+        self.assertEqual((code, out["outcome"]), (0, "clean"))
+        code, out = self.call("--sim", "KidsAI-Maintain", "run", "new", "--feature", "map", "--entry", "app-launch")
+        self.assertNotEqual(code, ck.EXIT_REFUSED, out)
+
+
+class SettingsTests(unittest.TestCase):
+    """無頭 agent 的權限：git 只給 status／add（skill 文件）／commit -m；control-kidsai 只給需要的子命令。"""
+
+    def setUp(self):
+        self.rules = json.loads((CLI.parent / "maintain" / "maintain-settings.json").read_text())["permissions"]
+
+    def test_no_git_command_that_can_read_outside_files(self):
+        git_rules = [r for r in self.rules["allow"] if r.startswith("Bash(git")]
+        self.assertEqual(sorted(git_rules), sorted([
+            "Bash(git status:*)", "Bash(git add .claude/skills/verify-kidsai/SKILL.md:*)",
+            "Bash(git add .claude/skills/verify-kidsai/references/:*)", "Bash(git commit -m:*)"]))
+
+    def test_cli_is_allowed_per_subcommand_only(self):
+        cli_rules = [r for r in self.rules["allow"] if "control-kidsai" in r]
+        self.assertNotIn("Bash(.claude/skills/verify-kidsai/control-kidsai:*)", cli_rules)
+        for rule in cli_rules:
+            self.assertNotRegex(rule, r"control-kidsai (maintain|evidence publish|--sim)")
+        self.assertIn("Bash(.claude/skills/verify-kidsai/control-kidsai doctor:*)", cli_rules)
+
+    def test_edit_only_docs(self):
+        edits = [r for r in self.rules["allow"] if r.startswith(("Edit(", "Write("))]
+        for rule in edits:
+            self.assertRegex(rule, r"^(Edit|Write)\(\./(\.claude/skills/verify-kidsai/(SKILL\.md|references/\*\*)|\.verify/\*\*)\)$")
 
 
 class AgentModeTests(MaintainBase):

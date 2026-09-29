@@ -31,7 +31,8 @@ PROMPT = """/maintain-verification-skill 目標：.claude/skills/verify-kidsai�
 1. 只改 .claude/skills/verify-kidsai/SKILL.md 與 references/ 底下的文件。harness（control-kidsai、lib/、maintain/、tests/）
    有問題、或產品壞掉，都只寫進 run notes，不要改（改了這次會被丟掉）；也不改 app/、content/。
 2. control-kidsai 已設定用模擬器 KidsAI-Maintain；不要用別台。一律寫完整路徑 .claude/skills/verify-kidsai/control-kidsai，不要用變數（權限只認這個寫法）。
-3. 有修正就 git add 那些檔案並 git commit（訊息用 docs: 或 fix: 開頭，繁體中文）。不要 push、不要開 PR、不要發布證據、不要合併。
+3. 有修正就 `git add .claude/skills/verify-kidsai/<檔案>`，再 `git commit -m "docs: …"`（繁體中文）。只准用這兩個和 git status；
+   看改動用 Read。不要 push、不要開 PR、不要發布證據、不要合併。
 4. 結束前把 run notes 寫到 .verify/maintain-notes.md，不要 commit。第一行只能是 `outcome: clean`、`outcome: changed`
    或 `outcome: blocked: <原因>`；接著列：涵蓋的功能、到不了的功能與前提、確認的 drift、發現的產品問題（沒有就寫無）。
 5. run notes 與 commit 內容不得有本機路徑、使用者名稱、裝置 ID 或任何金鑰。"""
@@ -89,7 +90,9 @@ def maintain_install(ctx: Context, a) -> dict:
     if not source.is_file():
         raise Fail(EXIT_ENV, "找不到 maintain/run-daily.sh", "在 repo 根目錄執行")
     plist = plistlib.dumps(launch_agent(ctx, tools, a)).decode()
-    config = {"claude": tools["claude"], "gh": tools["gh"], "python": tools["python3"]}
+    identity = {key: ctx.runner.run(["git", "-C", str(ctx.repo), "config", f"user.{key}"]).stdout.strip() for key in ("name", "email")}
+    config = {"claude": tools["claude"], "gh": tools["gh"], "python": tools["python3"],
+              "git_name": identity["name"], "git_email": identity["email"]}  # 每日 PR 的 commit 作者＝這個 repo 設好的身分
     result = {"ok": True, "plist_path": str(plist_path(ctx)), "plist": plist, "bootstrap_path": str(bootstrap_path(ctx)),
               "config": config, "schedule": "每天 03:17（Mac 睡著時，醒來後補跑一次）"}
     if a.dry_run:
@@ -152,6 +155,10 @@ def daily(ctx: Context, ref: str, branch: str, no_push: bool) -> dict:
             return blocked(f"準備專用 clone 失敗：git {args[0]}")
     if dirty_paths(ctx):
         return blocked("專用 clone 清不乾淨")
+    config = read_json(maintain_root(ctx) / "config.json", {}) or {}
+    for key in ("name", "email"):
+        if config.get(f"git_{key}"):
+            gitc(ctx, "config", f"user.{key}", config[f"git_{key}"])
     base = gitc(ctx, "rev-parse", "HEAD").stdout.strip()
     notes_file = clone / NOTES_REL
     if notes_file.exists():
@@ -239,8 +246,10 @@ def dirty_paths(ctx: Context) -> list:
 
 
 def leak_in_diff(ctx: Context, base: str) -> str:
+    """要 push 的新增內容與 commit 訊息（agent 可能把讀到的東西寫進訊息）。"""
     added = "\n".join(line[1:] for line in gitc(ctx, "diff", base, "HEAD").stdout.splitlines()
                       if line.startswith("+") and not line.startswith("+++"))
+    added += "\n" + gitc(ctx, "log", "--format=%an%n%ae%n%B", f"{base}..HEAD").stdout
     if SECRET_RE.search(added):
         return "金鑰樣式"
     if leaks_in(ctx, added):
