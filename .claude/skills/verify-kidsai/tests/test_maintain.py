@@ -299,9 +299,19 @@ class GuardTests(MaintainBase):
                     self.notes(c, "changed")
                 self.assert_blocked(agent, "scope")
 
+    def test_only_markdown_in_references(self):
+        for rel in ("references/test_x.py", "references/run.sh", "references/data.json", "references/notes.txt"):
+            with self.subTest(rel=rel):
+                self.fresh()
+
+                def agent(c, rel=rel):
+                    self.commit(c, f"{SKILL}/{rel}", "print('x')\n")
+                    self.notes(c, "changed")
+                self.assert_blocked(agent, "scope")
+
     def test_binary_file_blocks(self):
         def agent(c):
-            self.commit(c, f"{SKILL}/references/pic.png", b"\x89PNG\x00\x01secret")
+            self.commit(c, f"{SKILL}/references/pic.md", b"\x89PNG\x00\x01secret")  # 副檔名是 .md 但內容是二進位
             self.notes(c, "changed")
         self.assert_blocked(agent, "binary")
 
@@ -439,6 +449,8 @@ class SettingsTests(unittest.TestCase):
         self.rules = json.loads((CLI.parent / "maintain" / "maintain-settings.json").read_text())["permissions"]
 
     def test_no_git_command_that_can_read_outside_files(self):
+        self.assertFalse([r for r in self.rules["allow"] if "python" in r or "unittest" in r],
+                         "agent 不能跑 python（unittest 加參數就能執行任意檔案）")
         git_rules = [r for r in self.rules["allow"] if r.startswith("Bash(git")]
         self.assertEqual(sorted(git_rules), sorted([
             "Bash(git status:*)", "Bash(git add .claude/skills/verify-kidsai/SKILL.md:*)",
@@ -454,7 +466,7 @@ class SettingsTests(unittest.TestCase):
     def test_edit_only_docs(self):
         edits = [r for r in self.rules["allow"] if r.startswith(("Edit(", "Write("))]
         for rule in edits:
-            self.assertRegex(rule, r"^(Edit|Write)\(\./(\.claude/skills/verify-kidsai/(SKILL\.md|references/\*\*)|\.verify/\*\*)\)$")
+            self.assertRegex(rule, r"^(Edit|Write)\(\./(\.claude/skills/verify-kidsai/(SKILL\.md|references/\*\*/\*\.md)|\.verify/\*\*)\)$")
 
 
 class AgentModeTests(MaintainBase):

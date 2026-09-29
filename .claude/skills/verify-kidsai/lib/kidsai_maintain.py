@@ -28,7 +28,7 @@ SECRET_RE = re.compile(r"gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}
                        r"|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----")
 PROMPT = """/maintain-verification-skill 目標：.claude/skills/verify-kidsai（KidsAI 的驗證 skill）。
 規則（每日自動維護，沒有人在旁邊）：
-1. 只改 .claude/skills/verify-kidsai/SKILL.md 與 references/ 底下的文件。harness（control-kidsai、lib/、maintain/、tests/）
+1. 只改 .claude/skills/verify-kidsai/SKILL.md 與 references/ 底下的 .md 文件。harness（control-kidsai、lib/、maintain/、tests/）
    有問題、或產品壞掉，都只寫進 run notes，不要改（改了這次會被丟掉）；也不改 app/、content/。
 2. control-kidsai 已設定用模擬器 KidsAI-Maintain；不要用別台。一律寫完整路徑 .claude/skills/verify-kidsai/control-kidsai，不要用變數（權限只認這個寫法）。
 3. 有修正就 `git add .claude/skills/verify-kidsai/<檔案>`，再 `git commit -m "docs: …"`（繁體中文）。只准用這兩個和 git status；
@@ -237,7 +237,8 @@ def scope_violations(ctx: Context, base: str) -> list:
 
 
 def agent_editable(path: str) -> bool:
-    return path == AGENT_EDITABLE[0] or path.startswith(AGENT_EDITABLE[1])
+    """SKILL.md 或 references/ 底下的 .md；其他副檔名（例如 .py）可能被當成程式執行。"""
+    return path == AGENT_EDITABLE[0] or (path.startswith(AGENT_EDITABLE[1]) and path.endswith(".md"))
 
 
 def dirty_paths(ctx: Context) -> list:

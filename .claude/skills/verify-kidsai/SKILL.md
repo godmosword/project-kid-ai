@@ -133,13 +133,13 @@ $C cleanup             # 只停本次啟動的：錄影（核對 pid 身分）�
   - **clean**：只寫 log。
   - **changed**：wrapper 開一個 **draft** PR，只改 `SKILL.md` 與 `references/`；已有未合併的 maintain PR 時不開新的。
   - **blocked**：寫 log，並跳 macOS 通知；連續 3 天另外標出。
-- **agent 能做的**：無頭 Claude Code 權限見 `maintain/maintain-settings.json`，只能改 `SKILL.md`、`references/` 與 `.verify/`，只能本機 commit。
+- **agent 能做的**：無頭 Claude Code 權限見 `maintain/maintain-settings.json`，只能改 `SKILL.md`、`references/` 底下的 `.md` 與 `.verify/`，只能本機 commit；不能跑 python（`unittest` 加參數就能執行任意檔）。
   - harness（`control-kidsai`、`lib/`、`maintain/`、`tests/`）不能改；有問題寫進 run notes，另走 `/agent-plan`。不然 agent 可以先拿掉防護再執行。
   - git 只能用 `status`、`add`（skill 文件）、`commit -m`；不能 `diff`、`show`、`log`，因為這些能讀到 clone 以外的檔案。也不能 push、不能用 `gh`。
   - `control-kidsai` 只能用列出的子命令。從專用 clone 執行時，不看環境變數，一律拒絕 `evidence publish`（含 dry-run）、`maintain`（wrapper 的 `run` 除外）和 `KidsAI-Maintain` 以外的模擬器；agent 的環境（`KIDSAI_MAINTAIN_AGENT=1`）連 `maintain run` 也拒絕。
   - 結束前把 run notes 寫到 `.verify/maintain-notes.md`。
 - **wrapper 的硬性防護**（`lib/kidsai_maintain.py`，不依賴模型守規矩）：
-  - 範圍：所有 commit 的改動（含刪除、rename、symlink），以及 index、工作樹、未追蹤檔，全都要在 `SKILL.md` 或 `references/` 之下。
+  - 範圍：所有 commit 的改動（含刪除、rename、symlink），以及 index、工作樹、未追蹤檔，全都要是 `SKILL.md` 或 `references/` 底下的 `.md`。
   - 不得有二進位檔（掃描不了內容）；新增內容與 commit 訊息、作者，不得有本機路徑、使用者名稱、裝置 ID 或金鑰樣式。
   - 分支 push 了但開 PR 失敗，也算 blocked（要手動處理）。
   - run notes 必須和 git 狀態一致。
