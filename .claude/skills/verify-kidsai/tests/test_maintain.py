@@ -44,8 +44,11 @@ class HybridRunner(ck.Runner):
         self.open_prs = []          # gh pr list 回傳的 headRefName
         self.gh_list_fails = False
         self.pr_create_fails = False
+        self.wrapper_commit_fails = False
 
     def run(self, cmd, cwd=None, input=None, env=None, timeout=None):
+        if cmd[0] == "git" and self.wrapper_commit_fails and "commit" in cmd:
+            return ck.Result(1, "", "fatal: unable to write commit")
         if cmd[0] == "git":
             return super().run(cmd, cwd=cwd, input=input, env=env)
         self.calls.append(list(cmd))
@@ -365,10 +368,38 @@ class GuardTests(MaintainBase):
             self.propose(c, "SKILL.md", "# verify\n")
             self.notes(c, "changed")
 
-        for agent, why in ((symlink, "scope"), (identical, "提案")):
+        def control_chars(c):
+            self.propose(c, "SKILL.md", "看起來是文字\x01\x02\x1b[31m\n")
+            self.notes(c, "changed")
+
+        for agent, why in ((symlink, "scope"), (identical, "提案"), (control_chars, "binary")):
             with self.subTest(agent=agent.__name__):
                 self.fresh()
                 self.assert_blocked(agent, why)
+
+    def test_symlink_in_target_tree_is_not_followed(self):
+        """repo 裡若有指向外面的 symlink 資料夾，套用提案時不能寫穿到外面。"""
+        outside = Path(self.tmp.name) / "outside"
+        outside.mkdir()
+        (self.clone / SKILL / "references").mkdir(exist_ok=True)
+        os.symlink(str(outside), self.clone / SKILL / "references" / "ext")
+        git(self.clone, "add", f"{SKILL}/references/ext")
+        git(self.clone, "commit", "-q", "-m", "link")
+        git(self.clone, "push", "-q", "origin", "HEAD:main")
+
+        def agent(c):
+            self.propose(c, "references/ext/doc.md", "# 寫穿\n")
+            self.notes(c, "changed")
+        self.assert_blocked(agent, "symlink")
+        self.assertFalse((outside / "doc.md").exists(), "不得寫到 skill 目錄外")
+
+    def test_wrapper_commit_failure_is_blocked(self):
+        self.runner.wrapper_commit_fails = True
+
+        def agent(c):
+            self.propose(c, "SKILL.md", "# 新內容\n")
+            self.notes(c, "changed")
+        self.assert_blocked(agent, "commit")
 
     def test_notes_must_match_git_state(self):
         cases = {

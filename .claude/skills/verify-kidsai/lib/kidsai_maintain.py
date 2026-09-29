@@ -220,8 +220,9 @@ def judge(ctx: Context, base: str, notes: Optional[str], branch: str, no_push: b
         return blocked("run notes 第一行看不懂", notes)
     if not proposals:
         return blocked("run notes 說 changed，但沒有提案", notes)
-    if not apply_proposals(ctx, proposals, branch):
-        return blocked("提案和現有內容一樣，run notes 卻說 changed", notes)
+    problem = apply_proposals(ctx, proposals, branch, base)
+    if problem:
+        return blocked(problem, notes)
     violations = scope_violations(ctx, base)  # wrapper 自己的 commit 再檢查一次
     if violations:
         return blocked("scope violation：" + "；".join(violations[:5]), notes)
@@ -259,27 +260,49 @@ def read_proposals(ctx: Context) -> tuple:
             text = data.decode("utf-8")
         except UnicodeDecodeError:
             text = None
-        if text is None or "\0" in text or len(data) > MAX_PROPOSAL_BYTES:
+        if text is None or len(data) > MAX_PROPOSAL_BYTES or any(ord(ch) < 32 and ch not in "\n\t\r" or ch == "\x7f"
+                                                                 for ch in text):
             problems.append(f"binary 或過大的提案不能自動套用：{target}")
             continue
         proposals[target] = text
     return proposals, problems
 
 
-def apply_proposals(ctx: Context, proposals: dict, branch: str) -> bool:
-    """把提案寫進 skill 目錄並由 wrapper commit；和現有內容都一樣就回傳 False。"""
+def apply_proposals(ctx: Context, proposals: dict, branch: str, base: str) -> str:
+    """把提案寫進 skill 目錄並由 wrapper commit；成功回傳空字串，否則回傳 blocked 的原因。"""
     clone = clone_dir(ctx)
+    for target in proposals:
+        problem = unsafe_target(clone, target)
+        if problem:
+            return problem
     changed = [target for target, text in proposals.items()
                if not (clone / target).is_file() or (clone / target).read_text(errors="replace") != text]
     if not changed:
-        return False
+        return "提案和現有內容一樣，run notes 卻說 changed"
     for target in changed:
         (clone / target).parent.mkdir(parents=True, exist_ok=True)
         (clone / target).write_text(proposals[target])
-    gitc(ctx, "add", "--", *changed)
     date = branch.removeprefix("maintain/verify-kidsai-")
-    gitc(ctx, "commit", "-q", "-m", f"docs: 每日維護 {date}：{len(changed)} 個驗證文件修正")
-    return True
+    if (gitc(ctx, "add", "--", *changed).returncode != 0
+            or gitc(ctx, "commit", "-q", "-m", f"docs: 每日維護 {date}：{len(changed)} 個驗證文件修正").returncode != 0
+            or gitc(ctx, "rev-list", "--count", f"{base}..HEAD").stdout.strip() != "1"):
+        return "wrapper 套用提案後 git add／commit 失敗"
+    return ""
+
+
+def unsafe_target(clone: Path, target: str) -> str:
+    """目標路徑的每一層都不能是 symlink，解析後也要在 skill 目錄裡（不寫穿到外面）。"""
+    skill = (clone / SKILL_PREFIX).resolve()
+    path = clone / target
+    for part in [path, *path.parents]:
+        if part == clone:
+            break
+        if part.is_symlink():
+            return f"scope violation：{target} 經過 symlink {part.relative_to(clone)}"
+    resolved = path.resolve()
+    if resolved != skill and skill not in resolved.parents:
+        return f"scope violation：{target} 解析到 skill 目錄外"
+    return ""
 
 
 def scope_violations(ctx: Context, base: str) -> list:
