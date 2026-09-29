@@ -1,0 +1,45 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(./**)",
+      "Read(~/.claude/skills/maintain-verification-skill/**)",
+      "Glob",
+      "Grep",
+      "Agent",
+      "Task",
+      "Edit(./.claude/skills/verify-kidsai/**)",
+      "Write(./.claude/skills/verify-kidsai/**)",
+      "Edit(./.verify/**)",
+      "Write(./.verify/**)",
+      "Bash(.claude/skills/verify-kidsai/control-kidsai:*)",
+      "Bash(python3 -m unittest discover .claude/skills/verify-kidsai/tests:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": [
+      "Bash(git push:*)",
+      "Bash(git -c:*)",
+      "Bash(git remote:*)",
+      "Bash(gh:*)",
+      "Bash(curl:*)",
+      "Bash(.claude/skills/verify-kidsai/control-kidsai evidence publish:*)",
+      "WebFetch",
+      "WebSearch",
+      "Edit(./app/**)",
+      "Write(./app/**)",
+      "Edit(./content/**)",
+      "Write(./content/**)",
+      "Edit(./AGENTS.md)",
+      "Write(./AGENTS.md)",
+      "Read(~/.ssh/**)",
+      "Read(~/.config/gh/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.claude.json)",
+      "Read(./**/.env)"
+    ]
+  }
+}

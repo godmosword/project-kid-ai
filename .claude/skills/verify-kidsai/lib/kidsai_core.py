@@ -70,6 +70,28 @@ class Runner:
             return Result(127, "", str(error))
         return Result(p.returncode, p.stdout, p.stderr)
 
+    def run_logged(self, cmd, log_path: Path, cwd=None, env=None, timeout=None) -> Optional[int]:
+        """跑到結束，輸出寫進 log；逾時就結束整個 process group 並回傳 None。"""
+        with open(log_path, "wb") as log:
+            try:
+                p = subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, start_new_session=True,
+                                     cwd=cwd, env={**os.environ, **env} if env else None)
+            except FileNotFoundError:
+                return 127
+            try:
+                return p.wait(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                for sig in (signal.SIGTERM, signal.SIGKILL):
+                    try:
+                        os.killpg(p.pid, sig)
+                        p.wait(timeout=30)
+                        break
+                    except ProcessLookupError:
+                        break
+                    except subprocess.TimeoutExpired:
+                        continue
+                return None
+
     def popen(self, cmd, log_path: Path, env=None, cwd=None) -> int:
         with open(log_path, "wb") as log:
             p = subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, start_new_session=True,
