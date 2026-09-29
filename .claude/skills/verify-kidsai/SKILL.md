@@ -131,14 +131,16 @@ $C cleanup             # 只停本次啟動的：錄影（核對 pid 身分）�
 - 在專用 clone `~/kidsai-maintain/project-kid-ai` 和專用模擬器 `KidsAI-Maintain` 上跑，不碰平常工作的 checkout 與 `KidsAI-Verify`。
 - 結果只有三種：
   - **clean**：只寫 log。
-  - **changed**：wrapper 開一個 **draft** PR，只改本目錄；已有未合併的 maintain PR 時不開新的。
+  - **changed**：wrapper 開一個 **draft** PR，只改 `SKILL.md` 與 `references/`；已有未合併的 maintain PR 時不開新的。
   - **blocked**：寫 log，並跳 macOS 通知；連續 3 天另外標出。
-- **agent 能做的**：無頭 Claude Code 權限見 `maintain/maintain-settings.json`，只能改本目錄與 `.verify/`、本機 commit。
-  - 不能 push、不能用 `gh`、不能發布證據（環境有 `KIDSAI_NO_PUBLISH=1`）。
+- **agent 能做的**：無頭 Claude Code 權限見 `maintain/maintain-settings.json`，只能改 `SKILL.md`、`references/` 與 `.verify/`，只能本機 commit。
+  - harness（`control-kidsai`、`lib/`、`maintain/`、`tests/`）不能改；有問題寫進 run notes，另走 `/agent-plan`。不然 agent 可以先拿掉防護再執行。
+  - 不能 push、不能用 `gh`。環境有 `KIDSAI_MAINTAIN_AGENT=1`，`control-kidsai` 會拒絕 `evidence publish`（含 dry-run）、`maintain`，也拒絕 `KidsAI-Maintain` 以外的模擬器。
   - 結束前把 run notes 寫到 `.verify/maintain-notes.md`。
 - **wrapper 的硬性防護**（`lib/kidsai_maintain.py`，不依賴模型守規矩）：
-  - 範圍：所有 commit 的改動（含刪除、rename、symlink），以及 index、工作樹、未追蹤檔，全都要在本目錄之下。
-  - 要 push 的內容不得有本機路徑、使用者名稱、裝置 ID 或金鑰樣式。
+  - 範圍：所有 commit 的改動（含刪除、rename、symlink），以及 index、工作樹、未追蹤檔，全都要在 `SKILL.md` 或 `references/` 之下。
+  - 不得有二進位檔（掃描不了內容）；新增內容不得有本機路徑、使用者名稱、裝置 ID 或金鑰樣式。
+  - 分支 push 了但開 PR 失敗，也算 blocked（要手動處理）。
   - run notes 必須和 git 狀態一致。
   - 任一項不合就 blocked，並丟掉這次的分支。
 - **不發布證據**：證據只留在專用 clone 的 `.verify/`。

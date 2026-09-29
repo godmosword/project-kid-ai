@@ -16,7 +16,7 @@
 - **風險分級與審查：** 以 [docs/AGENT-WORKFLOW.md](docs/AGENT-WORKFLOW.md) 為準（L0／L1 可直接做、事後回報；L2／L3 用 `/agent-plan`、`/agent-action`）。
 - **Git：** 可直接 commit 並 push 到 `main`，也可走分支＋PR；不得 force push。例外：碰到 UI 的改動一律走 PR，不得直接 push `main`。
 - **UI 證據：** 「碰到 UI」指改到孩子或家長看得到的畫面或流程，包括 `app/KidsAI/UI/`、`app/KidsAI/KidsAIApp.swift`、`content/units/` 的文字或流程，以及進 App 的 design token。這類 PR 必須附上照 `.claude/skills/verify-kidsai/SKILL.md` 產出、並用 `control-kidsai evidence publish` 推到 `godmosword/project-kid-ai-evidence` 的證據：受影響功能的 `record --flow` 縮時影片（同一段裡要有觸發動作和最終狀態）加上最終畫面截圖，並寫明 feature id 和進入點。同一個 PR 要同步更新 Feature Map（`references/features/`、`references/design-map.md`）。用啟動參數跳關只能準備前置狀態，不能當證明本身。審查者（Codex、Grok）要拿證據對照功能檔和 `design-map.md` 的設計稿，列出不一致的地方。證據永遠不得出現兒童資料。
-- **每日維護：** launchd 每天自動執行的 `/maintain-verification-skill` 只能改 `.claude/skills/verify-kidsai/`，最多開一個 draft PR，由 Michael 核准合併；agent 不得 push、不得合併、不得發布證據。push 與開 PR 只由 wrapper 在範圍防護與洩漏掃描通過後進行（見 SKILL.md 的 Maintain）。
+- **每日維護：** launchd 每天自動執行的 `/maintain-verification-skill` 只能改 `.claude/skills/verify-kidsai/` 的 `SKILL.md` 與 `references/`（不能改 harness），最多開一個 draft PR，由 Michael 核准合併；agent 不得 push、不得合併、不得發布證據。push 與開 PR 只由 wrapper 在範圍防護與洩漏掃描通過後進行（見 SKILL.md 的 Maintain）。
 - **一個 PR 只做一件事。** PR 描述寫清楚：做了什麼、怎麼驗證、已知限制。
 - **不確定就問，不要猜。** 規格互相衝突時，列出衝突並詢問 Michael。
 

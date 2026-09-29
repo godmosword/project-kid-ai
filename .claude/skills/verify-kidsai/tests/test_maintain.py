@@ -43,6 +43,7 @@ class HybridRunner(ck.Runner):
         self.agent_code = 0         # claude 的結束碼；None＝逾時
         self.open_prs = []          # gh pr list 回傳的 headRefName
         self.gh_list_fails = False
+        self.pr_create_fails = False
 
     def run(self, cmd, cwd=None, input=None, env=None, timeout=None):
         if cmd[0] == "git":
@@ -53,6 +54,8 @@ class HybridRunner(ck.Runner):
                 return ck.Result(1, "", "network down")
             return ck.Result(0, json.dumps([{"headRefName": h} for h in self.open_prs]), "")
         if cmd[:3] == ["/fake/gh", "pr", "create"]:
+            if self.pr_create_fails:
+                return ck.Result(1, "", "GraphQL error")
             return ck.Result(0, "https://github.com/godmosword/project-kid-ai/pull/99\n", "")
         return ck.Result(0, "", "")
 
@@ -123,7 +126,7 @@ class MaintainBase(unittest.TestCase):
     def commit(clone, rel, text="改了\n"):
         path = clone / rel
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(text)
+        path.write_bytes(text) if isinstance(text, bytes) else path.write_text(text)
         git(clone, "add", "-A", "--", rel)
         git(clone, "commit", "-q", "-m", "docs: fix")
 
@@ -197,7 +200,7 @@ class RunOutcomeTests(MaintainBase):
         self.runner.agent = lambda c: self.notes(c, "clean")
         self.call("maintain", "run")
         self.assertEqual(seen["KIDSAI_SIM"], "KidsAI-Maintain")
-        self.assertEqual(seen["KIDSAI_NO_PUBLISH"], "1")
+        self.assertEqual(seen["KIDSAI_MAINTAIN_AGENT"], "1")
         self.assertEqual(seen["timeout"], 90 * 60)
 
     def test_no_push_keeps_changes_local(self):
@@ -278,6 +281,36 @@ class GuardTests(MaintainBase):
                 self.fresh()
                 self.assert_blocked(agent, "scope")
 
+    def test_harness_files_are_off_limits(self):
+        """每日 agent 只改文件；改到 harness（含防護本身）一律 blocked。"""
+        for rel in ("control-kidsai", "lib/kidsai_core.py", "lib/kidsai_maintain.py", "maintain/maintain-settings.json",
+                    "tests/test_maintain.py"):
+            with self.subTest(rel=rel):
+                self.fresh()
+
+                def agent(c, rel=rel):
+                    self.commit(c, f"{SKILL}/{rel}", "# weakened\n")
+                    self.notes(c, "changed")
+                self.assert_blocked(agent, "scope")
+
+    def test_binary_file_blocks(self):
+        def agent(c):
+            self.commit(c, f"{SKILL}/references/pic.png", b"\x89PNG\x00\x01secret")
+            self.notes(c, "changed")
+        self.assert_blocked(agent, "binary")
+
+    def test_pr_create_failure_is_blocked(self):
+        self.runner.pr_create_fails = True
+
+        def agent(c):
+            self.commit(c, f"{SKILL}/SKILL.md")
+            self.notes(c, "changed")
+        self.runner.agent = agent
+        code, out = self.call("maintain", "run")
+        self.assertEqual(out["outcome"], "blocked", out)
+        self.assertIn("PR", out["reason"])
+        self.assertEqual(out["consecutive_blocked"], 1)
+
     def test_leak_in_diff_blocks(self):
         for text in ("見 /Users/someone/project\n", "token ghp_" + "a" * 36 + "\n", "-----BEGIN OPENSSH PRIVATE KEY-----\n"):
             with self.subTest(text=text[:12]):
@@ -332,6 +365,17 @@ class LockAndStateTests(MaintainBase):
         self.assertEqual(out["outcome"], "clean", out)
         self.assertFalse(lock.exists(), "結束後釋放鎖")
 
+    def test_corrupted_lock_is_reclaimed(self):
+        for content in ("not json", json.dumps({"pid": "x", "started": "yesterday"})):
+            with self.subTest(content=content[:8]):
+                self.fresh()
+                lock = self.home / "kidsai-maintain/.lock"
+                lock.mkdir()
+                (lock / "owner.json").write_text(content)
+                self.runner.agent = lambda c: self.notes(c, "clean")
+                _, out = self.call("maintain", "run")
+                self.assertEqual(out["outcome"], "clean", out)
+
     def test_consecutive_blocked_is_counted_and_flagged(self):
         self.runner.agent_code = 1
         for day in range(3):
@@ -353,11 +397,19 @@ class LockAndStateTests(MaintainBase):
         self.assertEqual(out["recent"][-1]["outcome"], "clean")
 
 
-class PublishGuardTests(MaintainBase):
-    def test_publish_refused_when_disabled(self):
-        with mock.patch.dict(os.environ, {"KIDSAI_NO_PUBLISH": "1"}):
-            code, out = self.call("evidence", "publish", "--pr", "1", "--run", "20260930-031700-abcdef0")
-        self.assertEqual(code, ck.EXIT_REFUSED, out)
+class AgentModeTests(MaintainBase):
+    """agent 的環境（KIDSAI_MAINTAIN_AGENT=1）裡，CLI 自己擋下危險命令，不只靠權限規則。"""
+
+    def test_agent_mode_refuses_dangerous_commands(self):
+        env = {"KIDSAI_MAINTAIN_AGENT": "1", "KIDSAI_SIM": "KidsAI-Maintain"}
+        for argv in (["evidence", "publish", "--pr", "1", "--run", "20260930-031700-abcdef0"],
+                     ["evidence", "publish", "--pr", "1", "--run", "20260930-031700-abcdef0", "--dry-run"],
+                     ["maintain", "status"], ["maintain", "install", "--dry-run"],
+                     ["--sim", "KidsAI-Verify", "doctor"]):
+            with self.subTest(argv=" ".join(argv)):
+                with mock.patch.dict(os.environ, env):
+                    code, out = self.call(*argv)
+                self.assertEqual(code, ck.EXIT_REFUSED, out)
 
 
 if __name__ == "__main__":

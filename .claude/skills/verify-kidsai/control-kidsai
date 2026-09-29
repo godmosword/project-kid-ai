@@ -111,6 +111,13 @@ HANDLERS = {"doctor": cmd_doctor, "sim": cmd_sim, "build": cmd_build, "install":
             "maintain": cmd_maintain}
 
 
+def refuse_in_agent_mode(ctx: Context, args) -> None:
+    """每日維護的無頭 agent（KIDSAI_MAINTAIN_AGENT=1）：不能發布證據、不能動排程、只能用 KidsAI-Maintain。"""
+    if args.command == "maintain" or (args.command == "evidence" and args.action == "publish") or ctx.sim != MAINTAIN_SIM:
+        raise Fail(EXIT_REFUSED, "每日自動維護的 agent 不能執行這個命令（發布證據、maintain、或 KidsAI-Maintain 以外的模擬器）",
+                   "證據留在 .verify/；其他寫進 run notes")
+
+
 def emit(result: dict, human: bool) -> None:
     if human:
         for key, value in result.items():
@@ -133,8 +140,8 @@ def main(argv=None, ctx: Optional[Context] = None) -> int:
             raise Fail(EXIT_REFUSED, f"只能操作專用模擬器 {' 或 '.join(SIMS)}，不能用 {ctx.sim}", "--sim KidsAI-Verify")
         if args.command == "evidence" and args.action in ("md", "publish") and args.pr is None:
             raise Fail(EXIT_USAGE, "需要 --pr <編號>", "先開 draft PR 取得編號")
-        if args.command == "evidence" and args.action == "publish" and not args.dry_run and os.environ.get("KIDSAI_NO_PUBLISH") == "1":
-            raise Fail(EXIT_REFUSED, "每日自動維護不發布證據（KIDSAI_NO_PUBLISH=1）", "證據留在 .verify/；要發布請由人手動執行")
+        if os.environ.get("KIDSAI_MAINTAIN_AGENT") == "1":
+            refuse_in_agent_mode(ctx, args)
         result = HANDLERS[args.command](ctx, args)
         code = result.pop("exit", EXIT_OK) if args.command in ("doctor", "maintain") else EXIT_OK
         emit(result, args.human)

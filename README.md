@@ -18,7 +18,7 @@
 
 ### 每日自動維護
 
-每天 03:17 在這台 Mac 上自動檢查功能地圖是否還對得上 App。有修正時開一個 draft PR 給 Michael 審；失敗時跳 macOS 通知。安裝、查看、移除（在 repo 根目錄）：
+每天 03:17 在這台 Mac 上自動檢查功能地圖是否還對得上 App。**裝好之後會自動 push 分支並開 draft PR**（只改驗證 skill 的文件），給 Michael 審；失敗時跳 macOS 通知。建議先用 `maintain install --no-push` 試跑一兩天（只寫本機分支與 log），再正式安裝。安裝、查看、移除（在 repo 根目錄）：
 
 ```bash
 .claude/skills/verify-kidsai/control-kidsai maintain install      # 先加 --dry-run 看會寫什麼

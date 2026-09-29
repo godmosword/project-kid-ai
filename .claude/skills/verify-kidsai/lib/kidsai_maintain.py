@@ -1,8 +1,10 @@
 """control-kidsai maintain：每天自動跑 /maintain-verification-skill（驗證層 V4）。
 
 每日流程由 wrapper（本模組）控制：鎖 → 專用 clone → 無頭 Claude Code → 範圍防護與洩漏掃描 → push 與 draft PR → log、通知。
-agent 只在專用 clone 裡改 skill 目錄並 commit；push、開 PR、查 PR 只有 wrapper 做，而且要先通過防護（不依賴模型守規矩）。
-每日維護不發布證據（D-V4b）：agent 的環境有 KIDSAI_NO_PUBLISH=1，evidence publish 會拒絕。
+agent 只在專用 clone 裡改文件（SKILL.md、references/）並 commit；harness（control-kidsai、lib/、maintain/、tests/）
+不能改，否則它能先拿掉防護再執行。push、開 PR、查 PR 只有 wrapper 做，而且要先通過防護（不依賴模型守規矩）。
+每日維護不發布證據（D-V4b）：agent 的環境有 KIDSAI_MAINTAIN_AGENT=1，control-kidsai 會拒絕 evidence publish、
+maintain 與其他模擬器。
 """
 
 import plistlib
@@ -13,6 +15,7 @@ from kidsai_evidence import leaks_in
 
 LABEL = "com.godmosword.kidsai.maintain-verify"
 SKILL_PREFIX = ".claude/skills/verify-kidsai/"
+AGENT_EDITABLE = (SKILL_PREFIX + "SKILL.md", SKILL_PREFIX + "references/")  # 檔案或資料夾字首
 MAINTAIN_SIM = "KidsAI-Maintain"
 DEFAULT_REF = "origin/main"
 AGENT_TIMEOUT = 90 * 60
@@ -25,7 +28,8 @@ SECRET_RE = re.compile(r"gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}
                        r"|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----")
 PROMPT = """/maintain-verification-skill 目標：.claude/skills/verify-kidsai（KidsAI 的驗證 skill）。
 規則（每日自動維護，沒有人在旁邊）：
-1. 只改 .claude/skills/verify-kidsai/ 底下的檔案；產品壞掉只寫進 run notes，不改 app/、content/。
+1. 只改 .claude/skills/verify-kidsai/SKILL.md 與 references/ 底下的文件。harness（control-kidsai、lib/、maintain/、tests/）
+   有問題、或產品壞掉，都只寫進 run notes，不要改（改了這次會被丟掉）；也不改 app/、content/。
 2. control-kidsai 已設定用模擬器 KidsAI-Maintain；不要用別台。一律寫完整路徑 .claude/skills/verify-kidsai/control-kidsai，不要用變數（權限只認這個寫法）。
 3. 有修正就 git add 那些檔案並 git commit（訊息用 docs: 或 fix: 開頭，繁體中文）。不要 push、不要開 PR、不要發布證據、不要合併。
 4. 結束前把 run notes 寫到 .verify/maintain-notes.md，不要 commit。第一行只能是 `outcome: clean`、`outcome: changed`
@@ -172,7 +176,7 @@ def run_agent(ctx: Context, clone: Path) -> Optional[dict]:
     log_dir(ctx).mkdir(parents=True, exist_ok=True)
     log = log_dir(ctx) / f"{ctx.now().strftime('%Y-%m-%d')}.claude.log"
     code = ctx.runner.run_logged([claude, "-p", PROMPT, "--settings", str(settings), "--permission-mode", "default"],
-                                 log, cwd=str(clone), env={"KIDSAI_SIM": MAINTAIN_SIM, "KIDSAI_NO_PUBLISH": "1"},
+                                 log, cwd=str(clone), env={"KIDSAI_SIM": MAINTAIN_SIM, "KIDSAI_MAINTAIN_AGENT": "1"},
                                  timeout=AGENT_TIMEOUT)
     if code is None:
         return blocked("claude timeout（90 分鐘）")
@@ -199,6 +203,10 @@ def judge(ctx: Context, base: str, notes: Optional[str], branch: str, no_push: b
         return blocked("run notes 第一行看不懂", notes)
     if not commits:
         return blocked("run notes 說 changed，但沒有 commit", notes)
+    binary = [line.split("\t", 2)[2] for line in gitc(ctx, "diff", "--numstat", base, "HEAD").stdout.splitlines()
+              if line.startswith("-\t-\t")]
+    if binary:
+        return blocked(f"binary 檔掃描不了內容，不自動 push：{binary[0]}", notes)
     leak = leak_in_diff(ctx, base)
     if leak:
         return blocked(f"leak：要 push 的內容有{leak}", notes)
@@ -216,9 +224,13 @@ def scope_violations(ctx: Context, base: str) -> list:
         i += 1 + len(paths)
         if meta[1] == "120000":
             problems.append(f"symlink {paths[-1]}")
-        problems += [f"改到 {p}" for p in paths if not p.startswith(SKILL_PREFIX)]
+        problems += [f"改到 {p}" for p in paths if not agent_editable(p)]
     problems += [f"沒 commit 的 {p}" for p in dirty_paths(ctx)]
     return problems
+
+
+def agent_editable(path: str) -> bool:
+    return path == AGENT_EDITABLE[0] or path.startswith(AGENT_EDITABLE[1])
 
 
 def dirty_paths(ctx: Context) -> list:
@@ -263,7 +275,7 @@ def ship(ctx: Context, branch: str, notes: str, no_push: bool) -> dict:
     created = ctx.runner.run([gh, "pr", "create", "--draft", "--base", "main", "--head", branch,
                               "--title", f"chore(verify): 每日維護 {branch.removeprefix('maintain/verify-kidsai-')}", "--body-file", str(body)], cwd=str(clone_dir(ctx)))
     if created.returncode != 0:
-        return {**result, "reason": "分支已 push，但開 PR 失敗"}
+        return blocked(f"分支 {branch} 已 push，但開 PR 失敗，請手動開 PR 或刪掉遠端分支", notes)
     return {**result, "pr": created.stdout.strip().splitlines()[-1]}
 
 
@@ -299,9 +311,13 @@ def acquire_lock(ctx: Context) -> bool:
     try:
         lock.mkdir()
     except FileExistsError:
-        owner = read_json(lock / "owner.json", {}) or {}
-        started = datetime.datetime.fromisoformat(owner["started"]) if owner.get("started") else None
-        if pid_alive(ctx, owner.get("pid")) and started and ctx.now() - started < LOCK_STALE:
+        try:
+            owner = read_json(lock / "owner.json", {}) or {}
+            started = datetime.datetime.fromisoformat(owner["started"])
+            busy = pid_alive(ctx, owner.get("pid")) and ctx.now() - started < LOCK_STALE
+        except (ValueError, TypeError, KeyError, AttributeError):
+            busy = False  # 鎖檔壞了：當成上次中斷留下的
+        if busy:
             return False
         shutil.rmtree(lock)  # 上次當掉或被中斷留下的鎖
         lock.mkdir()
