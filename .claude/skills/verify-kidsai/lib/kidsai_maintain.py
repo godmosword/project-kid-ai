@@ -1,8 +1,10 @@
 """control-kidsai maintain：每天自動跑 /maintain-verification-skill（驗證層 V4）。
 
 每日流程由 wrapper（本模組）控制：鎖 → 專用 clone → 無頭 Claude Code → 範圍防護與洩漏掃描 → push 與 draft PR → log、通知。
-agent 只在專用 clone 裡改文件（SKILL.md、references/）並 commit；harness（control-kidsai、lib/、maintain/、tests/）
-不能改，否則它能先拿掉防護再執行。push、開 PR、查 PR 只有 wrapper 做，而且要先通過防護（不依賴模型守規矩）。
+agent 不直接改檔、也不 commit：Claude Code 在無頭模式下不准改 .claude/ 底下的檔案（allow 規則與 acceptEdits 都放不過，
+2026-09-29 實測），所以 agent 把改好的完整檔案寫到 .verify/maintain-proposed/<相對於 skill 目錄的路徑>，
+由 wrapper 檢查（只准 SKILL.md 與 references/**/*.md、純文字、洩漏掃描）後套用並 commit。
+harness（control-kidsai、lib/、maintain/、tests/）不能提案，否則 agent 能改掉防護。push、開 PR、查 PR 只有 wrapper 做。
 每日維護不發布證據（D-V4b）：agent 的環境有 KIDSAI_MAINTAIN_AGENT=1，control-kidsai 會拒絕 evidence publish、
 maintain 與其他模擬器。
 """
@@ -24,6 +26,8 @@ KEEP_LOG_DAYS = 30
 KEEP_HISTORY = 30
 FLAG_AFTER_BLOCKED_DAYS = 3
 NOTES_REL = Path(".verify/maintain-notes.md")
+PROPOSED_REL = Path(".verify/maintain-proposed")
+MAX_PROPOSAL_BYTES = 200 * 1024
 SECRET_RE = re.compile(r"gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9_-]{20,}"
                        r"|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----")
 PROMPT = """/maintain-verification-skill 目標：.claude/skills/verify-kidsai（KidsAI 的驗證 skill）。
@@ -31,8 +35,11 @@ PROMPT = """/maintain-verification-skill 目標：.claude/skills/verify-kidsai�
 1. 只改 .claude/skills/verify-kidsai/SKILL.md 與 references/ 底下的 .md 文件。harness（control-kidsai、lib/、maintain/、tests/）
    有問題、或產品壞掉，都只寫進 run notes，不要改（改了這次會被丟掉）；也不改 app/、content/。
 2. control-kidsai 已設定用模擬器 KidsAI-Maintain；不要用別台。一律寫完整路徑 .claude/skills/verify-kidsai/control-kidsai，不要用變數（權限只認這個寫法）。
-3. 有修正就 `git add .claude/skills/verify-kidsai/<檔案>`，再 `git commit -m "docs: …"`（繁體中文）。只准用這兩個和 git status；
-   看改動用 Read。不要 push、不要開 PR、不要發布證據、不要合併。
+3. 不要直接改檔、不要 git add／commit（.claude/ 在這個模式下改不了）。有修正就把改好的「完整檔案」寫到
+   .verify/maintain-proposed/<相對於 .claude/skills/verify-kidsai/ 的路徑>，例如
+   .verify/maintain-proposed/references/features/unit-flow.md；wrapper 會檢查後套用並 commit。
+   不要 push、不要開 PR、不要發布證據、不要合併。control-kidsai 的 fix 若寫 --sim，照做時去掉 --sim（已預設 KidsAI-Maintain）；
+   run new 等命令的輸出是 JSON，直接讀，不要用 python 解析。
 4. 結束前把 run notes 寫到 .verify/maintain-notes.md，不要 commit。第一行只能是 `outcome: clean`、`outcome: changed`
    或 `outcome: blocked: <原因>`；接著列：涵蓋的功能、到不了的功能與前提、確認的 drift、發現的產品問題（沒有就寫無）。
 5. run notes 與 commit 內容不得有本機路徑、使用者名稱、裝置 ID 或任何金鑰。"""
@@ -163,6 +170,7 @@ def daily(ctx: Context, ref: str, branch: str, no_push: bool) -> dict:
     notes_file = clone / NOTES_REL
     if notes_file.exists():
         notes_file.unlink()
+    shutil.rmtree(clone / PROPOSED_REL, ignore_errors=True)
     outcome = run_agent(ctx, clone)
     if outcome is None:
         outcome = judge(ctx, base, notes_file.read_text() if notes_file.exists() else None, branch, no_push)
@@ -193,23 +201,30 @@ def run_agent(ctx: Context, clone: Path) -> Optional[dict]:
 
 
 def judge(ctx: Context, base: str, notes: Optional[str], branch: str, no_push: bool) -> dict:
-    """依 git 狀態與 run notes 判定結果；兩者矛盾一律 blocked。"""
-    violations = scope_violations(ctx, base)
+    """依 git 狀態、提案與 run notes 判定結果；三者矛盾一律 blocked。"""
+    violations = agent_git_changes(ctx, base)
     if violations:
         return blocked("scope violation：" + "；".join(violations[:5]))
     if notes is None:
         return blocked("run notes 缺漏")
+    proposals, problems = read_proposals(ctx)
+    if problems:
+        return blocked("；".join(problems[:5]), notes)
     declared = notes.strip().splitlines()[0].strip() if notes.strip() else ""
-    commits = int(gitc(ctx, "rev-list", "--count", f"{base}..HEAD").stdout.strip() or 0)
     if declared.startswith("outcome: blocked"):
         return blocked("agent 回報 blocked：" + declared.partition("blocked")[2].lstrip(": ").strip(), notes)
     if declared == "outcome: clean":
-        return blocked("run notes 說 clean，但有 commit", notes) if commits else {"outcome": "clean", "reason": "", "pr": None,
+        return blocked("run notes 說 clean，但有提案", notes) if proposals else {"outcome": "clean", "reason": "", "pr": None,
                                                                                     "notes": notes}
     if declared != "outcome: changed":
         return blocked("run notes 第一行看不懂", notes)
-    if not commits:
-        return blocked("run notes 說 changed，但沒有 commit", notes)
+    if not proposals:
+        return blocked("run notes 說 changed，但沒有提案", notes)
+    if not apply_proposals(ctx, proposals, branch):
+        return blocked("提案和現有內容一樣，run notes 卻說 changed", notes)
+    violations = scope_violations(ctx, base)  # wrapper 自己的 commit 再檢查一次
+    if violations:
+        return blocked("scope violation：" + "；".join(violations[:5]), notes)
     binary = [line.split("\t", 2)[2] for line in gitc(ctx, "diff", "--numstat", base, "HEAD").stdout.splitlines()
               if line.startswith("-\t-\t")]
     if binary:
@@ -218,6 +233,53 @@ def judge(ctx: Context, base: str, notes: Optional[str], branch: str, no_push: b
     if leak:
         return blocked(f"leak：要 push 的內容有{leak}", notes)
     return ship(ctx, branch, notes, no_push)
+
+
+def agent_git_changes(ctx: Context, base: str) -> list:
+    """agent 不該動 git：有任何 commit、index 或工作樹改動（.verify/ 除外）就是越界。"""
+    names = gitc(ctx, "diff", "--name-only", base, "HEAD").stdout.split()
+    return [f"agent 自己 commit 了 {p}" for p in names] + [f"agent 改了 {p}" for p in dirty_paths(ctx)]
+
+
+def read_proposals(ctx: Context) -> tuple:
+    """讀 .verify/maintain-proposed/：只准 SKILL.md 與 references/**/*.md、不准 symlink、要是 UTF-8 純文字。"""
+    root = clone_dir(ctx) / PROPOSED_REL
+    proposals, problems = {}, []
+    if not root.exists():
+        return proposals, problems
+    for path in sorted(root.rglob("*")):
+        if path.is_dir() and not path.is_symlink():
+            continue
+        target = SKILL_PREFIX + path.relative_to(root).as_posix()
+        if path.is_symlink() or not agent_editable(target):
+            problems.append(f"scope violation：不能提案 {target}")
+            continue
+        data = path.read_bytes()
+        try:
+            text = data.decode("utf-8")
+        except UnicodeDecodeError:
+            text = None
+        if text is None or "\0" in text or len(data) > MAX_PROPOSAL_BYTES:
+            problems.append(f"binary 或過大的提案不能自動套用：{target}")
+            continue
+        proposals[target] = text
+    return proposals, problems
+
+
+def apply_proposals(ctx: Context, proposals: dict, branch: str) -> bool:
+    """把提案寫進 skill 目錄並由 wrapper commit；和現有內容都一樣就回傳 False。"""
+    clone = clone_dir(ctx)
+    changed = [target for target, text in proposals.items()
+               if not (clone / target).is_file() or (clone / target).read_text(errors="replace") != text]
+    if not changed:
+        return False
+    for target in changed:
+        (clone / target).parent.mkdir(parents=True, exist_ok=True)
+        (clone / target).write_text(proposals[target])
+    gitc(ctx, "add", "--", *changed)
+    date = branch.removeprefix("maintain/verify-kidsai-")
+    gitc(ctx, "commit", "-q", "-m", f"docs: 每日維護 {date}：{len(changed)} 個驗證文件修正")
+    return True
 
 
 def scope_violations(ctx: Context, base: str) -> list:

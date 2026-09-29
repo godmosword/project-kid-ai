@@ -7,12 +7,7 @@
       "Grep",
       "Agent",
       "Task",
-      "Edit(./.claude/skills/verify-kidsai/SKILL.md)",
-      "Write(./.claude/skills/verify-kidsai/SKILL.md)",
-      "Edit(./.claude/skills/verify-kidsai/references/**/*.md)",
-      "Write(./.claude/skills/verify-kidsai/references/**/*.md)",
       "Edit(./.verify/**)",
-      "Write(./.verify/**)",
       "Bash(.claude/skills/verify-kidsai/control-kidsai doctor:*)",
       "Bash(.claude/skills/verify-kidsai/control-kidsai sim:*)",
       "Bash(.claude/skills/verify-kidsai/control-kidsai build:*)",
@@ -28,10 +23,7 @@
       "Bash(.claude/skills/verify-kidsai/control-kidsai evidence frames:*)",
       "Bash(.claude/skills/verify-kidsai/control-kidsai evidence review:*)",
       "Bash(.claude/skills/verify-kidsai/control-kidsai evidence md:*)",
-      "Bash(git status:*)",
-      "Bash(git add .claude/skills/verify-kidsai/SKILL.md:*)",
-      "Bash(git add .claude/skills/verify-kidsai/references/:*)",
-      "Bash(git commit -m:*)"
+      "Bash(git status:*)"
     ],
     "deny": [
       "Bash(git push:*)",
@@ -51,26 +43,20 @@
       "WebFetch",
       "WebSearch",
       "Edit(./.claude/skills/verify-kidsai/control-kidsai)",
-      "Write(./.claude/skills/verify-kidsai/control-kidsai)",
       "Edit(./.claude/skills/verify-kidsai/lib/**)",
-      "Write(./.claude/skills/verify-kidsai/lib/**)",
       "Edit(./.claude/skills/verify-kidsai/maintain/**)",
-      "Write(./.claude/skills/verify-kidsai/maintain/**)",
       "Edit(./.claude/skills/verify-kidsai/tests/**)",
-      "Write(./.claude/skills/verify-kidsai/tests/**)",
       "Edit(./.git/**)",
-      "Write(./.git/**)",
       "Edit(./app/**)",
-      "Write(./app/**)",
       "Edit(./content/**)",
-      "Write(./content/**)",
       "Edit(./AGENTS.md)",
-      "Write(./AGENTS.md)",
       "Read(~/.ssh/**)",
       "Read(~/.config/gh/**)",
       "Read(~/.aws/**)",
       "Read(~/.claude.json)",
-      "Read(./**/.env)"
+      "Read(./**/.env)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }

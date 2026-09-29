@@ -96,7 +96,8 @@ class MaintainBase(unittest.TestCase):
         self.ctx = ck.Context(repo=self.clone, home=self.home, runner=self.runner, now=lambda: NOW,
                               kill=lambda pid, sig: None, sleep=lambda s: None, which=lambda name: f"/fake/{name}")
         ck.write_json(self.home / "kidsai-maintain" / "config.json",
-                      {"claude": "/fake/claude", "gh": "/fake/gh", "python": "/fake/python3"})
+                      {"claude": "/fake/claude", "gh": "/fake/gh", "python": "/fake/python3",
+                       "git_name": "maintain-bot", "git_email": "bot@example.invalid"})
         # 維護模組自己查 claude 在不在：換成「/fake/ 開頭的都在」
         self.claude_exists = mock.patch.object(sys.modules["kidsai_maintain"], "tool_exists", lambda path: str(path).startswith("/fake/"))
         self.claude_exists.start()
@@ -121,6 +122,13 @@ class MaintainBase(unittest.TestCase):
     def notes(clone, outcome):
         (clone / ".verify").mkdir(exist_ok=True)
         (clone / ".verify" / "maintain-notes.md").write_text(f"outcome: {outcome}\n- 涵蓋：map\n")
+
+    @staticmethod
+    def propose(clone, rel, text="改了\n"):
+        """agent 的提案：完整檔案寫到 .verify/maintain-proposed/<相對於 skill 目錄的路徑>。"""
+        path = clone / ".verify" / "maintain-proposed" / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(text) if isinstance(text, bytes) else path.write_text(text)
 
     @staticmethod
     def commit(clone, rel, text="改了\n", message="docs: fix"):
@@ -183,7 +191,7 @@ class RunOutcomeTests(MaintainBase):
 
     def test_changed_pushes_branch_and_opens_draft_pr(self):
         def agent(c):
-            self.commit(c, f"{SKILL}/references/map.md")
+            self.propose(c, "references/map.md", "# 地圖\n新的說明\n")
             self.notes(c, "changed")
         self.runner.agent = agent
         code, out = self.call("maintain", "run")
@@ -193,6 +201,9 @@ class RunOutcomeTests(MaintainBase):
         create = self.runner.ran("/fake/gh", "pr", "create")[0]
         self.assertIn("--draft", create)
         self.assertFalse(self.runner.ran("evidence", "publish"), "每日維護不發布證據")
+        log = git(self.origin, "log", "-1", "--format=%an|%s", "maintain/verify-kidsai-2026-09-30")
+        self.assertEqual(log.strip(), "maintain-bot|docs: 每日維護 2026-09-30：1 個驗證文件修正", "commit 由 wrapper 用 repo 身分建立")
+        self.assertEqual(git(self.origin, "show", f"maintain/verify-kidsai-2026-09-30:{SKILL}/references/map.md"), "# 地圖\n新的說明\n")
 
     def test_agent_runs_on_maintain_simulator_with_publish_disabled(self):
         seen = {}
@@ -211,7 +222,7 @@ class RunOutcomeTests(MaintainBase):
 
     def test_no_push_keeps_changes_local(self):
         def agent(c):
-            self.commit(c, f"{SKILL}/SKILL.md")
+            self.propose(c, "SKILL.md")
             self.notes(c, "changed")
         self.runner.agent = agent
         _, out = self.call("maintain", "run", "--no-push")
@@ -227,7 +238,7 @@ class RunOutcomeTests(MaintainBase):
                 setattr(self.runner, attr, value)
 
                 def agent(c):
-                    self.commit(c, f"{SKILL}/SKILL.md")
+                    self.propose(c, "SKILL.md")
                     self.notes(c, "changed")
                 self.runner.agent = agent
                 _, out = self.call("maintain", "run")
@@ -295,7 +306,7 @@ class GuardTests(MaintainBase):
                 self.fresh()
 
                 def agent(c, rel=rel):
-                    self.commit(c, f"{SKILL}/{rel}", "# weakened\n")
+                    self.propose(c, rel, "# weakened\n")
                     self.notes(c, "changed")
                 self.assert_blocked(agent, "scope")
 
@@ -305,13 +316,13 @@ class GuardTests(MaintainBase):
                 self.fresh()
 
                 def agent(c, rel=rel):
-                    self.commit(c, f"{SKILL}/{rel}", "print('x')\n")
+                    self.propose(c, rel, "print('x')\n")
                     self.notes(c, "changed")
                 self.assert_blocked(agent, "scope")
 
     def test_binary_file_blocks(self):
         def agent(c):
-            self.commit(c, f"{SKILL}/references/pic.md", b"\x89PNG\x00\x01secret")  # 副檔名是 .md 但內容是二進位
+            self.propose(c, "references/pic.md", b"\x89PNG\x00\x01secret")  # 副檔名是 .md 但內容是二進位
             self.notes(c, "changed")
         self.assert_blocked(agent, "binary")
 
@@ -319,7 +330,7 @@ class GuardTests(MaintainBase):
         self.runner.pr_create_fails = True
 
         def agent(c):
-            self.commit(c, f"{SKILL}/SKILL.md")
+            self.propose(c, "SKILL.md")
             self.notes(c, "changed")
         self.runner.agent = agent
         code, out = self.call("maintain", "run")
@@ -333,20 +344,36 @@ class GuardTests(MaintainBase):
                 self.fresh()
 
                 def agent(c, text=text):
-                    self.commit(c, f"{SKILL}/SKILL.md", text)
+                    self.propose(c, "SKILL.md", text)
                     self.notes(c, "changed")
                 self.assert_blocked(agent, "leak")
 
-    def test_leak_in_commit_message_blocks(self):
+    def test_agent_commit_is_blocked_even_inside_docs(self):
+        """agent 不准 commit（commit 訊息、作者不受 wrapper 控制）；只能提案。"""
         def agent(c):
-            self.commit(c, f"{SKILL}/SKILL.md", message="docs: 見 /Users/someone/.ssh/id_ed25519")
+            self.commit(c, f"{SKILL}/SKILL.md", message="docs: fix")
             self.notes(c, "changed")
-        self.assert_blocked(agent, "leak")
+        self.assert_blocked(agent, "scope")
+
+    def test_proposal_problems(self):
+        def symlink(c):
+            (c / ".verify" / "maintain-proposed" / "references").mkdir(parents=True)
+            os.symlink("/etc/hosts", c / ".verify" / "maintain-proposed" / "references" / "hosts.md")
+            self.notes(c, "changed")
+
+        def identical(c):
+            self.propose(c, "SKILL.md", "# verify\n")
+            self.notes(c, "changed")
+
+        for agent, why in ((symlink, "scope"), (identical, "提案")):
+            with self.subTest(agent=agent.__name__):
+                self.fresh()
+                self.assert_blocked(agent, why)
 
     def test_notes_must_match_git_state(self):
         cases = {
             "missing": lambda c: None,
-            "clean-but-committed": lambda c: (self.commit(c, f"{SKILL}/SKILL.md"), self.notes(c, "clean")),
+            "clean-but-proposed": lambda c: (self.propose(c, "SKILL.md"), self.notes(c, "clean")),
             "changed-but-nothing": lambda c: self.notes(c, "changed"),
         }
         for name, agent in cases.items():
@@ -452,9 +479,7 @@ class SettingsTests(unittest.TestCase):
         self.assertFalse([r for r in self.rules["allow"] if "python" in r or "unittest" in r],
                          "agent 不能跑 python（unittest 加參數就能執行任意檔案）")
         git_rules = [r for r in self.rules["allow"] if r.startswith("Bash(git")]
-        self.assertEqual(sorted(git_rules), sorted([
-            "Bash(git status:*)", "Bash(git add .claude/skills/verify-kidsai/SKILL.md:*)",
-            "Bash(git add .claude/skills/verify-kidsai/references/:*)", "Bash(git commit -m:*)"]))
+        self.assertEqual(git_rules, ["Bash(git status:*)"], "agent 只提案，不 add／commit")
 
     def test_cli_is_allowed_per_subcommand_only(self):
         cli_rules = [r for r in self.rules["allow"] if "control-kidsai" in r]
@@ -464,9 +489,10 @@ class SettingsTests(unittest.TestCase):
         self.assertIn("Bash(.claude/skills/verify-kidsai/control-kidsai doctor:*)", cli_rules)
 
     def test_edit_only_docs(self):
-        edits = [r for r in self.rules["allow"] if r.startswith(("Edit(", "Write("))]
-        for rule in edits:
-            self.assertRegex(rule, r"^(Edit|Write)\(\./(\.claude/skills/verify-kidsai/(SKILL\.md|references/\*\*/\*\.md)|\.verify/\*\*)\)$")
+        # Claude Code 只看 Edit(…) 規則（涵蓋所有編輯工具，含 Write）；Write(…) 規則會被忽略
+        self.assertFalse([r for r in self.rules["allow"] + self.rules["deny"] if r.startswith("Write(")])
+        edits = [r for r in self.rules["allow"] if r.startswith("Edit(")]
+        self.assertEqual(edits, ["Edit(./.verify/**)"], "agent 只寫 .verify/（run notes 與提案）")
 
 
 class AgentModeTests(MaintainBase):
