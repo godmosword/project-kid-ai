@@ -13,5 +13,9 @@ __pycache__/
 *.mobileprovision
 
 # 驗證 skill 的本機證據與 build 輸出（證據發布到 godmosword/project-kid-ai-evidence）
+# xcresult 改寫到 /tmp/kidsai-xcresult；這些路徑即使再出現也不進 git
 .verify/
 app/build/
+*.xcresult
+DerivedData/
+.build/

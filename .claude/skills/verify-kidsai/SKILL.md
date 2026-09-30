@@ -68,6 +68,7 @@ $C drive --flow sandbox-pick-and-react                 # 只跑、不截圖：�
   - 即使不錄影，`xcodebuild` 偶爾也會在測試結束後卡住（常見於重開模擬器、重新 build 後的第一次）。CLI 以測試自己寫的 `done`／`failed` 判斷通過；旗標出現 30 秒後還沒結束，就停掉 `xcodebuild` 並重開專用模擬器（輸出 `"xcodebuild_hung": true`）。卡住後不重開，之後每次都會卡。
 - Mac 閒置睡著時模擬器會停住，測試會慢到逾時：CLI 用 `caffeinate -i` 包住 UI 測試；手動跑 `xcodebuild test` 時也要這樣做。
 - 一般跑 App 的單元測試時略過 UI 測試：`xcodebuild … test -skip-testing:KidsAIUITests`。
+- xcresult 不寫進專案：`drive`、`record --flow`、`snapshot` 的 `-resultBundlePath` 指到 `/tmp/kidsai-xcresult/<時間>-<標籤>.xcresult`。跑完只在 `.verify/summaries/` 留一份小 JSON（`passed`、`commit`、`time`），不留整個 xcresult。失敗時可 `open` 那個暫存 bundle 看步驟。
 
 ## Evidence
 

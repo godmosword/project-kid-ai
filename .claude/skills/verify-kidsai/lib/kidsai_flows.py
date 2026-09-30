@@ -45,10 +45,20 @@ def test_command(ctx: Context, udid: str, test_class: str, result: Path) -> list
             f"-only-testing:KidsAIUITests/{test_class}", "-resultBundlePath", str(result)]
 
 
+XCRESULT_DIR = Path("/tmp/kidsai-xcresult")  # 不寫進專案；整個 bundle 很大
+
+
 def result_path(ctx: Context, label: str) -> Path:
-    folder = verify_dir(ctx) / "_xcresult"
-    folder.mkdir(parents=True, exist_ok=True)
-    return folder / f"{ctx.now():%Y%m%d-%H%M%S}-{label}.xcresult"
+    XCRESULT_DIR.mkdir(parents=True, exist_ok=True)
+    return XCRESULT_DIR / f"{ctx.now():%Y%m%d-%H%M%S}-{label}.xcresult"
+
+
+def keep_summary(ctx: Context, label: str, passed: bool) -> dict:
+    """跑完只留小摘要（通過或失敗、commit、時間），不把 xcresult 複製回專案。"""
+    when = ctx.now()
+    summary = {"passed": bool(passed), "commit": git(ctx, "rev-parse", "HEAD").strip(), "time": when.isoformat()}
+    write_json(verify_dir(ctx) / "summaries" / f"{when:%Y%m%d-%H%M%S}-{label}.json", summary)
+    return summary
 
 
 def check_flow(name: str) -> str:
@@ -65,7 +75,8 @@ def cmd_drive(ctx: Context, a) -> dict:
     outcome = run_flow(ctx, d, test_class, f"drive-{a.flow}", frames=False)
     if not outcome["passed"]:
         raise Fail(EXIT_EVIDENCE, f"流程 {a.flow} 沒有通過", f"open {outcome['xcresult']} 看失敗步驟與截圖")
-    return {"ok": True, "flow": a.flow, "passed": True, "xcodebuild_hung": outcome["hung"], "xcresult": outcome["xcresult"]}
+    return {"ok": True, "flow": a.flow, "passed": True, "xcodebuild_hung": outcome["hung"],
+            "xcresult": outcome["xcresult"], "summary": outcome["summary"]}
 
 
 def run_flow(ctx: Context, d: dict, test_class: str, label: str, frames: bool, extra_env: Optional[dict] = None) -> dict:
@@ -93,9 +104,11 @@ def run_flow(ctx: Context, d: dict, test_class: str, label: str, frames: bool, e
         s.pop("xcodebuild", None)
         save_session(ctx, s)
     if flag is None:
+        keep_summary(ctx, label, False)
         raise Fail(EXIT_EXTERNAL, "測試沒有跑完（沒有 done／failed）；已重開模擬器", "再跑一次；仍失敗就 control-kidsai doctor")
-    return {"passed": flag == "done" and code in (0, None), "hung": hung, "code": code, "folder": folder,
-            "xcresult": str(result.relative_to(ctx.repo))}
+    passed = flag == "done" and code in (0, None)
+    return {"passed": passed, "hung": hung, "code": code, "folder": folder,
+            "xcresult": str(result), "summary": keep_summary(ctx, label, passed)}
 
 
 def wait_flag(ctx: Context, folder: Path, polls: int) -> Optional[str]:
@@ -195,7 +208,7 @@ def record_flow(ctx: Context, a) -> dict:
     for leftover in folder.iterdir():
         leftover.unlink()
     return {"ok": True, "flow": name, "duration": round(duration, 1), "frames": len(frames), "taps": len(taps), **files,
-            "xcodebuild_hung": outcome["hung"], "xcresult": outcome["xcresult"]}
+            "xcodebuild_hung": outcome["hung"], "xcresult": outcome["xcresult"], "summary": outcome["summary"]}
 
 
 def cmd_snapshot(ctx: Context, a) -> dict:
@@ -224,4 +237,4 @@ def cmd_snapshot(ctx: Context, a) -> dict:
     if leaks_in(ctx, out.read_text()):
         out.unlink()
         raise Fail(EXIT_EVIDENCE, "元素樹含本機路徑、使用者名稱或裝置 ID，已丟棄", "回報這個情況")
-    return {"ok": True, "file": add_file(ctx, a.run, out, "a11y")}
+    return {"ok": True, "file": add_file(ctx, a.run, out, "a11y"), "summary": outcome["summary"]}
