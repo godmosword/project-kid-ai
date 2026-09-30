@@ -13,7 +13,7 @@
 ## How to get to it (user POV)
 
 - Debug build，在任一單元裡，兩指同時按住畫面上方進度點的上方 3 秒（`two-finger-hold`）。
-- 只給試玩的大人用；孩子的路徑不會碰到。
+- 此工具供成人試玩使用；透過 Debug build 的隱藏手勢進入，沒有成人身分驗證。
 
 ## Driving it with control-kidsai
 
@@ -28,5 +28,6 @@ Preconditions:
 ## Gotchas
 
 - 入口是透明的，而且不在 VoiceOver 裡（`accessibilityHidden`），畫面上看不到、無障礙元素樹裡也找不到。
+- Debug build 沒有成人身分驗證；「給大人用」描述預期使用者，不是角色權限檢查。
 - 「跳到」和啟動參數 `--beat` 效果相近，但它是大人在畫面上操作；兩者都不是孩子路徑的證明。
 - 換下一位孩子要把 App 滑掉重開：進度只在記憶體。
