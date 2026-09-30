@@ -189,14 +189,15 @@ def run_agent(ctx: Context, clone: Path) -> Optional[dict]:
     if not settings.is_file():
         return blocked("找不到 maintain-settings.json，不在沒有權限設定的情況下跑 claude")
     log_dir(ctx).mkdir(parents=True, exist_ok=True)
-    log = log_dir(ctx) / f"{ctx.now().strftime('%Y-%m-%d')}.claude.log"
+    log = log_dir(ctx) / f"{ctx.now().strftime('%Y-%m-%d-%H%M%S')}.claude.log"  # 每次一個檔，同一天多跑不覆蓋
     code = ctx.runner.run_logged([claude, "-p", PROMPT, "--settings", str(settings), "--permission-mode", "default"],
                                  log, cwd=str(clone), env={"KIDSAI_SIM": MAINTAIN_SIM, "KIDSAI_MAINTAIN_AGENT": "1"},
                                  timeout=AGENT_TIMEOUT)
     if code is None:
         return blocked("claude timeout（90 分鐘）")
     if code != 0:
-        return blocked(f"claude 非 0 結束（{code}）")
+        last = next((line.strip() for line in reversed(log.read_text(errors="replace").splitlines()) if line.strip()), "") if log.exists() else ""
+        return blocked(f"claude 非 0 結束（{code}）：{last[:120]}")  # 例如額度用完：You've hit your session limit
     return None
 
 

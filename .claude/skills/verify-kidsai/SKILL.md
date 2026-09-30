@@ -145,7 +145,7 @@ $C cleanup             # 只停本次啟動的：錄影（核對 pid 身分）�
   - 分支 push 了但開 PR 失敗，也算 blocked（要手動處理）。
   - 任一項不合就 blocked，並丟掉這次的分支。
 - **不發布證據**：證據只留在專用 clone 的 `.verify/`。
-- **log**：`~/Library/Logs/kidsai-maintain/<date>.log`（保留 30 天），Claude Code 的輸出在 `<date>.claude.log`。
+- **log**：`~/Library/Logs/kidsai-maintain/<date>.log`（保留 30 天），Claude Code 的輸出在 `<date>-<時間>.claude.log`（每次一個檔）。
 
 ```bash
 $C maintain install --dry-run    # 印出 plist 內容與路徑，不寫任何檔

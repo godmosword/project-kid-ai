@@ -64,7 +64,7 @@ class HybridRunner(ck.Runner):
 
     def run_logged(self, cmd, log_path, cwd=None, env=None, timeout=None):
         self.calls.append(list(cmd))
-        Path(log_path).write_text("fake claude log\n")
+        Path(log_path).write_text("fake claude log\n" + ("You've hit your session limit\n" if self.agent_code == 1 else ""))
         if self.agent:
             self.agent(Path(cwd))
         return self.agent_code
@@ -414,7 +414,7 @@ class GuardTests(MaintainBase):
 
     def test_agent_failure_timeout_and_missing_claude(self):
         for name, prepare, why in (
-                ("exit", lambda: setattr(self.runner, "agent_code", 1), "claude"),
+                ("exit", lambda: setattr(self.runner, "agent_code", 1), "session limit"),
                 ("timeout", lambda: setattr(self.runner, "agent_code", None), "timeout"),
                 ("missing", lambda: ck.write_json(self.home / "kidsai-maintain/config.json", {"claude": "/gone/claude", "gh": "/fake/gh"}),
                  "claude")):
