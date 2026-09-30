@@ -301,6 +301,34 @@ class FlowTests(Base):
         code, _ = self.call("drive", "--flow", "map-to-unit1")
         self.assertEqual(code, ck.EXIT_EVIDENCE)
 
+    def test_xcresult_stays_out_of_the_repo(self):
+        self.fresh_runner()
+        self.runner.handshake_files = {"done": "done", "exit": "0"}
+        code, out = self.call("drive", "--flow", "map-to-unit1")
+        self.assertEqual(code, 0, out)
+        self.assertTrue(out["xcresult"].startswith("/tmp/kidsai-xcresult/"), out["xcresult"])
+        self.assertNotIn(str(self.repo), out["xcresult"])
+        self.assertFalse((self.repo / ".verify" / "_xcresult").exists())
+        self.assertEqual(list(self.repo.rglob("*.xcresult")), [])
+        summary = {"passed": True, "commit": SHA, "time": FIXED_NOW.isoformat()}
+        self.assertEqual(out["summary"], summary)
+        saved = self.repo / ".verify" / "summaries" / "20260926-213005-drive-map-to-unit1.json"
+        self.assertEqual(json.loads(saved.read_text()), summary)
+        shell = next(c for c in self.runner.calls if c[:2] == ["/bin/sh", "-c"])
+        self.assertIn("-resultBundlePath /tmp/kidsai-xcresult/20260926-213005-drive-map-to-unit1.xcresult", shell[2])
+        self.assertNotIn(".verify/_xcresult", shell[2])
+
+    def test_failed_flow_keeps_summary_not_the_bundle(self):
+        self.fresh_runner()
+        self.runner.handshake_files = {"failed": "failed", "exit": "65"}
+        code, out = self.call("drive", "--flow", "map-to-unit1")
+        self.assertEqual(code, ck.EXIT_EVIDENCE)
+        self.assertIn("/tmp/kidsai-xcresult/", out["fix"])
+        self.assertNotIn(str(self.repo), out["fix"])
+        saved = json.loads((self.repo / ".verify" / "summaries" / "20260926-213005-drive-map-to-unit1.json").read_text())
+        self.assertEqual(saved, {"passed": False, "commit": SHA, "time": FIXED_NOW.isoformat()})
+        self.assertEqual(list(self.repo.rglob("*.xcresult")), [])
+
     def test_tests_run_under_caffeinate(self):
         self.fresh_runner()
         self.runner.handshake_files = {"done": "done", "exit": "0"}
