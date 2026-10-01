@@ -59,8 +59,10 @@
 | map | `unlock-all`：Debug `--unlock-all` → 四個島都可進 | 可證明（Debug 前置狀態，只證明地圖外觀） |
 | map | `tap-island`：點島進單元 | 可證明：`record --flow map-to-unit1` |
 | map | `map-unlock`：完成單元 → 下一島解鎖 | 可證明：`record --flow sticker` |
+| map | `voiceover-prompt`：VoiceOver 地圖問句公告 | needs-flow（目前沒有流程啟用 VoiceOver 並驗證公告） |
 | [unit-flow](./unit-flow.md) | `from-map`、`next` | 可證明：`map-to-unit1`、`story-branch` |
 | unit-flow | `hold-to-exit`：長按 X 回地圖 | 可證明：`record --flow hold-to-exit` |
+| unit-flow | `voiceover-exit`：VoiceOver 執行 X 的「回地圖」動作 | needs-flow（目前沒有流程啟用 VoiceOver 並執行動作） |
 | unit-flow | `replay`：🔊 重念 | needs-flow（要證明的是聲音，證據沒有聲音） |
 | [choice-question](./choice-question.md) | `answer`：答錯一次再答對 | 可證明：`record --flow choice-answer` |
 | choice-question | 揭曉、重聽鈕、提示 | needs-flow（見功能檔） |
