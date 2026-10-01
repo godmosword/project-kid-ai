@@ -42,6 +42,8 @@
 - [ ] 把 Notion 路線圖狀態的更新 prompt 貼給 Grok（如果還沒貼）
 - [ ] 請 Grok 修正 Notion 線框裡已過時的地方：家長閘、Sign in with Apple、按住說話、「給點點猜」、垃圾桶
 - [ ] 請 Grok 把 mid-fi 04／04b 的反應改成內容 v1 的三個鈕「好像對／好像錯／不知道」（2026-09-28 定，見 [design-map](.claude/skills/verify-kidsai/references/design-map.md)）
+- [ ] 決定沙盒三圖比較（單元 2）：設計 D37 與程式註解都寫「同尺寸排成一列」，但 App 裡「我想要的」圖比兩張猜猜帽畫的圖大（`SandboxViews.swift` 的 `comparison`）。改程式照 D37，還是改 D37 照現況？（2026-09-30 每日維護驗收發現）
+- [ ] 決定拖曳在「減少動態效果」開啟時要不要完全不動畫：目前仍有 0.2 秒 easeInOut（`DragViews.swift` 的 `.animation`）。（2026-09-30 每日維護驗收發現）
 - [ ] 修正電腦的全域 git 身分（目前是範本預設值「你的名稱」）；本 repo 已單獨設好
 - [ ] Figma 額度恢復或升級後通知 Claude
 - [ ] 上架前諮詢律師（T1）
