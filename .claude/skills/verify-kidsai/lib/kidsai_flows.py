@@ -62,6 +62,8 @@ def result_path(ctx: Context, label: str) -> Path:
 
 
 def prune_xcresults() -> None:
+    if XCRESULT_DIR.is_symlink():  # 資料夾本身被換成 symlink 就不清，免得刪到別處
+        return
     cutoff = time.time() - XCRESULT_KEEP_SECONDS
     for old in XCRESULT_DIR.glob("*.xcresult"):
         try:

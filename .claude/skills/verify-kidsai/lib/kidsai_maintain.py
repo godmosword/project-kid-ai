@@ -197,9 +197,9 @@ def run_agent(ctx: Context, clone: Path) -> Optional[dict]:
         return blocked("claude timeout（90 分鐘）")
     if code != 0:
         last = next((line.strip() for line in reversed(log.read_text(errors="replace").splitlines()) if line.strip()), "") if log.exists() else ""
-        last = last[:120]
-        if leaks_in(ctx, last) or SECRET_RE.search(last):  # reason 會進 state.json、每日 log 與 macOS 通知
+        if leaks_in(ctx, last) or SECRET_RE.search(last):  # 截短前就檢查；reason 會進 state.json、每日 log 與 macOS 通知
             last = "最後一行含本機資訊或金鑰樣式，已略去；見 claude log"
+        last = last[:120]
         return blocked(f"claude 非 0 結束（{code}）：{last}")  # 例如額度用完：You've hit your session limit
     return None
 
