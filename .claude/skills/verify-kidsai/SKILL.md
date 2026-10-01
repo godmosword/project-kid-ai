@@ -57,7 +57,7 @@ $C build --for-testing && $C install && $C doctor      # doctor 的 ui-tests 要
 $C drive --flow sandbox-pick-and-react                 # 只跑、不截圖：回報通過或失敗（連跑 3 次抓不穩定）
 ```
 
-可用的流程：`map-to-unit1`、`say-together`、`sandbox-pick-and-react`、`drag-tap-to-place`、`story-branch`、`sticker`、`choice-answer`、`sandbox-graded`、`hold-to-exit`、`background-resume`（各自證明什麼見 `references/features/README.md` 的 Full sweep）。每支流程只用啟動參數準備前置狀態，要證明的動作一定是真的點擊；等待一律等「元素可點」（30 秒上限），不用固定秒數。
+可用的流程：`map-to-unit1`、`say-together`、`sandbox-pick-and-react`、`drag-tap-to-place`、`story-branch`、`sticker`、`choice-answer`、`sandbox-graded`、`hold-to-exit`、`background-resume`、`sandbox-compare`（各自證明什麼見 `references/features/README.md` 的 Full sweep）。每支流程只用啟動參數準備前置狀態，要證明的動作一定是真的點擊；等待一律等「元素可點」（30 秒上限），不用固定秒數。
 
 **2. 只打開 App 或準備前置狀態。** `$C launch`（從主畫面打開）、`$C launch --unit/--beat/--unlock-all/--events`。**不得**用 `--events` 或 `--beat` 冒充點擊的證明：它們跳過了孩子實際的操作。
 

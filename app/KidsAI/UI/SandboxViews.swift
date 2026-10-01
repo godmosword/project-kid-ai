@@ -98,6 +98,10 @@ struct SandboxView: View {
     private func comparison(_ s: SandboxState, _ slot: SandboxSlot, _ sandbox: SandboxBeat) -> some View {
         let cards = s.played + [PlayedCard(choiceID: s.choiceID ?? "", guesses: s.guesses, reaction: s.reaction)]
         let cell = max(88, ((contentWidth - 16) / 3).rounded(.down))
+        let tile = cell - 8  // 三張的外框一樣大（D37）
+        let keys: [String?] = [slot.image] + cards.flatMap { $0.guesses.map(\.image) }
+        // 同一個倍率畫三張圖，最寬的那張剛好塞進框（扣掉上下左右各 10）；圖與圖之間的大小關係不變（大白貓還是比較大）
+        let art = (tile - 20) / (keys.map(PlaceholderArt.widthScale).max() ?? 1)
         let layout = typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(spacing: 12)) : AnyLayout(HStackLayout(alignment: .top, spacing: 8))
         return VStack(spacing: 20) {
             Text(slot.label.zhHant).font(.title.bold())
@@ -105,22 +109,26 @@ struct SandboxView: View {
                 .accessibilityFocused(focus)
             layout {
                 VStack(spacing: 6) {
-                    ArtView(key: slot.image, size: cell * 0.6, label: slot.a11yLabel ?? slot.label.zhHant)
-                        .frame(width: cell - 8, height: cell - 8)
+                    ArtView(key: slot.image, size: art, label: slot.a11yLabel ?? slot.label.zhHant)
+                        .frame(width: tile, height: tile)
                         .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.cardRadius))
                         .overlay(RoundedRectangle(cornerRadius: Theme.cardRadius).stroke(Theme.cardStroke, lineWidth: 2))
                     Text(slot.label.zhHant).font(.headline).foregroundStyle(Theme.ink).multilineTextAlignment(.center)
                 }
+                .frame(width: tile)
                 ForEach(cards, id: \.choiceID) { card in
                     VStack(spacing: 6) {
-                        ForEach(card.guesses.filter { $0.image != nil }, id: \.id) { AIDrawing(guess: $0, size: cell * 0.6 - 20) }
+                        ForEach(card.guesses.filter { $0.image != nil }, id: \.id) { AIDrawing(guess: $0, size: art, box: tile) }
                         if let choice = slot.choices.first(where: { $0.id == card.choiceID }) {
                             Text(choice.label.zhHant).font(.headline).foregroundStyle(Theme.ink).multilineTextAlignment(.center)
                         }
-                        if card.guesses.contains(where: { $0.uncertainty == .unsure }) { UnsureTag(small: true) }
+                        if card.guesses.contains(where: { $0.uncertainty == .unsure }) { UnsureTag(small: true).fixedSize() }  // 標籤比欄寬一點也維持一行
                     }
+                    .frame(width: tile)
                 }
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("sandbox.comparison")
             NarratorLine(store: store, item: sandbox.feedback.reveal)
         }
     }
@@ -230,9 +238,11 @@ private struct GuessView: View {
 private struct AIDrawing: View {
     let guess: Guess
     let size: CGFloat
+    var box: CGFloat?  // 有給就是固定外框（並排比較用）；沒給就依圖的大小
 
     var body: some View {
         ArtView(key: guess.image, size: size, label: guess.a11yLabel.map(SandboxA11y.drawnByAI))
+            .frame(width: box.map { $0 - 20 }, height: box.map { $0 - 20 })
             .padding(10)
             .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.cardRadius))
             .overlay(RoundedRectangle(cornerRadius: Theme.cardRadius).stroke(Theme.ai, lineWidth: 3))

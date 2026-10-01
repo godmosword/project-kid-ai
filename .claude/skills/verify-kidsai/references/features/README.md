@@ -68,6 +68,7 @@
 | choice-question | 揭曉、重聽鈕、提示 | needs-flow（見功能檔） |
 | [say-together](./say-together.md) | `button`：按「一起說」 | 可證明：`record --flow say-together` |
 | [sandbox](./sandbox.md) | `multi-card`：選卡＋反應＋第二張卡 | 可證明：`record --flow sandbox-pick-and-react` |
+| sandbox | `compare`：兩張都玩完 → 三張圖外框同尺寸並排 | 可證明：`record --flow sandbox-compare` |
 | sandbox | `graded`：點錯變淡、再點對 | 可證明：`record --flow sandbox-graded` |
 | sandbox | `open` 的反應 | needs-flow（還沒有流程） |
 | [drag](./drag.md) | `tap-to-place`：點卡再點空格 | 可證明：`record --flow drag-tap-to-place` |

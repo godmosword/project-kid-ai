@@ -45,6 +45,18 @@ enum PlaceholderArt {
     ]
 
     static func has(_ key: String) -> Bool { table[key] != nil }
+
+    /// 素材實際畫出的寬是 `size` 的幾倍（ArtView 裡各自放大的倍率）；要塞進固定框時用。
+    static func widthScale(_ key: String?) -> CGFloat {
+        switch key.flatMap({ table[$0] }) {
+        case .boxWithEar?: 1.6
+        case .standingCat?: 1.5
+        case .countableDog?: 1.4
+        case .blurredSilhouette?: 1.3
+        case .sittingCat?: 1.1
+        default: 1
+        }
+    }
 }
 
 /// 顯示一個素材；找不到就是中性色塊（測試會擋下缺少的 key）。
