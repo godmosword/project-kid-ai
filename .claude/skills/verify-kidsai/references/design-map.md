@@ -21,6 +21,8 @@
 | 05 家長閘（v1.2） | 沒有對到的功能（尚未實作） | ![05](../../../../design/midfi/05-parent-gate.png) |
 | 06 家長本週摘要＋匯出（v1.2.2） | 沒有對到的功能（尚未實作） | ![06](../../../../design/midfi/06-parent-week.png) |
 
+沙盒的三圖比較（`sandbox-compare`，單元 2 兩張卡都玩完）沒有 mid-fi 屏；規格以 Notion 設計決定 D37「同尺寸排成一列」為準（2026-10-01 起外框同尺寸、圖用同一倍率）。
+
 沒有對到設計稿的功能：[choice-question](./features/choice-question.md)、[drag](./features/drag.md)、[story](./features/story.md)、[review-and-sticker](./features/review-and-sticker.md)、[system-states](./features/system-states.md)、[observer-menu](./features/observer-menu.md)。這些畫面沒有 mid-fi，只對照功能檔與 `design/tokens/kidsai.tokens.json`。
 
 ## 差異
