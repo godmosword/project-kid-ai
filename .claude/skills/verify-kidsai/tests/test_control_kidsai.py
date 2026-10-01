@@ -13,7 +13,9 @@ import json
 import os
 import struct
 import tempfile
+import types
 import unittest
+from unittest import mock
 import zlib
 from pathlib import Path
 
@@ -317,6 +319,21 @@ class FlowTests(Base):
         shell = next(c for c in self.runner.calls if c[:2] == ["/bin/sh", "-c"])
         self.assertIn("-resultBundlePath /tmp/kidsai-xcresult/20260926-213005-drive-map-to-unit1.xcresult", shell[2])
         self.assertNotIn(".verify/_xcresult", shell[2])
+
+    def test_xcresult_same_second_gets_new_path_and_old_bundles_are_pruned(self):
+        import sys
+        flows = sys.modules["kidsai_flows"]
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(flows, "XCRESULT_DIR", Path(tmp)):
+            old = Path(tmp) / "20260901-000000-old.xcresult"
+            old.mkdir()
+            os.utime(old, (0, 0))
+            fresh = Path(tmp) / "20260926-213005-label.xcresult"
+            fresh.mkdir()
+            ctx = types.SimpleNamespace(now=lambda: FIXED_NOW)
+            path = flows.result_path(ctx, "label")
+            self.assertEqual(path.name, "20260926-213005-label-2.xcresult")
+            self.assertFalse(old.exists(), "超過一天的 bundle 要刪掉")
+            self.assertTrue(fresh.exists(), "新的 bundle 要留著")
 
     def test_failed_flow_keeps_summary_not_the_bundle(self):
         self.fresh_runner()

@@ -41,6 +41,7 @@ class HybridRunner(ck.Runner):
         self.calls = []
         self.agent = None           # 假的 claude：拿到 clone 路徑後改檔、commit、寫 run notes
         self.agent_code = 0         # claude 的結束碼；None＝逾時
+        self.agent_tail = "You've hit your session limit"  # 非 0 結束時 log 的最後一行
         self.open_prs = []          # gh pr list 回傳的 headRefName
         self.gh_list_fails = False
         self.pr_create_fails = False
@@ -64,7 +65,7 @@ class HybridRunner(ck.Runner):
 
     def run_logged(self, cmd, log_path, cwd=None, env=None, timeout=None):
         self.calls.append(list(cmd))
-        Path(log_path).write_text("fake claude log\n" + ("You've hit your session limit\n" if self.agent_code == 1 else ""))
+        Path(log_path).write_text("fake claude log\n" + (self.agent_tail + "\n" if self.agent_code == 1 else ""))
         if self.agent:
             self.agent(Path(cwd))
         return self.agent_code
@@ -422,6 +423,17 @@ class GuardTests(MaintainBase):
                 self.fresh()
                 prepare()
                 self.assert_blocked(lambda c: self.notes(c, "clean"), why)
+
+    def test_agent_failure_tail_with_local_info_is_redacted(self):
+        for tail in ("Error at /Users/someone/kidsai-maintain/x", "token ghp_" + "a" * 30):
+            with self.subTest(tail=tail[:12]):
+                self.fresh()
+                self.runner.agent_code = 1
+                self.runner.agent_tail = tail
+                self.assert_blocked(lambda c: self.notes(c, "clean"), "已略去")
+                state = (self.home / "kidsai-maintain/state.json").read_text()
+                self.assertNotIn("/Users/someone", state)
+                self.assertNotIn("ghp_", state)
 
     def test_agent_blocked_notes(self):
         self.assert_blocked(lambda c: self.notes(c, "blocked: doctor 失敗"), "doctor")

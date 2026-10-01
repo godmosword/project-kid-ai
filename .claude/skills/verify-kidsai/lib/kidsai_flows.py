@@ -7,6 +7,8 @@ CLI 再把截圖以 4 fps 接成縮時影片，並在點擊那兩格畫框標出
 """
 
 import shlex
+import shutil
+import time
 
 from kidsai_core import *  # noqa: F401,F403
 from kidsai_core import Context, Fail  # 型別註記用
@@ -46,11 +48,29 @@ def test_command(ctx: Context, udid: str, test_class: str, result: Path) -> list
 
 
 XCRESULT_DIR = Path("/tmp/kidsai-xcresult")  # 不寫進專案；整個 bundle 很大
+XCRESULT_KEEP_SECONDS = 24 * 3600  # 超過一天的 bundle 下次跑流程時刪掉
 
 
 def result_path(ctx: Context, label: str) -> Path:
     XCRESULT_DIR.mkdir(parents=True, exist_ok=True)
-    return XCRESULT_DIR / f"{ctx.now():%Y%m%d-%H%M%S}-{label}.xcresult"
+    prune_xcresults()
+    stem = f"{ctx.now():%Y%m%d-%H%M%S}-{label}"
+    path, n = XCRESULT_DIR / f"{stem}.xcresult", 2
+    while path.exists() or path.is_symlink():  # 同一秒重跑同一流程：xcodebuild 不接受已存在的路徑
+        path, n = XCRESULT_DIR / f"{stem}-{n}.xcresult", n + 1
+    return path
+
+
+def prune_xcresults() -> None:
+    cutoff = time.time() - XCRESULT_KEEP_SECONDS
+    for old in XCRESULT_DIR.glob("*.xcresult"):
+        try:
+            if old.is_symlink():
+                continue
+            if old.stat().st_mtime < cutoff:
+                shutil.rmtree(old) if old.is_dir() else old.unlink()
+        except OSError:
+            continue  # 刪不掉就留著，不擋這次流程
 
 
 def keep_summary(ctx: Context, label: str, passed: bool) -> dict:
