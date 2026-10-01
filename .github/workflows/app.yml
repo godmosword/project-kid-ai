@@ -1,0 +1,77 @@
+# 每次 push／PR 建置 App 並跑單元測試，也跑驗證 skill（verify-kidsai）的工具測試。
+# UI 流程測試（KidsAIUITests）只編譯不跑：它們給 control-kidsai 錄證據用，要在 Mac 上跑。
+name: app
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  skill-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: verify-kidsai 工具測試（純 Python＋git，不需要 Xcode）
+        run: python3 -m unittest discover .claude/skills/verify-kidsai/tests
+
+  ios:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 選最新的正式版 Xcode（不選 beta／RC）
+        run: |
+          xcode=$(ls -d /Applications/Xcode_*.app | grep -E '/Xcode_[0-9.]+\.app$' | sort -V | tail -1 || true)
+          if [ -n "$xcode" ]; then sudo xcode-select -s "$xcode"; fi
+          xcodebuild -version
+
+      - name: 產生 Xcode 專案（XcodeGen）
+        working-directory: app
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: 挑一台 iPhone 模擬器
+        id: sim
+        run: |
+          udid=$(xcrun simctl list devices available -j | python3 -c '
+          import json, re, sys
+          devices = json.load(sys.stdin)["devices"]
+          def version(key):  # com.apple.CoreSimulator.SimRuntime.iOS-26-0 → (26, 0)
+              return tuple(int(n) for n in re.findall(r"\d+", key.rsplit("iOS-", 1)[-1]))
+          for key in sorted((k for k in devices if "iOS-" in k), key=version, reverse=True):
+              phones = sorted((d for d in devices[key] if d["name"].startswith("iPhone")), key=lambda d: d["name"])
+              if phones:
+                  print(phones[0]["udid"]); break
+          else:
+              sys.exit("找不到可用的 iPhone 模擬器")
+          ')
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+
+      - name: 建置並跑 App 單元測試
+        working-directory: app
+        run: |
+          xcodebuild -project KidsAI.xcodeproj -scheme KidsAI \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -derivedDataPath "$RUNNER_TEMP/dd" -resultBundlePath "$RUNNER_TEMP/kidsai.xcresult" \
+            CODE_SIGNING_ALLOWED=NO \
+            test -skip-testing:KidsAIUITests
+
+      - name: 失敗時留下測試結果
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kidsai-xcresult
+          path: ${{ runner.temp }}/kidsai.xcresult
+          retention-days: 7
