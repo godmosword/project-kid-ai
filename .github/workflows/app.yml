@@ -30,10 +30,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: 選最新的 Xcode
+      - name: 選最新的正式版 Xcode（不選 beta／RC）
         run: |
-          xcode=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
-          sudo xcode-select -s "$xcode"
+          xcode=$(ls -d /Applications/Xcode_*.app | grep -E '/Xcode_[0-9.]+\.app$' | sort -V | tail -1 || true)
+          if [ -n "$xcode" ]; then sudo xcode-select -s "$xcode"; fi
           xcodebuild -version
 
       - name: 產生 Xcode 專案（XcodeGen）
@@ -46,10 +46,16 @@ jobs:
         id: sim
         run: |
           udid=$(xcrun simctl list devices available -j | python3 -c '
-          import json, sys
+          import json, re, sys
           devices = json.load(sys.stdin)["devices"]
-          runtimes = sorted((k for k in devices if "iOS" in k), reverse=True)
-          print(next(d["udid"] for k in runtimes for d in devices[k] if d["name"].startswith("iPhone")))
+          def version(key):  # com.apple.CoreSimulator.SimRuntime.iOS-26-0 → (26, 0)
+              return tuple(int(n) for n in re.findall(r"\d+", key.rsplit("iOS-", 1)[-1]))
+          for key in sorted((k for k in devices if "iOS-" in k), key=version, reverse=True):
+              phones = sorted((d for d in devices[key] if d["name"].startswith("iPhone")), key=lambda d: d["name"])
+              if phones:
+                  print(phones[0]["udid"]); break
+          else:
+              sys.exit("找不到可用的 iPhone 模擬器")
           ')
           echo "udid=$udid" >> "$GITHUB_OUTPUT"
 
