@@ -26,7 +26,8 @@ Preconditions:
 
 - **點選放卡（tap-to-place）。** 單元 2 配對：點 `drag.card.cup_star` → `drag.target.blank_what` → `drag.card.place_table` → `drag.target.blank_where`。`record --flow drag-tap-to-place --run $RUN`。看得到：兩張卡放進空格、自動檢查後出現回饋（`feedback`）與「下一步」。
 - **答錯退回、揭曉（前置狀態）。** `launch --unit 2 --beat 2 --events "place:fish:keep;place:square_moon:keep;place:hot_ice:fix;place:bright_sun:keep;check"`：看得到方月亮退回卡片區、其他三張固定、回饋「再聽一次，說得通嗎？」。只是前置狀態，不是點擊的證明。
-- **手指拖曳、分組與排序的點擊。** needs-flow（手指拖曳留給實機；分組、排序還沒有流程）。
+- **分組的點選放卡（group）。** 單元 3：依序點 `drag.card.fish` → `drag.target.keep`、`square_moon` → `fix`、`hot_ice` → `fix`、`bright_sun` → `keep`。`run new --feature drag --entry group`，`record --flow drag-group --run $RUN`。看得到：四張長條卡分進兩組、自動檢查後出現回饋與「下一步」。
+- **手指拖曳、排序的點擊。** needs-flow（手指拖曳留給實機；排序還沒有流程）。
 - **VoiceOver 動作（drag-voiceover）。** verified-unreachable：模擬器的 VoiceOver 無法由流程開啟與聽取；前提「需要實機」（TODOS 的實機試玩項目）。
 
 ## Gotchas
@@ -35,4 +36,5 @@ Preconditions:
 - 自動檢查有 0.6 秒緩衝；選著卡時不檢查，要等 3 秒自動放下選取。截最終狀態前要等 `feedback` 出現。
 - 模擬器上的「點」是 XCUITest 合成的點擊，證明不了 5 歲孩子的手指能不能拖準；手指拖曳要實機試玩。
 - 輔助使用字級範圍都只提供點選放卡，不提供手指拖曳。
+- 卡片區的長條卡和放進組裡的一樣高（60pt；重聽鈕 52pt），iPhone SE 一個畫面放得下單元 3 的四張卡。
 - 開啟「減少動態效果」時，卡片不再從原位滑過去（`matchedGeometryEffect` 關掉），放上、交換、退回改成 0.2 秒淡入淡出，讓孩子仍看得出哪張卡回來了；這是刻意的，不是動畫沒關。縮時影片看不出差別，要手動在設定裡切換後試玩。

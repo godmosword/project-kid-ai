@@ -28,6 +28,8 @@ struct DragCard: View {
     let onPlay: () -> Void
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    static let playSize: CGFloat = 52
+
     var body: some View {
         HStack(spacing: 8) {
             Button(action: onTap) { content.contentShape(Rectangle()) }
@@ -38,7 +40,8 @@ struct DragCard: View {
                 .accessibilityActions { ForEach(actions) { Button($0.name, action: $0.perform) } }
                 .accessibilityIdentifier("drag.card.\(item.id)")
             if case .strip(true) = style, item.soundScript != nil {
-                IconButton(systemImage: "play.circle.fill", label: "再聽一次\(item.label.zhHant)", action: onPlay)
+                // 52pt：卡片區的長條和放進組裡的一樣高（60），iPhone SE 放得下四張；點卡本身也會念
+                IconButton(systemImage: "play.circle.fill", label: "再聽一次\(item.label.zhHant)", size: Self.playSize, action: onPlay)
                     .accessibilityIdentifier("drag.card.\(item.id).play")
             }
         }

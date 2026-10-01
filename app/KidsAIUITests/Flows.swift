@@ -91,6 +91,33 @@ final class FlowDragTapToPlace: FlowTestCase {
     }
 }
 
+/// 單元 3 分組（點選放卡）：四張有聲音的長條卡依序放進「留下／要改正」→ 自動檢查 → 成功回饋與下一步。
+final class FlowDragGroup: FlowTestCase {
+    @MainActor
+    func testFlow() {
+        let app = Flow.launch(unit: 2, beat: 2)
+        let first = Flow.element(app, "drag.card.fish")
+        Flow.waitHittable(first)
+        Frames.begin()
+        for (card, group) in [("fish", "keep"), ("square_moon", "fix"), ("hot_ice", "fix"), ("bright_sun", "keep")] {
+            placeInGroup(app, card: "drag.card.\(card)", group: "drag.target.\(group)")
+        }
+        let feedback = Flow.element(app, "feedback")
+        let next = Flow.element(app, "unit.next")
+        Frames.until("自動檢查後出現回饋與下一步") { feedback.exists && Flow.hittable(next) }
+        Frames.end()
+    }
+}
+
+/// 分組的組可以放很多張：放進去以後，那張卡會在組裡（組有卡時是容器）。
+@MainActor
+private func placeInGroup(_ app: XCUIApplication, card id: String, group groupID: String) {
+    let card = Flow.element(app, id)
+    let group = Flow.element(app, groupID)
+    Frames.tap(card, until: "選起 \(id)") { card.isSelected }
+    Frames.tap(group, until: "放進 \(groupID)") { group.descendants(matching: .any)[id].exists }
+}
+
 /// 點選放卡：點卡（選起來）→ 點空格（放進去）。空格放了卡以後就不再是「還沒有卡片」。
 @MainActor
 private func place(_ app: XCUIApplication, card id: String, target targetID: String) {
