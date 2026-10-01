@@ -1,6 +1,6 @@
 # 待辦事項
 
-更新：2026-09-26。依 Notion「開發路線圖 v1」的步驟排列；做完就打勾，並在後面註明日期或 commit。
+更新：2026-10-01。首版範圍見 [docs/first-release-scope.md](docs/first-release-scope.md)。依 Notion「開發路線圖 v1」的步驟排列；做完就打勾，並在後面註明日期或 commit。
 
 ## 進度
 
@@ -38,8 +38,9 @@
 ### 其他
 - [ ] 決定旁白要用 AI 配音（在電腦上先錄好）還是真人配音；點點和猜猜帽要聽得出是不同角色
 - [ ] 請 Grok 在 [風格樣張](design/style-tile/index.html) 補上新色票 `card-stroke`、`speaking`（已在 `design/tokens/kidsai.tokens.json`）
-- [ ] 找 1–2 位 6–8 歲孩子試玩 mid-fi 15–30 分鐘，記下卡住的地方和笑點（步驟 3；只記彙總，孩子用代號）
+- [ ] 找 1–2 位 6–8 歲孩子在 iPhone 上試玩 App 單元 1，照 `docs/playtests/` 的試玩步驟記錄（步驟 3；只記彙總，孩子用代號）
 - [ ] 把 Notion 路線圖狀態的更新 prompt 貼給 Grok（如果還沒貼）
+- [ ] 請 Grok 依 [首版範圍](docs/first-release-scope.md) 同步 Notion，並把 mid-fi 01 地圖、02 頂列改成 App 現況（2026-10-01 定）
 - [ ] 請 Grok 修正 Notion 線框裡已過時的地方：家長閘、Sign in with Apple、按住說話、「給點點猜」、垃圾桶
 - [ ] 請 Grok 把 mid-fi 04／04b 的反應改成內容 v1 的三個鈕「好像對／好像錯／不知道」（2026-09-28 定，見 [design-map](.claude/skills/verify-kidsai/references/design-map.md)）
 - [x] 決定沙盒三圖比較（單元 2）：設計 D37 與程式註解都寫「同尺寸排成一列」，但 App 裡「我想要的」圖比兩張猜猜帽畫的圖大（`SandboxViews.swift` 的 `comparison`）。改程式照 D37，還是改 D37 照現況？（2026-09-30 每日維護驗收發現）→ 照 D37 改程式（2026-10-01，Michael 授權 Claude 處理）
@@ -57,7 +58,7 @@
 - [x] 關卡引擎 v1：單元 1 可試玩（`ba810ac`）
 - [x] 關卡引擎 v2：單元 2–4 可試玩（`f75c4e4`、`6f6aa01`）
 - [x] GitHub Actions：每次 push 自動跑內容驗證與正反例（`56af6be`）
-- [ ] 配音方式定案後，提 L2 計畫：預錄旁白接口（有音檔就播、沒有退回系統語音；補「我不確定」等寫死字串的音檔 key；一起說的逐字亮起）
+- [ ] 配音方式定案後，提 L2 計畫：預錄旁白接口（有音檔就播、沒有退回系統語音；補「我不確定」等寫死字串的音檔 key；預錄音檔的逐字亮起時間點）。系統語音版的逐字亮起已完成（`Narrator.swift` 的 `willSpeakRangeOfSpeechString`）
 
 ## 之後再議（已記錄，不擋目前進度）
 
