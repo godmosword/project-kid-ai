@@ -122,7 +122,7 @@ struct SandboxView: View {
                         if let choice = slot.choices.first(where: { $0.id == card.choiceID }) {
                             Text(choice.label.zhHant).font(.headline).foregroundStyle(Theme.ink).multilineTextAlignment(.center)
                         }
-                        if card.guesses.contains(where: { $0.uncertainty == .unsure }) { UnsureTag(small: true) }
+                        if card.guesses.contains(where: { $0.uncertainty == .unsure }) { UnsureTag(small: true).fixedSize() }  // 標籤比欄寬一點也維持一行
                     }
                     .frame(width: tile)
                 }
