@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
 from kidsai_core import *  # noqa: E402,F401,F403
 from kidsai_evidence import *  # noqa: E402,F401,F403
 from kidsai_flows import *  # noqa: E402,F401,F403
+from kidsai_maintain import *  # noqa: E402,F401,F403
 
 
 # ---------------------------------------------------------------- CLI
@@ -42,6 +43,10 @@ EPILOG = """結束碼：0 成功｜2 用法錯｜3 環境不對｜4 拒絕危險
   $C run new --feature sandbox --entry multi-card
   $C record --flow sandbox-pick-and-react --run <run>    # 前置畫面 → 點擊 → 最終狀態，≤20 秒
   $C snapshot --run <run> --name sandbox-tree --unit 1 --beat 5
+
+每日自動維護（launchd，每天 03:17；只改 skill 目錄、最多開一個 draft PR、不發布證據）：
+  $C maintain install --dry-run                          # 印出 plist 與路徑
+  $C maintain install | status | uninstall
 """
 
 
@@ -50,7 +55,7 @@ def parser() -> argparse.ArgumentParser:
                                 epilog=EPILOG, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--sim", default=os.environ.get("KIDSAI_SIM", "KidsAI-Verify"), help="專用模擬器：KidsAI-Verify（預設）或 KidsAI-Maintain")
     p.add_argument("--human", action="store_true", help="印成人看的格式（預設 JSON）")
-    sub = p.add_subparsers(dest="command", required=True, metavar="{doctor,sim,build,install,launch,terminate,run,screenshot,record,drive,snapshot,cleanup,evidence}")
+    sub = p.add_subparsers(dest="command", required=True, metavar="{doctor,sim,build,install,launch,terminate,run,screenshot,record,drive,snapshot,cleanup,evidence,maintain}")
     sub.add_parser("doctor", help="唯讀健康檢查：模擬器、status bar、只裝 KidsAI、Debug、舊 build、螢幕尺寸")
     sim = sub.add_parser("sim", help="專用模擬器：ensure｜boot｜shutdown｜erase｜statusbar")
     sim.add_argument("action", choices=["ensure", "boot", "shutdown", "erase", "statusbar"])
@@ -92,12 +97,35 @@ def parser() -> argparse.ArgumentParser:
     ev.add_argument("--pr", type=int)
     ev.add_argument("--ok", action="store_true", help="review：確認逐張看過、畫面只有 KidsAI 或專用模擬器主畫面；元素樹 JSON 整份讀過")
     ev.add_argument("--dry-run", action="store_true", help="publish：完全不寫入、不連網")
+    mt = sub.add_parser("maintain", help="每日自動維護（launchd）：install｜uninstall｜status｜run")
+    mt.add_argument("action", choices=["install", "uninstall", "status", "run"])
+    mt.add_argument("--dry-run", action="store_true", help="install／uninstall：只印出要做的事")
+    mt.add_argument("--ref", help=f"要維護的版本（預設 {DEFAULT_REF}；只給驗收測試用）")
+    mt.add_argument("--no-push", action="store_true", help="不 push、不開 PR，只留本機分支與 log（驗收用）")
     return p
 
 
 HANDLERS = {"doctor": cmd_doctor, "sim": cmd_sim, "build": cmd_build, "install": cmd_install, "launch": cmd_launch,
             "terminate": cmd_terminate, "run": cmd_run, "screenshot": cmd_screenshot, "record": cmd_record,
-            "cleanup": cmd_cleanup, "evidence": cmd_evidence, "drive": cmd_drive, "snapshot": cmd_snapshot}
+            "cleanup": cmd_cleanup, "evidence": cmd_evidence, "drive": cmd_drive, "snapshot": cmd_snapshot,
+            "maintain": cmd_maintain}
+
+
+def refuse_in_maintain_mode(ctx: Context, args) -> None:
+    """每日維護的限制：從專用 clone 執行（agent 改不掉位置），或在 agent 的環境（KIDSAI_MAINTAIN_AGENT=1）。
+    不能發布證據、只能用 KidsAI-Maintain；maintain 只准 wrapper 從 clone 跑 run，agent 一律不行。"""
+    agent = os.environ.get("KIDSAI_MAINTAIN_AGENT") == "1"
+    in_clone = ctx.repo.resolve() == clone_dir(ctx).resolve()
+    if not (agent or in_clone):
+        return
+    if args.command == "maintain":
+        if agent or args.action != "run":
+            raise Fail(EXIT_REFUSED, "每日維護的專用 clone 與 agent 不能安裝、移除或查看排程", "在平常工作的 checkout 執行 maintain")
+        return
+    if args.command == "evidence" and args.action == "publish":
+        raise Fail(EXIT_REFUSED, "每日維護不發布證據", "證據留在 .verify/；要發布請在平常工作的 checkout 由人執行")
+    if ctx.sim != MAINTAIN_SIM:
+        raise Fail(EXIT_REFUSED, f"每日維護只能用 {MAINTAIN_SIM}", f"--sim {MAINTAIN_SIM}")
 
 
 def emit(result: dict, human: bool) -> None:
@@ -122,8 +150,9 @@ def main(argv=None, ctx: Optional[Context] = None) -> int:
             raise Fail(EXIT_REFUSED, f"只能操作專用模擬器 {' 或 '.join(SIMS)}，不能用 {ctx.sim}", "--sim KidsAI-Verify")
         if args.command == "evidence" and args.action in ("md", "publish") and args.pr is None:
             raise Fail(EXIT_USAGE, "需要 --pr <編號>", "先開 draft PR 取得編號")
+        refuse_in_maintain_mode(ctx, args)
         result = HANDLERS[args.command](ctx, args)
-        code = result.pop("exit", EXIT_OK) if args.command == "doctor" else EXIT_OK
+        code = result.pop("exit", EXIT_OK) if args.command in ("doctor", "maintain") else EXIT_OK
         emit(result, args.human)
         return code
     except Fail as fail:

@@ -125,11 +125,45 @@ $C cleanup             # 只停本次啟動的：錄影（核對 pid 身分）�
 - **不刪證據**：`.verify/<run-id>/` 永遠保留。清理後確認證據還在：`ls .verify/$RUN`。
 - 每次操作失敗後也要 cleanup，避免殘留錄影程序。
 
+## Maintain（每日）
+
+每天 03:17 由 launchd 自動跑一次 `/maintain-verification-skill`（Michael 2026-09-28 核准的 V4）：
+
+- 在專用 clone `~/kidsai-maintain/project-kid-ai` 和專用模擬器 `KidsAI-Maintain` 上跑，不碰平常工作的 checkout 與 `KidsAI-Verify`。
+- 結果只有三種：
+  - **clean**：只寫 log。
+  - **changed**：wrapper 套用 agent 的提案並開一個 **draft** PR，只改 `SKILL.md` 與 `references/`；已有未合併的 maintain PR 時不開新的。
+  - **blocked**：寫 log，並跳 macOS 通知；連續 3 天另外標出。
+- **agent 只提案，不改檔、不 commit**：Claude Code 在無頭模式下不准改 `.claude/` 底下的檔案（allow 規則與 `acceptEdits` 都放不過，2026-09-29 實測）。
+  - agent 把改好的完整檔案寫到 `.verify/maintain-proposed/<相對於本目錄的路徑>`（例如 `.verify/maintain-proposed/references/features/unit-flow.md`），run notes 寫到 `.verify/maintain-notes.md`。權限見 `maintain/maintain-settings.json`：只能寫 `.verify/`、git 只能 `status`、不能跑 python。
+  - 只能提案 `SKILL.md` 與 `references/**/*.md`；harness（`control-kidsai`、`lib/`、`maintain/`、`tests/`）的問題寫進 run notes，另走 `/agent-plan`。不然 agent 可以改掉防護。
+  - `control-kidsai` 只能用列出的子命令。從專用 clone 執行時，不看環境變數，一律拒絕 `evidence publish`（含 dry-run）、`maintain`（wrapper 的 `run` 除外）和 `KidsAI-Maintain` 以外的模擬器；agent 的環境（`KIDSAI_MAINTAIN_AGENT=1`）連 `maintain run` 也拒絕。也不能 push、不能用 `gh`。
+- **wrapper 的硬性防護**（`lib/kidsai_maintain.py`，不依賴模型守規矩）：
+  - agent 不准動 git：有任何 commit、index 或工作樹改動（`.verify/` 除外）就是越界。
+  - 提案只准 `SKILL.md` 與 `references/**/*.md`、不准 symlink、要是 UTF-8 純文字（≤200 KB）；通過才由 wrapper 套用，並用 repo 設好的 git 身分 commit。
+  - wrapper 的 commit 再檢查一次範圍與二進位；新增內容與 commit 訊息、作者，不得有本機路徑、使用者名稱、裝置 ID 或金鑰樣式。
+  - run notes 必須和提案一致（說 clean 卻有提案、說 changed 卻沒有或內容沒變，都算 blocked）。
+  - 分支 push 了但開 PR 失敗，也算 blocked（要手動處理）。
+  - 任一項不合就 blocked，並丟掉這次的分支。
+- **不發布證據**：證據只留在專用 clone 的 `.verify/`。
+- **log**：`~/Library/Logs/kidsai-maintain/<date>.log`（保留 30 天），Claude Code 的輸出在 `<date>-<時間>.claude.log`（每次一個檔）。
+
+```bash
+$C maintain install --dry-run    # 印出 plist 內容與路徑，不寫任何檔
+$C maintain install              # 裝 LaunchAgent（記下 claude、gh、git、python3 的絕對路徑）
+$C maintain status               # 是否已安裝、最近 5 次結果、連續 blocked 天數
+$C maintain uninstall            # 移除 LaunchAgent 與 bootstrap；專用 clone、log 保留
+```
+
+- 手動跑一次：`launchctl kickstart gui/$(id -u)/com.godmosword.kidsai.maintain-verify`。
+- 驗收時先用 `maintain install --ref <分支> --no-push`，只留本機分支與 log。
+- Node 升級後 `claude` 的路徑會變，每日維護會 blocked 並提示重跑 `maintain install`。
+
 ## Helpers
 
-- `control-kidsai`（本目錄，可執行，Python 3 標準函式庫；程式在 `lib/kidsai_core.py`、`kidsai_evidence.py`、`kidsai_flows.py`）：`$C --help`。子命令：`doctor`、`sim ensure|boot|shutdown|erase|statusbar`、`build [--for-testing]`、`install`、`launch`、`terminate`、`run new`、`screenshot`、`record start|stop`、`record --flow`、`drive --flow`、`snapshot`、`cleanup`、`evidence frames|review|md|publish`。破壞性命令有 `--dry-run`；`sim erase` 一定要 `--yes`。
-- 流程測試：`app/KidsAIUITests/`（`FlowSupport.swift` 的 `Flow`／`Frames`／`Handshake`、`Flows.swift` 的 10 支流程與 `SnapshotTree`）。新增流程：在 `Flows.swift` 加類別，再加進 `lib/kidsai_flows.py` 的 `FLOWS`。
-- 測試：`python3 -m unittest discover .claude/skills/verify-kidsai/tests`（不需要 Xcode、模擬器或網路）。
+- `control-kidsai`（本目錄，可執行，Python 3 標準函式庫；程式在 `lib/kidsai_core.py`、`kidsai_evidence.py`、`kidsai_flows.py`）：`$C --help`。子命令：`doctor`、`sim ensure|boot|shutdown|erase|statusbar`、`build [--for-testing]`、`install`、`launch`、`terminate`、`run new`、`screenshot`、`record start|stop`、`record --flow`、`drive --flow`、`snapshot`、`cleanup`、`evidence frames|review|md|publish`、`maintain install|uninstall|status|run`（`lib/kidsai_maintain.py`）。破壞性命令有 `--dry-run`；`sim erase` 一定要 `--yes`。
+- 流程測試：`app/KidsAIUITests/`（`FlowSupport.swift` 的 `Flow`／`Frames`／`Handshake`、`Flows.swift` 的流程與 `SnapshotTree`）。新增流程：在 `Flows.swift` 加類別，再加進 `lib/kidsai_flows.py` 的 `FLOWS`。
+- 測試：`python3 -m unittest discover .claude/skills/verify-kidsai/tests`（不需要 Xcode、模擬器或網路；`test_maintain.py` 會用本機暫存的 git repo）。
 - 需要：Xcode、XcodeGen、ffmpeg／ffprobe（`brew install ffmpeg`，產生 GIF 與驗證錄影）、已登入的 `gh`（發布證據）。
 - 功能地圖：[`references/features/`](references/features/)（每個功能一個檔，四個 H2：`Sub-features`、`How to get to it (user POV)`、`Driving it with control-kidsai`、`Gotchas`）。這裡刻意用 `references/features/`，不是 generator 預設的 `features/`，和 pstack 範例 repo 一致。
 - 設計對照：[`references/design-map.md`](references/design-map.md)（功能 → Notion mid-fi 屏號與版本 → 目前的差異；參考圖在 repo 的 `design/midfi/`）。
