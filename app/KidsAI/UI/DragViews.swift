@@ -42,7 +42,7 @@ struct DragView: View {
             .onPreferenceChange(DragFrameKey.self) { value in
                 MainActor.assumeIsolated { frames = value }
             }
-            .animation(reduceMotion ? .easeInOut(duration: 0.2) : .easeOut(duration: 0.35), value: d)
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.35), value: d)  // 減少動態效果：卡片直接到位
             .sensoryFeedback(.impact(weight: .light), trigger: d.placements.count) { old, new in new > old }
             .onChange(of: store.isDragging) { _, isDragging in
                 if !isDragging { clearDrag() }

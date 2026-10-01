@@ -285,7 +285,8 @@ class FlowTests(Base):
         self.fresh_runner()
         self.runner.handshake_files = {"done": "done", "exit": "0"}
         for flow, test_class in {"choice-answer": "FlowChoiceAnswer", "sandbox-graded": "FlowSandboxGraded",
-                                 "hold-to-exit": "FlowHoldToExit", "background-resume": "FlowBackgroundResume"}.items():
+                                 "hold-to-exit": "FlowHoldToExit", "background-resume": "FlowBackgroundResume",
+                                 "sandbox-compare": "FlowSandboxCompare"}.items():
             code, out = self.call("drive", "--flow", flow)
             self.assertEqual(code, 0, out)
             self.assertTrue(any(f"-only-testing:KidsAIUITests/{test_class}" in " ".join(c) for c in self.runner.calls), flow)

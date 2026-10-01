@@ -98,6 +98,7 @@ struct SandboxView: View {
     private func comparison(_ s: SandboxState, _ slot: SandboxSlot, _ sandbox: SandboxBeat) -> some View {
         let cards = s.played + [PlayedCard(choiceID: s.choiceID ?? "", guesses: s.guesses, reaction: s.reaction)]
         let cell = max(88, ((contentWidth - 16) / 3).rounded(.down))
+        let art = cell - 28  // 三張的圖一樣大；外框都是 art＋上下左右各 10（AIDrawing 的 padding）＝ cell - 8
         let layout = typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(spacing: 12)) : AnyLayout(HStackLayout(alignment: .top, spacing: 8))
         return VStack(spacing: 20) {
             Text(slot.label.zhHant).font(.title.bold())
@@ -105,15 +106,15 @@ struct SandboxView: View {
                 .accessibilityFocused(focus)
             layout {
                 VStack(spacing: 6) {
-                    ArtView(key: slot.image, size: cell * 0.6, label: slot.a11yLabel ?? slot.label.zhHant)
-                        .frame(width: cell - 8, height: cell - 8)
+                    ArtView(key: slot.image, size: art, label: slot.a11yLabel ?? slot.label.zhHant)
+                        .frame(width: art + 20, height: art + 20)
                         .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.cardRadius))
                         .overlay(RoundedRectangle(cornerRadius: Theme.cardRadius).stroke(Theme.cardStroke, lineWidth: 2))
                     Text(slot.label.zhHant).font(.headline).foregroundStyle(Theme.ink).multilineTextAlignment(.center)
                 }
                 ForEach(cards, id: \.choiceID) { card in
                     VStack(spacing: 6) {
-                        ForEach(card.guesses.filter { $0.image != nil }, id: \.id) { AIDrawing(guess: $0, size: cell * 0.6 - 20) }
+                        ForEach(card.guesses.filter { $0.image != nil }, id: \.id) { AIDrawing(guess: $0, size: art) }
                         if let choice = slot.choices.first(where: { $0.id == card.choiceID }) {
                             Text(choice.label.zhHant).font(.headline).foregroundStyle(Theme.ink).multilineTextAlignment(.center)
                         }
@@ -121,6 +122,8 @@ struct SandboxView: View {
                     }
                 }
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("sandbox.comparison")
             NarratorLine(store: store, item: sandbox.feedback.reveal)
         }
     }

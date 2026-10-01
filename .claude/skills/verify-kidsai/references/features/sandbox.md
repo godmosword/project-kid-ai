@@ -27,12 +27,14 @@ Preconditions:
 - **有對錯的沙盒（前置狀態）。** `launch --unit 2 --beat 5`。看得到：「數數腳」、四隻腳分開的小狗圖、「小狗有三隻腳。」、三個反應鈕排成一列。
 - **有對錯：答錯一次（前置狀態）。** `launch --unit 2 --beat 5 --events "react:agree"`。看得到：「同意」變淡、小狗圖加粗框、點點框「再看看圖，想一想。」。
 - **兩張卡比較（前置狀態）。** `launch --unit 1 --beat 5 --events "pick:prompt_vague;react:closer;next;react:closer"`。看得到：「我想要的貓」、站著的大白貓（貓＋我不確定）、坐著的小黃貓（坐著的小黃貓），同尺寸一列；點點框「說得越清楚，它越知道你要哪種貓。」。
+- **兩張都玩完、三圖比較（compare）。** 真實點擊。`run new --feature sandbox --entry compare`，`record --flow sandbox-compare --run $RUN`：點 `option.prompt_vague` → `option.closer` → `unit.next` → 第二張卡點 `option.closer` → 出現 `sandbox.comparison`。看得到：「我想要的貓」和兩張猜猜帽畫的圖外框同尺寸、排成一列，念完揭曉句出現「下一步」。
 - **多卡主題：選卡、反應、第二張卡（multi-card）。** `record --flow sandbox-pick-and-react --run $RUN`：點 `option.prompt_vague` → 等反應鈕 → 點 `option.closer` → 點 `unit.next` → 第二張卡自動選好、反應鈕出現。
 - **有對錯：點錯再點對（graded）。** 真實點擊 `option.agree` → `option.catch`。`run new --feature sandbox --entry graded`，`record --flow sandbox-graded --run $RUN`。看得到：「小狗有三隻腳。」→ 點「同意」（橘框）→「同意」變淡、點點框「再看看圖，想一想。」、還沒有「下一步」→ 點「抓到了」（橘框）→ 下方「下一步」。
 - **沒有對錯的反應（open）。** needs-flow（還沒有流程）。
 
 ## Gotchas
 
+- 三圖比較的三個外框一樣大（D37）：圖都是 `cell - 28`，外框 `cell - 8`；猜猜帽的圖另有藍框和右上的小帽子。
 - 以上 `--events` 只是把畫面推到某個狀態，**不是**「孩子點了反應」的證明。
 - iPhone SE 等窄螢幕上，有對錯的沙盒會自動捲到主題圖的頂端；截圖前等捲動結束。
 - 猜猜帽的猜測念完之前反應鈕不會出現；沒有 zh-TW 語音時會立刻出現。

@@ -57,7 +57,7 @@ $C build --for-testing && $C install && $C doctor      # doctor 的 ui-tests 要
 $C drive --flow sandbox-pick-and-react                 # 只跑、不截圖：回報通過或失敗（連跑 3 次抓不穩定）
 ```
 
-可用的流程：`map-to-unit1`、`say-together`、`sandbox-pick-and-react`、`drag-tap-to-place`、`story-branch`、`sticker`、`choice-answer`、`sandbox-graded`、`hold-to-exit`、`background-resume`（各自證明什麼見 `references/features/README.md` 的 Full sweep）。每支流程只用啟動參數準備前置狀態，要證明的動作一定是真的點擊；等待一律等「元素可點」（30 秒上限），不用固定秒數。
+可用的流程：`map-to-unit1`、`say-together`、`sandbox-pick-and-react`、`drag-tap-to-place`、`story-branch`、`sticker`、`choice-answer`、`sandbox-graded`、`hold-to-exit`、`background-resume`、`sandbox-compare`（各自證明什麼見 `references/features/README.md` 的 Full sweep）。每支流程只用啟動參數準備前置狀態，要證明的動作一定是真的點擊；等待一律等「元素可點」（30 秒上限），不用固定秒數。
 
 **2. 只打開 App 或準備前置狀態。** `$C launch`（從主畫面打開）、`$C launch --unit/--beat/--unlock-all/--events`。**不得**用 `--events` 或 `--beat` 冒充點擊的證明：它們跳過了孩子實際的操作。
 
@@ -128,7 +128,7 @@ $C cleanup             # 只停本次啟動的：錄影（核對 pid 身分）�
 ## Helpers
 
 - `control-kidsai`（本目錄，可執行，Python 3 標準函式庫；程式在 `lib/kidsai_core.py`、`kidsai_evidence.py`、`kidsai_flows.py`）：`$C --help`。子命令：`doctor`、`sim ensure|boot|shutdown|erase|statusbar`、`build [--for-testing]`、`install`、`launch`、`terminate`、`run new`、`screenshot`、`record start|stop`、`record --flow`、`drive --flow`、`snapshot`、`cleanup`、`evidence frames|review|md|publish`。破壞性命令有 `--dry-run`；`sim erase` 一定要 `--yes`。
-- 流程測試：`app/KidsAIUITests/`（`FlowSupport.swift` 的 `Flow`／`Frames`／`Handshake`、`Flows.swift` 的 10 支流程與 `SnapshotTree`）。新增流程：在 `Flows.swift` 加類別，再加進 `lib/kidsai_flows.py` 的 `FLOWS`。
+- 流程測試：`app/KidsAIUITests/`（`FlowSupport.swift` 的 `Flow`／`Frames`／`Handshake`、`Flows.swift` 的 11 支流程與 `SnapshotTree`）。新增流程：在 `Flows.swift` 加類別，再加進 `lib/kidsai_flows.py` 的 `FLOWS`。
 - 測試：`python3 -m unittest discover .claude/skills/verify-kidsai/tests`（不需要 Xcode、模擬器或網路）。
 - 需要：Xcode、XcodeGen、ffmpeg／ffprobe（`brew install ffmpeg`，產生 GIF 與驗證錄影）、已登入的 `gh`（發布證據）。
 - 功能地圖：[`references/features/`](references/features/)（每個功能一個檔，四個 H2：`Sub-features`、`How to get to it (user POV)`、`Driving it with control-kidsai`、`Gotchas`）。這裡刻意用 `references/features/`，不是 generator 預設的 `features/`，和 pstack 範例 repo 一致。

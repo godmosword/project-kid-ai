@@ -52,6 +52,28 @@ final class FlowSandboxPickAndReact: FlowTestCase {
     }
 }
 
+/// 單元 2 沙盒兩張卡都玩完：選卡 → 反應 → 下一步 → 第二張卡反應 → 「我想要的」與兩張猜猜帽的圖並排比較（D37）。
+final class FlowSandboxCompare: FlowTestCase {
+    @MainActor
+    func testFlow() {
+        let app = Flow.launch(unit: 1, beat: 5)
+        let card = Flow.element(app, "option.prompt_vague")
+        Flow.waitHittable(card)
+        Frames.begin()
+        Frames.tap(card)
+        let closer = Flow.element(app, "option.closer")
+        let next = Flow.element(app, "unit.next")
+        Frames.until("猜測念完、出現反應鈕") { Flow.hittable(closer) }
+        Frames.tap(closer, until: "第一張卡反應完、出現下一步") { Flow.hittable(next) }
+        Frames.tap(next, until: "換到第二張卡") { !next.exists }
+        Frames.until("第二張卡：反應鈕出現") { Flow.hittable(closer) }
+        let comparison = Flow.element(app, "sandbox.comparison")
+        Frames.tap(closer, until: "出現三張圖的比較") { comparison.exists }
+        Frames.until("揭曉句念完、出現下一步") { Flow.hittable(next) }
+        Frames.end()
+    }
+}
+
 /// 單元 2 拖曳（點選放卡）：點卡 → 點空格，兩張都放好 → 自動檢查 → 成功回饋與下一步。
 final class FlowDragTapToPlace: FlowTestCase {
     @MainActor
