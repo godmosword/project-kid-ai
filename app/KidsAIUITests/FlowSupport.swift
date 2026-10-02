@@ -83,10 +83,14 @@ enum Frames {
         snap()
     }
 
-    /// 真實點擊：點之前截兩格並記下位置（像素），再點。
-    static func tap(_ element: XCUIElement, file: StaticString = #filePath, line: UInt = #line) {
+    /// 真實點擊：點之前截兩格並記下位置（像素），再點。`at` 是元素裡的相對位置（0–1），沒給就點中心。
+    static func tap(_ element: XCUIElement, at offset: CGVector? = nil, file: StaticString = #filePath, line: UInt = #line) {
         mark(element, file: file, line: line)
-        element.tap()
+        if let offset {
+            element.coordinate(withNormalizedOffset: offset).tap()
+        } else {
+            element.tap()
+        }
     }
 
     /// 真實長按（例如長按 X 離開）：和點擊一樣先標出位置。
@@ -111,10 +115,10 @@ enum Frames {
 
     /// 點到有效果為止：畫面上看得到按鈕、但 App 還在念上一段（上鎖）時，點擊會被忽略（設計如此：外觀不變、只擋點擊）。
     /// 點完等最多 3 秒看效果；沒有就像孩子一樣再點一次，最多 8 次。
-    static func tap(_ element: XCUIElement, until what: String, file: StaticString = #filePath, line: UInt = #line,
-                    _ effect: () -> Bool) {
+    static func tap(_ element: XCUIElement, at offset: CGVector? = nil, until what: String,
+                    file: StaticString = #filePath, line: UInt = #line, _ effect: () -> Bool) {
         for _ in 0..<8 {
-            tap(element, file: file, line: line)
+            tap(element, at: offset, file: file, line: line)
             let deadline = Date().addingTimeInterval(3)
             repeat {
                 snap()

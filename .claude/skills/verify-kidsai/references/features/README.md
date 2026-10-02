@@ -72,7 +72,8 @@
 | sandbox | `graded`：點錯變淡、再點對 | 可證明：`record --flow sandbox-graded` |
 | sandbox | `open` 的反應 | needs-flow（還沒有流程） |
 | [drag](./drag.md) | `tap-to-place`：點卡再點空格 | 可證明：`record --flow drag-tap-to-place` |
-| drag | 手指拖曳、分組、排序 | needs-flow（手指拖曳留給實機） |
+| drag | `group`：四張有聲音的卡分到「留下／要改正」 | 可證明：`record --flow drag-group` |
+| drag | 手指拖曳、排序 | needs-flow（手指拖曳留給實機；排序還沒有流程） |
 | drag | VoiceOver「放到〇〇」動作 | verified-unreachable（需要實機） |
 | [review-and-sticker](./review-and-sticker.md) | `finish`：回地圖 | 可證明：`record --flow sticker` |
 | review-and-sticker | `answer`：回顧題作答 | needs-flow（還沒有流程；不得拿第 1 關選擇題的證據代替） |

@@ -169,6 +169,7 @@ struct OptionGrid<Card: View>: View {
 struct IconButton: View {
     let systemImage: String
     let label: String
+    var size: CGFloat = Theme.touch
     let action: () -> Void
 
     var body: some View {
@@ -176,7 +177,7 @@ struct IconButton: View {
             Image(systemName: systemImage)
                 .font(.title2)
                 .foregroundStyle(Theme.ink)
-                .frame(width: Theme.touch, height: Theme.touch)
+                .frame(width: size, height: size)
                 .background(Theme.surface, in: Circle())
                 .overlay(Circle().stroke(Theme.cardStroke, lineWidth: 2))
         }
