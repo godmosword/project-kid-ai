@@ -52,6 +52,8 @@ class FakeRunner:
         self.popen_log = ""
         self.handshake_files = {}
         self.xcodebuild_code = 0
+        self.text_size = "large"
+        self.text_size_sticks = True  # False：模擬器不接受改字級
 
     def run(self, cmd, cwd=None, input=None, env=None):
         self.calls.append(list(cmd))
@@ -68,6 +70,10 @@ class FakeRunner:
                 "identifier": "com.apple.CoreSimulator.SimRuntime.iOS-27-0", "name": "iOS 27.0", "version": "27.0",
                 "platform": "iOS", "isAvailable": True,
                 "supportedDeviceTypes": [{"name": "iPhone 17e", "identifier": "com.apple.CoreSimulator.SimDeviceType.iPhone-17e"}]}]}), "")
+        if "content_size" in cmd:
+            if cmd[-1] != "content_size" and self.text_size_sticks:
+                self.text_size = cmd[-1]
+            return ck.Result(0, self.text_size + "\n" if cmd[-1] == "content_size" else "", "")
         if "status_bar" in cmd and "list" in cmd:
             return ck.Result(0, "Current Status Bar Overrides:\n Time: 9:41\n" if self.statusbar else "", "")
         if "listapps" in cmd:
@@ -250,10 +256,38 @@ class DoctorTests(Base):
         code, _ = self.call("doctor")
         self.assertEqual(code, ck.EXIT_STALE)
 
+    def test_text_size_not_default_fails_doctor(self):
+        self.installed_debug_app()
+        self.runner.text_size = "accessibility-large"
+        code, out = self.call("doctor")
+        self.assertEqual(code, ck.EXIT_ENV)
+        failed = [c for c in out["checks"] if not c["ok"]]
+        self.assertEqual([c["check"] for c in failed], ["text-size"])
+        self.assertIn("sim text-size --size default", failed[0]["fix"])
+
     def test_other_user_apps_fail_doctor(self):
         self.runner.apps = {"com.godmosword.kidsai": {"ApplicationType": "User"}, "com.example.chat": {"ApplicationType": "User"}}
         code, _ = self.call("doctor")
         self.assertEqual(code, ck.EXIT_ENV)
+
+
+class TextSizeTests(Base):
+    def test_sets_ax2_and_resets(self):
+        code, out = self.call("sim", "text-size", "--size", "ax2")
+        self.assertEqual((code, out["content_size"]), (0, "accessibility-large"))
+        self.assertTrue(self.runner.ran("ui", UDID, "content_size", "accessibility-large"))
+        code, out = self.call("sim", "text-size")
+        self.assertEqual((code, out["content_size"]), (0, "large"))
+
+    def test_size_that_does_not_stick_fails(self):
+        self.runner.text_size_sticks = False
+        code, out = self.call("sim", "text-size", "--size", "ax1")
+        self.assertEqual(code, ck.EXIT_ENV)
+        self.assertIn("accessibility-medium", json.dumps(out, ensure_ascii=False))
+
+    def test_unknown_size_is_a_usage_error(self):
+        code, _ = self.call("sim", "text-size", "--size", "ax5")
+        self.assertEqual(code, ck.EXIT_USAGE)
 
 
 class FlowTests(Base):

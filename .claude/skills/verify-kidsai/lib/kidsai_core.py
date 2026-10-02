@@ -28,6 +28,8 @@ BUNDLE_ID = "com.godmosword.kidsai"
 EXECUTABLE = "KidsAI"
 DEVICE_TYPES = ("iPhone 17e", "iPhone 16e")  # 390×844 pt；iPhone 13／14 在 iOS 27 runtime 不可用
 EXPECTED_PIXELS = (1170, 2532)
+# 模擬器字級（simctl ui content_size）；App 用 dynamicTypeSize 限制最大到「輔助使用 2」
+TEXT_SIZES = {"default": "large", "ax1": "accessibility-medium", "ax2": "accessibility-large"}
 EVIDENCE_REPO_URL = "https://github.com/godmosword/project-kid-ai-evidence.git"
 RAW_BASE = "https://raw.githubusercontent.com/godmosword/project-kid-ai-evidence/main"
 TZ = ZoneInfo("Asia/Taipei")
@@ -287,6 +289,14 @@ def cmd_sim(ctx: Context, a) -> dict:
         run_ok(ctx, ["xcrun", "simctl", "erase", d["udid"]])
         save_session(ctx, {})
         return {"ok": True, "erased": ctx.sim}
+    if a.action == "text-size":
+        d = require_device(ctx)
+        size = TEXT_SIZES[a.size]
+        run_ok(ctx, ["xcrun", "simctl", "ui", d["udid"], "content_size", size])
+        now = text_size(ctx, d["udid"])
+        if now != size:
+            raise Fail(EXIT_ENV, f"字級沒有改成 {size}（現在是 {now or '不明'}）", f"control-kidsai --sim {ctx.sim} sim text-size --size {a.size}")
+        return {"ok": True, "text_size": a.size, "content_size": size}
     # statusbar
     d = require_device(ctx)
     run_ok(ctx, ["xcrun", "simctl", "status_bar", d["udid"], "override", "--time", "9:41", "--dataNetwork", "wifi",
@@ -377,6 +387,10 @@ def cmd_terminate(ctx: Context, a) -> dict:
 
 # ---------------------------------------------------------------- doctor
 
+def text_size(ctx: Context, udid: str) -> str:
+    return ctx.runner.run(["xcrun", "simctl", "ui", udid, "content_size"]).stdout.strip()
+
+
 def installed_app(ctx: Context, udid: str) -> Optional[Path]:
     r = ctx.runner.run(["xcrun", "simctl", "get_app_container", udid, BUNDLE_ID, "app"])
     return Path(r.stdout.strip()) if r.returncode == 0 and r.stdout.strip() else None
@@ -403,6 +417,9 @@ def cmd_doctor(ctx: Context, a) -> dict:
     udid = d["udid"]
     add("statusbar", "9:41" in ctx.runner.run(["xcrun", "simctl", "status_bar", udid, "list"]).stdout,
         "9:41 覆寫", f"control-kidsai --sim {ctx.sim} sim statusbar")
+    size = text_size(ctx, udid)
+    add("text-size", size == TEXT_SIZES["default"], f"字級 {size or '不明'}",
+        f"control-kidsai --sim {ctx.sim} sim text-size --size default（大字級的證據錄完要改回來）")
     listed = ctx.runner.run(["xcrun", "simctl", "listapps", udid])
     converted = ctx.runner.run(["plutil", "-convert", "json", "-o", "-", "-"], input=listed.stdout)
     try:
