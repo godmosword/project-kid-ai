@@ -23,7 +23,7 @@ Preconditions:
 
 - **看題目（前置狀態）。** `launch --unit 0 --beat 1`。看得到：題目「聽一聽，誰說『我猜』？」、三列有聲音的選項（家人、電子玩具、AI），每列右邊有播放鈕。
 - **答錯一次再答對（choice-answer、choice-retry）。** 真實點擊 `option.family` → `option.ai`。`run new --feature choice-question --entry answer`，`record --flow choice-answer --run $RUN`。看得到：點「家人」（橘框）→ 家人變淡、點點框「再聽一次，誰說『我猜』？」→ 點「AI」（橘框）→ AI 打勾、點點框「對！AI 常常用猜的。」、下方「下一步」。
-- **揭曉（choice-reveal）。** needs-flow（錯兩次的流程還沒寫；可用前置狀態 `launch --unit 0 --beat 1 --events "select:family;select:toy"` 看揭曉畫面，但那不是孩子點的證明）。
+- **揭曉（choice-reveal）。** 真實點擊 `option.family` → `option.toy`（都答錯）。`run new --feature choice-question --entry reveal`，`record --flow choice-reveal --run $RUN`。看得到：「家人」變淡；點「電子玩具」後錯到上限，它標成孩子選的（不變淡），「AI」打勾、點點說「是 AI，它說「我猜」。」，出現「下一步」。
 - **重聽鈕、提示（choice-sound、choice-hint）。** needs-flow：重聽要證明的是聲音；提示要等 8 秒不動，還沒有流程。
 
 ## Gotchas

@@ -28,6 +28,11 @@ FLOWS = {
     "background-resume": "FlowBackgroundResume",
     "sandbox-compare": "FlowSandboxCompare",
     "drag-group": "FlowDragGroup",
+    "choice-reveal": "FlowChoiceReveal",
+    "sandbox-open": "FlowSandboxOpen",
+    "story-ending": "FlowStoryEnding",
+    "review-answer": "FlowReviewAnswer",
+    "drag-order": "FlowDragOrder",
 }
 FLAG_POLLS = 900        # ×0.2 秒＝180 秒：等測試寫 done／failed（安裝 runner、啟動 App、旁白）
 EXIT_AFTER_FLAG = 150   # ×0.2 秒＝30 秒：旗標出現後等 xcodebuild 收尾；還沒結束就視為卡住

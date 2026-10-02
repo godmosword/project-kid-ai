@@ -22,7 +22,7 @@ Preconditions:
 
 - **看故事開頭（前置狀態）。** `launch --unit 0 --beat 6`。看得到：點點框「猜猜帽第一次幫忙找襪子。」「會不會在沙發下？」，念完後下方「下一步」。
 - **下一步＋分歧（story-next、story-branch）。** 真實點擊 `unit.next` → 第一個 `story.choice.*`。`run new --feature story --entry branch`，`record --flow story-branch --run $RUN`。看得到：點「下一步」（橘框）→ 猜猜帽框「我猜在沙發下！咦，沒有。」「接下來呢？」＋兩個選項 → 點第一個選項（橘框）→ 選項消失、故事到下一個節點。
-- **走到結局（story-ending）。** needs-flow（還沒有走完整條故事的流程）。
+- **走到結局（story-ending）。** 單元 1：`unit.next` → `story.choice.guess_again` → `unit.next` → `story.choice.give_hint` → `story.choice.hint_bed`。`run new --feature story --entry ending`，`record --flow story-ending --run $RUN`。看得到：猜猜帽兩次沒猜到、孩子給提示圖「床」、結局「襪子找到了！」念完後出現「下一步」。只走一條路；其他分支（自己找、一起找、書包、浴室）沒有流程。
 - **看某個分歧（前置狀態）。** `launch --unit 0 --beat 6 --events "next"`。只用來看分歧畫面，不是孩子點的證明。
 
 ## Gotchas

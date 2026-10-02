@@ -27,7 +27,8 @@ Preconditions:
 - **點選放卡（tap-to-place）。** 單元 2 配對：點 `drag.card.cup_star` → `drag.target.blank_what` → `drag.card.place_table` → `drag.target.blank_where`。`record --flow drag-tap-to-place --run $RUN`。看得到：兩張卡放進空格、自動檢查後出現回饋（`feedback`）與「下一步」。
 - **答錯退回、揭曉（前置狀態）。** `launch --unit 2 --beat 2 --events "place:fish:keep;place:square_moon:keep;place:hot_ice:fix;place:bright_sun:keep;check"`：看得到方月亮退回卡片區、其他三張固定、回饋「再聽一次，說得通嗎？」。只是前置狀態，不是點擊的證明。
 - **分組的點選放卡（group）。** 單元 3：依序點 `drag.card.fish` → `drag.target.keep`、`square_moon` → `fix`、`hot_ice` → `fix`、`bright_sun` → `keep`。`run new --feature drag --entry group`，`record --flow drag-group --run $RUN`。看得到：四張長條卡分進兩組、自動檢查後出現回饋與「下一步」。
-- **手指拖曳、排序的點擊。** needs-flow（手指拖曳留給實機；排序還沒有流程）。
+- **排序的點選放卡（order）。** 單元 4：依序點 `drag.card.go_out` → `drag.target._order_slot_1`、`rain` → `_order_slot_2`、`umbrella` → `_order_slot_3`。`run new --feature drag --entry order`，`record --flow drag-order --run $RUN`。看得到：三張圖卡排進 1／2／3，自動檢查後出現回饋與「下一步」。
+- **手指拖曳。** needs-flow（手指拖曳留給實機）。
 - **VoiceOver 動作（drag-voiceover）。** verified-unreachable：模擬器的 VoiceOver 無法由流程開啟與聽取；前提「需要實機」（TODOS 的實機試玩項目）。
 
 ## Gotchas
