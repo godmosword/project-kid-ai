@@ -192,6 +192,7 @@ class RunOutcomeTests(MaintainBase):
         self.assertEqual(self.remote_branches(), [])
         self.assertTrue((self.home / "Library/Logs/kidsai-maintain/2026-09-30.log").exists())
         self.assertTrue(self.runner.ran("sim", "shutdown"), "一律關掉 KidsAI-Maintain")
+        self.assertTrue(self.runner.ran("sim", "text-size", "default"), "關掉前把字級改回預設")
 
     def test_changed_pushes_branch_and_opens_draft_pr(self):
         def agent(c):
