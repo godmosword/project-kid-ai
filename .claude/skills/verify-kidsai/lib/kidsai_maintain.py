@@ -395,6 +395,8 @@ def gitc(ctx: Context, *args) -> Result:
 
 def shutdown_sim(ctx: Context) -> None:
     cli = clone_dir(ctx) / SKILL_PREFIX / "control-kidsai"
+    # agent 可能改了字級沒改回來；還原，免得下次 doctor 的 text-size 擋住（沒開機時這步失敗也無妨）
+    ctx.runner.run([sys.executable, str(cli), "--sim", MAINTAIN_SIM, "sim", "text-size", "--size", "default"])
     ctx.runner.run([sys.executable, str(cli), "--sim", MAINTAIN_SIM, "sim", "shutdown"])
 
 

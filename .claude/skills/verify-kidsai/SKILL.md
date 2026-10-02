@@ -38,7 +38,7 @@ C=.claude/skills/verify-kidsai/control-kidsai   # 在 repo 根目錄執行
 | simulator 存在 | exit 3 | `$C sim ensure` |
 | booted | exit 3 | `$C sim boot` |
 | statusbar 已覆寫 | exit 3 | `$C sim statusbar` |
-| text-size（字級是系統預設） | exit 3 | `$C sim text-size --size default`（大字級的證據錄完要改回來） |
+| text-size（字級是系統預設） | exit 3 | `$C sim text-size --size default`（大字級的證據錄完要改回來；每日維護收尾時 wrapper 會自動改回） |
 | only-kidsai（除 Apple 內建外只裝 KidsAI） | exit 3 | `$C sim erase --yes`，再 build、install |
 | installed | exit 3 | `$C build && $C install` |
 | debug-build（有啟動參數） | exit 3 | `$C build && $C install` |
