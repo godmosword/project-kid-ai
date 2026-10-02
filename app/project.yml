@@ -29,6 +29,8 @@ targets:
         ENABLE_PREVIEWS: "YES"
         GENERATE_INFOPLIST_FILE: "YES"
         # 正式 App 還沒有麥克風／語音功能，不得加任何 *UsageDescription；另案 L3 再加。
+        # 只用系統提供的加密（docs/release/app-store-submission.md），上傳時不再問出口合規
+        INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: "NO"
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: "YES"
         INFOPLIST_KEY_UILaunchScreen_Generation: "YES"
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait"  # 鎖直向
