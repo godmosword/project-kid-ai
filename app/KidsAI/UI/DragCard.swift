@@ -53,6 +53,7 @@ struct DragCard: View {
             if isSpeaking {
                 Image(systemName: "speaker.wave.2.fill").font(.headline).foregroundStyle(Theme.ink).padding(6)
                     .accessibilityHidden(true)
+                    .allowsHitTesting(false)  // 蓋在重聽鈕右上角，不能擋到點擊
             }
         }
         // 選起來的卡浮起來（不只靠框的顏色）
