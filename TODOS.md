@@ -36,7 +36,7 @@
 - [ ] 配對前可以先用 Xcode 模擬器玩（選 KidsAI 和 iPhone 模擬器，按 ▶），檢查流程順不順
 
 ### 其他
-- [ ] 決定旁白要用 AI 配音（在電腦上先錄好）還是真人配音；點點和猜猜帽要聽得出是不同角色
+- [ ] 決定旁白要用系統語音、AI 配音（在電腦上先錄好）還是真人配音；點點和猜猜帽要聽得出是不同角色。比較與建議見 [配音方式的決策表](docs/voice-options.md)（建議：單元 1 試玩先用系統語音，看結果再定）
 - [ ] 請 Grok 在 [風格樣張](design/style-tile/index.html) 補上新色票 `card-stroke`、`speaking`（已在 `design/tokens/kidsai.tokens.json`）
 - [ ] 找 1–2 位 6–8 歲孩子在 iPhone 上試玩 App 單元 1，照 `docs/playtests/` 的試玩步驟記錄（步驟 3；只記彙總，孩子用代號）
 - [ ] 把 Notion 路線圖狀態的更新 prompt 貼給 Grok（如果還沒貼）

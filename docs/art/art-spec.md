@@ -2,7 +2,7 @@
 
 給：用 Codex、Grok 生圖的人（Michael），以及之後把圖放進 App 的工程（Claude Code）。對應路線圖步驟 7。
 
-生圖用的 prompt 見 [generation-prompts.md](generation-prompts.md)；需要哪些圖見 [素材清單](../content-schema-v1-mapping.md#素材清單給路線圖步驟-7)。
+生圖用的 prompt 見 [generation-prompts.md](generation-prompts.md)；需要哪些圖見 [素材清單](../content-schema-v1-mapping.md#素材清單給路線圖步驟-7)；每張圖要讓孩子看出什麼、怎麼驗收，見 [教學線索與驗收](asset-cues.md)。
 
 ## 1. 製作方式與順序
 
@@ -101,7 +101,7 @@
 - [ ] 風格和選定的方向一致（顏色、線條、光影）
 - [ ] 圖裡沒有任何文字
 - [ ] 沒有真人、品牌、既有角色的影子
-- [ ] 孩子看得懂：題目要的東西清楚、不含糊（需核准的圖由 Michael 確認）
+- [ ] 孩子看得懂：通過 [asset-cues.md](asset-cues.md) 的驗收問題（需核准的圖由 Michael 確認）
 - [ ] 不靠顏色傳達答案
 - [ ] 尺寸、比例、背景、檔名符合第 5 節
 - [ ] 已記到 provenance.md
