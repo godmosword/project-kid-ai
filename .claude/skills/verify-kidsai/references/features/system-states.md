@@ -26,7 +26,7 @@ Preconditions:
 - **進背景再回來（background-resume）。** 真實按 Home 鍵再回到 App。`run new --feature system-states --entry background`，`record --flow background-resume --run $RUN`。看得到：單元 1 一起說 → 專用模擬器主畫面 → 回到同一關，「一起說」按鈕還在。
 - **遮罩（privacy-cover）。** 部分證明：`background-resume` 的縮時影片在進出背景的轉場格裡看得到遮罩（空白底＋點點，沒有題目和選項），但流程沒有斷言它；沒拍到不算失敗。要完整證明需要 needs-flow（在多工切換畫面截圖）。
 - **螢幕不變暗（idle-timer）。** verified-unreachable：模擬器不會自動變暗；前提「需要實機」。
-- **字級（dynamic-type）。** needs-flow：`control-kidsai` 還沒有調整模擬器字級的命令。
+- **字級（dynamic-type）。** `sim text-size --size ax2`（輔助使用 2，App 的上限）→ `run new --feature system-states --entry dynamic-type-choice-answer`，`record --flow choice-answer --run $RUN`；拖曳用 `--entry dynamic-type-drag`、`record --flow drag-tap-to-place`。看得到：選項整列直排、拖曳的卡改成長條且只用點選放卡，作答與放卡照常完成。**錄完一定要 `sim text-size --size default`**，`doctor` 的 text-size 會擋住沒改回來的狀態。
 - **減少動態效果（reduce-motion）。** needs-flow：還沒有切換設定的命令，而且縮時影片（約每 0.5 秒一格）看不出動畫有沒有關掉。
 - **VoiceOver（voiceover）。** verified-unreachable：模擬器的 VoiceOver 無法由流程開啟與聽取；前提「需要實機」。
 - **載入失敗（load-error）。** verified-unreachable：要有壞掉的內容檔才會出現，而 App 內的內容由 CI 驗證過；前提「換成壞掉的內容 bundle」（不在驗證範圍內做）。只做 source 覆蓋（`app/KidsAI/KidsAIApp.swift` 的 `RootView`）。

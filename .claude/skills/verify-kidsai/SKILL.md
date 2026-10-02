@@ -38,6 +38,7 @@ C=.claude/skills/verify-kidsai/control-kidsai   # 在 repo 根目錄執行
 | simulator 存在 | exit 3 | `$C sim ensure` |
 | booted | exit 3 | `$C sim boot` |
 | statusbar 已覆寫 | exit 3 | `$C sim statusbar` |
+| text-size（字級是系統預設） | exit 3 | `$C sim text-size --size default`（大字級的證據錄完要改回來） |
 | only-kidsai（除 Apple 內建外只裝 KidsAI） | exit 3 | `$C sim erase --yes`，再 build、install |
 | installed | exit 3 | `$C build && $C install` |
 | debug-build（有啟動參數） | exit 3 | `$C build && $C install` |
@@ -161,7 +162,7 @@ $C maintain uninstall            # 移除 LaunchAgent 與 bootstrap；專用 clo
 
 ## Helpers
 
-- `control-kidsai`（本目錄，可執行，Python 3 標準函式庫；程式在 `lib/kidsai_core.py`、`kidsai_evidence.py`、`kidsai_flows.py`）：`$C --help`。子命令：`doctor`、`sim ensure|boot|shutdown|erase|statusbar`、`build [--for-testing]`、`install`、`launch`、`terminate`、`run new`、`screenshot`、`record start|stop`、`record --flow`、`drive --flow`、`snapshot`、`cleanup`、`evidence frames|review|md|publish`、`maintain install|uninstall|status|run`（`lib/kidsai_maintain.py`）。破壞性命令有 `--dry-run`；`sim erase` 一定要 `--yes`。
+- `control-kidsai`（本目錄，可執行，Python 3 標準函式庫；程式在 `lib/kidsai_core.py`、`kidsai_evidence.py`、`kidsai_flows.py`）：`$C --help`。子命令：`doctor`、`sim ensure|boot|shutdown|erase|statusbar|text-size`、`build [--for-testing]`、`install`、`launch`、`terminate`、`run new`、`screenshot`、`record start|stop`、`record --flow`、`drive --flow`、`snapshot`、`cleanup`、`evidence frames|review|md|publish`、`maintain install|uninstall|status|run`（`lib/kidsai_maintain.py`）。破壞性命令有 `--dry-run`；`sim erase` 一定要 `--yes`。
 - 流程測試：`app/KidsAIUITests/`（`FlowSupport.swift` 的 `Flow`／`Frames`／`Handshake`、`Flows.swift` 的流程與 `SnapshotTree`）。新增流程：在 `Flows.swift` 加類別，再加進 `lib/kidsai_flows.py` 的 `FLOWS`。
 - 測試：`python3 -m unittest discover .claude/skills/verify-kidsai/tests`（不需要 Xcode、模擬器或網路；`test_maintain.py` 會用本機暫存的 git repo）。
 - 需要：Xcode、XcodeGen、ffmpeg／ffprobe（`brew install ffmpeg`，產生 GIF 與驗證錄影）、已登入的 `gh`（發布證據）。
