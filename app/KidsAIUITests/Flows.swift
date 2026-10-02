@@ -110,12 +110,15 @@ final class FlowDragGroup: FlowTestCase {
 }
 
 /// 分組的組可以放很多張：放進去以後，那張卡會在組裡（組有卡時是容器）。
+/// 點組上方的標題區，不點中心：中心可能是組裡已有的卡（沒選著卡時點到它會把它拿起來）。
 @MainActor
 private func placeInGroup(_ app: XCUIApplication, card id: String, group groupID: String) {
     let card = Flow.element(app, id)
     let group = Flow.element(app, groupID)
     Frames.tap(card, until: "選起 \(id)") { card.isSelected }
-    Frames.tap(group, until: "放進 \(groupID)") { group.descendants(matching: .any)[id].exists }
+    Frames.tap(group, at: CGVector(dx: 0.5, dy: 0.08), until: "放進 \(groupID)") {
+        group.descendants(matching: .any)[id].exists
+    }
 }
 
 /// 點選放卡：點卡（選起來）→ 點空格（放進去）。空格放了卡以後就不再是「還沒有卡片」。
