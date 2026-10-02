@@ -201,6 +201,104 @@ final class FlowSandboxGraded: FlowTestCase {
     }
 }
 
+/// 單元 1 第 1 關選擇題錯兩次：點「家人」→ 變淡；再點「電子玩具」→ 錯到上限，揭曉「AI」並打勾、出現下一步。
+/// 第二次點錯的選項不會變淡（標成孩子選的），所以第二下等的是揭曉。
+final class FlowChoiceReveal: FlowTestCase {
+    @MainActor
+    func testFlow() {
+        let app = Flow.launch(unit: 0, beat: 1)
+        let first = Flow.element(app, "option.family")
+        let second = Flow.element(app, "option.toy")
+        let answer = Flow.element(app, "option.ai")
+        let feedback = Flow.element(app, "feedback")
+        let next = Flow.element(app, "unit.next")
+        Flow.waitHittable(first)
+        Frames.begin()
+        Frames.tap(first, until: "家人變淡") { first.exists && !first.isEnabled }
+        Frames.tap(second, until: "揭曉 AI 並打勾") { answer.isSelected }
+        Frames.until("點點說是 AI") { feedback.exists && feedback.label.contains("是 AI") }
+        Frames.until("出現下一步") { Flow.hittable(next) }
+        Frames.end()
+    }
+}
+
+/// 單元 1 沙盒（沒有對錯）：猜猜帽猜完 → 點「好像對」→ 選起來、出現下一步。
+final class FlowSandboxOpen: FlowTestCase {
+    @MainActor
+    func testFlow() {
+        let app = Flow.launch(unit: 0, beat: 5)
+        let reaction = Flow.element(app, "option.seem_right")
+        let next = Flow.element(app, "unit.next")
+        Flow.waitHittable(reaction)
+        Frames.begin()
+        Frames.tap(reaction, until: "選了好像對") { reaction.isSelected }
+        Frames.until("出現下一步") { Flow.hittable(next) }
+        Frames.end()
+    }
+}
+
+/// 單元 1 故事走到結局：下一步 → 再猜一次 → 下一步 → 給它提示圖 → 床 → 「襪子找到了！」、出現下一步。
+final class FlowStoryEnding: FlowTestCase {
+    @MainActor
+    func testFlow() {
+        let app = Flow.launch(unit: 0, beat: 6)
+        let next = Flow.element(app, "unit.next")
+        Flow.waitHittable(next)
+        Frames.begin()
+        // 點了的效果要馬上看得到（按鈕或選項消失）；分歧要等旁白念完才出現，另外等
+        let guessAgain = Flow.element(app, "story.choice.guess_again")
+        Frames.tap(next, until: "往第一個分歧") { !next.exists }
+        Frames.until("出現第一個分歧") { Flow.hittable(guessAgain) }
+        Frames.tap(guessAgain, until: "往下一段") { !guessAgain.exists }
+        let giveHint = Flow.element(app, "story.choice.give_hint")
+        Frames.until("念完、出現下一步") { Flow.hittable(next) }
+        Frames.tap(next, until: "往第二個分歧") { !next.exists }
+        Frames.until("出現第二個分歧") { Flow.hittable(giveHint) }
+        let bed = Flow.element(app, "story.choice.hint_bed")
+        Frames.tap(giveHint, until: "往提示圖") { !giveHint.exists }
+        Frames.until("出現提示圖") { Flow.hittable(bed) }
+        let ending = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS %@", "襪子找到了")).firstMatch
+        Frames.tap(bed, until: "走到結局") { ending.exists }
+        Frames.until("結局念完、出現下一步") { Flow.hittable(next) }
+        Frames.end()
+    }
+}
+
+/// 單元 1 回顧題：先點錯「什麼都知道」→ 變淡；再點對「會猜的幫手」→ 打勾、出現下一步。
+final class FlowReviewAnswer: FlowTestCase {
+    @MainActor
+    func testFlow() {
+        let app = Flow.launch(unit: 0, beat: 7)
+        let wrong = Flow.element(app, "option.know_all")
+        let right = Flow.element(app, "option.helper")
+        let next = Flow.element(app, "unit.next")
+        Flow.waitHittable(wrong)
+        Frames.begin()
+        Frames.tap(wrong, until: "什麼都知道變淡") { wrong.exists && !wrong.isEnabled }
+        Frames.tap(right, until: "會猜的幫手打勾") { right.isSelected }
+        Frames.until("出現下一步") { Flow.hittable(next) }
+        Frames.end()
+    }
+}
+
+/// 單元 4 排序（點選放卡）：出門玩 → 1、下雨了 → 2、撐起傘 → 3 → 自動檢查 → 成功回饋與下一步。
+final class FlowDragOrder: FlowTestCase {
+    @MainActor
+    func testFlow() {
+        let app = Flow.launch(unit: 3, beat: 2)
+        let first = Flow.element(app, "drag.card.go_out")
+        Flow.waitHittable(first)
+        Frames.begin()
+        for (index, card) in ["go_out", "rain", "umbrella"].enumerated() {
+            place(app, card: "drag.card.\(card)", target: "drag.target._order_slot_\(index + 1)")
+        }
+        let feedback = Flow.element(app, "feedback")
+        let next = Flow.element(app, "unit.next")
+        Frames.until("自動檢查後出現回饋與下一步") { feedback.exists && Flow.hittable(next) }
+        Frames.end()
+    }
+}
+
 /// 長按左上 X（App 要 1.5 秒）→ 回地圖。
 final class FlowHoldToExit: FlowTestCase {
     @MainActor

@@ -24,7 +24,7 @@ Preconditions:
 - **看回顧題（前置狀態）。** `launch --unit 0 --beat 7`。看得到：題目「AI 比較像？」與兩個選項卡。
 - **看貼紙頁（前置狀態）。** `launch --unit 0 --beat 8`。看得到：星星貼紙圓框、點點框「完成認識島！」「你得到「會猜貼紙」」、深藍「給大人」卡、下方「回地圖」。
 - **回地圖（finish）。** 真實點擊 `unit.backToMap`。`record --flow sticker --run $RUN`。看得到：回到地圖、提問島可以點。
-- **回顧題作答（answer）。** needs-flow（還沒有流程）。第 1 關選擇題的 `choice-answer` 是另一個進入點，不能代替。
+- **回顧題作答（answer）。** 單元 1：真實點擊 `option.know_all`（錯）→ `option.helper`（對）。`run new --feature review-and-sticker --entry answer`，`record --flow review-answer --run $RUN`。看得到：「什麼都知道」變淡，「會猜的幫手」打勾，出現「下一步」。第 1 關選擇題的 `choice-answer` 是另一個進入點，不能代替。
 
 ## Gotchas
 
