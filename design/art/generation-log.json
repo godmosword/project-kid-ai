@@ -168,8 +168,11 @@
       "sha256": "f0217b5b65c9bcaa257830f3cb00be844eb2956a9b7cc1d423072699da5fbfed",
       "width": 1448,
       "height": 1086,
-      "status": "draft",
-      "approved": false
+      "status": "design-approved",
+      "approved": true,
+      "approved_by": "Michael",
+      "approved_on": "2026-10-03",
+      "commercial_terms": "pending"
     },
     {
       "id": "d3/img_box_reveal_cat",
@@ -181,8 +184,11 @@
       "sha256": "c3812f531381d75dbac7ade0e3f8a4c59e33c5d9f1a154a1be6529e00024504f",
       "width": 1254,
       "height": 1254,
-      "status": "draft",
-      "approved": false
+      "status": "design-approved",
+      "approved": true,
+      "approved_by": "Michael",
+      "approved_on": "2026-10-03",
+      "commercial_terms": "pending"
     },
     {
       "id": "d3/img_slot_weather",
@@ -194,8 +200,11 @@
       "sha256": "043642de4670f3b746e70b039d5fa8b856b58a914473aed9a6526b7b71eff682",
       "width": 1254,
       "height": 1254,
-      "status": "draft",
-      "approved": false
+      "status": "design-approved",
+      "approved": true,
+      "approved_by": "Michael",
+      "approved_on": "2026-10-03",
+      "commercial_terms": "pending"
     },
     {
       "id": "d3/img_slot_breakfast",
@@ -207,8 +216,11 @@
       "sha256": "e20ecbb1d7da21327b1eb13c3d432f0fb2462ac5287a632ae8e3121db256c30f",
       "width": 1254,
       "height": 1254,
-      "status": "draft",
-      "approved": false
+      "status": "design-approved",
+      "approved": true,
+      "approved_by": "Michael",
+      "approved_on": "2026-10-03",
+      "commercial_terms": "pending"
     },
     {
       "id": "d3/img_slot_animal",
@@ -220,8 +232,11 @@
       "sha256": "088fae82d6dc71a945b0182c71f05aedda04c9d4d70487346f2428d36b89705e",
       "width": 1254,
       "height": 1254,
-      "status": "draft",
-      "approved": false
+      "status": "design-approved",
+      "approved": true,
+      "approved_by": "Michael",
+      "approved_on": "2026-10-03",
+      "commercial_terms": "pending"
     },
     {
       "id": "d3/img_card_toy",
@@ -233,8 +248,11 @@
       "sha256": "ffdd2770fac8760ac28cb5fc707a7e83041bfc2916f01ffc558fbc007e103806",
       "width": 1254,
       "height": 1254,
-      "status": "draft",
-      "approved": false
+      "status": "design-approved",
+      "approved": true,
+      "approved_by": "Michael",
+      "approved_on": "2026-10-03",
+      "commercial_terms": "pending"
     },
     {
       "id": "d3/img_box_reveal_car",
@@ -246,8 +264,11 @@
       "sha256": "4456ea9060504f801b2e190f85066c292cc61df504792b88720f234dfb1d18f4",
       "width": 1254,
       "height": 1254,
-      "status": "draft",
-      "approved": false
+      "status": "design-approved",
+      "approved": true,
+      "approved_by": "Michael",
+      "approved_on": "2026-10-03",
+      "commercial_terms": "pending"
     },
     {
       "id": "d3/img_box_reveal_banana",
@@ -259,8 +280,11 @@
       "sha256": "a1de08ea0978f12188fddf508cb38863793241460a323404b8511be3e351abd8",
       "width": 1254,
       "height": 1254,
-      "status": "draft",
-      "approved": false
+      "status": "design-approved",
+      "approved": true,
+      "approved_by": "Michael",
+      "approved_on": "2026-10-03",
+      "commercial_terms": "pending"
     },
     {
       "id": "d3/img_card_family",
@@ -272,8 +296,11 @@
       "sha256": "1ec228ac38bf3750adb2d78a57613726ca6769b8e1c0637292a71f4a4b2ac07c",
       "width": 1254,
       "height": 1254,
-      "status": "draft",
-      "approved": false
+      "status": "design-approved",
+      "approved": true,
+      "approved_by": "Michael",
+      "approved_on": "2026-10-03",
+      "commercial_terms": "pending"
     },
     {
       "id": "d3/img_hint_bed",
@@ -285,8 +312,11 @@
       "sha256": "51317a7abb9e960c774e7a046c4c7115927a86ac2bfd83a0deab5b256ed018f4",
       "width": 1254,
       "height": 1254,
-      "status": "draft",
-      "approved": false
+      "status": "design-approved",
+      "approved": true,
+      "approved_by": "Michael",
+      "approved_on": "2026-10-03",
+      "commercial_terms": "pending"
     },
     {
       "id": "d3/img_hint_bag",
@@ -298,8 +328,11 @@
       "sha256": "f6ef42fbe5792452fbe309ab6ba1eb2c34392ef721eb129bdc5433afa3a6b159",
       "width": 1254,
       "height": 1254,
-      "status": "draft",
-      "approved": false
+      "status": "design-approved",
+      "approved": true,
+      "approved_by": "Michael",
+      "approved_on": "2026-10-03",
+      "commercial_terms": "pending"
     },
     {
       "id": "d3/img_hint_bath",
@@ -311,8 +344,11 @@
       "sha256": "fcdb7b7fbc51c66b1ed79fd43dbf89df51252833ae3f4070606c10be8e8c8f7b",
       "width": 1254,
       "height": 1254,
-      "status": "draft",
-      "approved": false
+      "status": "design-approved",
+      "approved": true,
+      "approved_by": "Michael",
+      "approved_on": "2026-10-03",
+      "commercial_terms": "pending"
     },
     {
       "id": "d3/img_sticker_can_guess",
@@ -324,8 +360,11 @@
       "sha256": "e687d80ff0d04dfdafd2d56108acbbb83e1276e6c8111656450ba521bf043f72",
       "width": 1254,
       "height": 1254,
-      "status": "draft",
-      "approved": false
+      "status": "design-approved",
+      "approved": true,
+      "approved_by": "Michael",
+      "approved_on": "2026-10-03",
+      "commercial_terms": "pending"
     }
   ],
   "selected": {
