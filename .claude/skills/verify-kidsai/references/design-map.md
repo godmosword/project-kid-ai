@@ -18,8 +18,8 @@
 |---|---|---|
 | 01 地圖首頁（2026-10-01 對齊 App） | [map](./features/map.md)：`app-launch`、`map-unlock` | ![01](../../../../design/midfi/01-map.png) |
 | 02 單元 1 跟讀（2026-10-01 對齊 App） | [say-together](./features/say-together.md)：`button`（單元 1 `--beat 3`） | ![02](../../../../design/midfi/02-readalong.png) |
-| 03 沙盒 A｜猜猜帽（v1.2） | [sandbox](./features/sandbox.md)：`sandbox-ritual`＋單元 1 沙盒開頭（`--unit 0 --beat 4`、`--beat 5`） | ![03](../../../../design/midfi/03-sandbox-hat.png) |
-| 04 沙盒 B｜猜對示範（v1.2.2） | [sandbox](./features/sandbox.md)：`sandbox-open` 的反應畫面（單元 1 `--beat 5`） | ![04](../../../../design/midfi/04-sandbox-judge.png) |
+| 03 沙盒 A｜猜猜帽（v1.2） | [sandbox](./features/sandbox.md)：`sandbox-ritual`＋單元 1 沙盒開頭（`--unit 0 --beat 4`、`--beat 5`）；進入點 `ritual-to-sandbox`（流程 `sandbox-ritual`） | ![03](../../../../design/midfi/03-sandbox-hat.png) |
+| 04 沙盒 B｜猜對示範（v1.2.2） | [sandbox](./features/sandbox.md)：`sandbox-open` 的反應畫面（單元 1 `--beat 5`）；三個主題的進入點 `open`／`slot-breakfast`／`slot-animal` | ![04](../../../../design/midfi/04-sandbox-judge.png) |
 | 04b 沙盒 B｜猜錯變體（v1.2.2） | 同 04 | ![04b](../../../../design/midfi/04b-sandbox-judge-wrong.png) |
 | 05 家長閘（v1.2） | 沒有對到的功能（尚未實作） | ![05](../../../../design/midfi/05-parent-gate.png) |
 | 06 家長本週摘要＋匯出（v1.2.2） | 沒有對到的功能（尚未實作） | ![06](../../../../design/midfi/06-parent-week.png) |
@@ -44,12 +44,16 @@
 
 ### 03 沙盒 A｜猜猜帽
 
+2026-10-03 新增的 `sandbox-ritual`、`sandbox-breakfast`、`sandbox-animal` 只是補單元 1 沙盒各主題的證據進入點，沒有改畫面；下列差異不變。
+
 - **已定**：設計稿是孩子從三張卡（晴天／牛角麵包／狐狸）選一張給猜猜帽猜；App 單元 1 的三個主題（天氣／早餐／動物）每張卡自動選好、依序玩。以內容 v1 為準（[首版範圍](../../../../docs/first-release-scope.md)，2026-10-01）。
 - **已定**：設計稿儀式與選卡在同一頁（「猜猜帽登場／輪到 AI 來猜」＋卡片）；App 的儀式是獨立一關（`--beat 4`「猜猜帽時間」）。以內容 v1 為準（[首版範圍](../../../../docs/first-release-scope.md)，2026-10-01）。
 
 ### 04／04b 沙盒 B｜判斷
 
 對應（已定，2026-09-28；Michael 授權 Claude 選定）：04 與 04b 是單元 1 沙盒的反應畫面（mid-fi 版本紀錄寫「單元1 兩鈕」），04 是猜測和孩子的卡一致、04b 是不一致。不對到單元 3 有對錯的沙盒。
+
+單元 1 三個主題（天氣／早餐／動物影子）的反應畫面都對到這一屏；`sandbox-open`、`sandbox-breakfast`、`sandbox-animal` 各錄其中一個主題，本輪沒有改畫面。
 
 - **有出處**：設計稿只有兩個鈕「猜對了／猜錯了」（v1.2 拿掉「不知道」）；App 單元 1 是三個反應「好像對／好像錯／不知道」。以內容 v1 為準（2026-09-28 定；Michael 授權 Claude 選定）：內容 v1 比 mid-fi 晚、經三審與 Michael 核准（`docs/content-schema-v1-mapping.md` 單元 1 沙盒列，2026-09-25），且 AGENTS.md 規定內容以 repo 為準。mid-fi 的 04／04b 待 Grok 改成三鈕（TODOS.md）。
 - **待決策**：設計稿有三欄「你選的／AI 看到的（只看到一點點，馬賽克）／AI 猜的」；App 是主題圖＋猜猜帽框裡的猜測（可能附「我不確定」標籤），沒有「AI 看到的」欄。牽涉教學設計，看單元 1 試玩結果再定（[首版範圍](../../../../docs/first-release-scope.md)，2026-10-01）。

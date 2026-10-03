@@ -380,7 +380,13 @@ class FlowTests(Base):
                                  "sandbox-open": "FlowSandboxOpen",
                                  "story-ending": "FlowStoryEnding",
                                  "review-answer": "FlowReviewAnswer",
-                                 "drag-order": "FlowDragOrder"}.items():
+                                 "drag-order": "FlowDragOrder",
+                                 "choice-box": "FlowChoiceBox",
+                                 "sandbox-ritual": "FlowSandboxRitual",
+                                 "sandbox-breakfast": "FlowSandboxBreakfast",
+                                 "sandbox-animal": "FlowSandboxAnimal",
+                                 "story-hint-bag": "FlowStoryHintBag",
+                                 "story-hint-bath": "FlowStoryHintBath"}.items():
             code, out = self.call("drive", "--flow", flow)
             self.assertEqual(code, 0, out)
             self.assertTrue(any(f"-only-testing:KidsAIUITests/{test_class}" in " ".join(c) for c in self.runner.calls), flow)

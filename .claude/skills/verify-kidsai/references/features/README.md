@@ -66,12 +66,17 @@
 | unit-flow | `replay`：🔊 重念 | needs-flow（要證明的是聲音，證據沒有聲音） |
 | [choice-question](./choice-question.md) | `answer`：答錯一次再答對 | 可證明：`record --flow choice-answer` |
 | choice-question | `reveal`：錯兩次揭曉 | 可證明：`record --flow choice-reveal` |
+| choice-question | `box`：單元 1 第 2 關箱子猜猜看（沒有正解） | 可證明：`record --flow choice-box` |
 | choice-question | 重聽鈕、提示 | needs-flow（見功能檔） |
 | [say-together](./say-together.md) | `button`：按「一起說」 | 可證明：`record --flow say-together` |
 | [sandbox](./sandbox.md) | `multi-card`：選卡＋反應＋第二張卡 | 可證明：`record --flow sandbox-pick-and-react` |
 | sandbox | `compare`：兩張都玩完 → 三張圖外框同尺寸並排 | 可證明：`record --flow sandbox-compare` |
 | sandbox | `graded`：點錯變淡、再點對 | 可證明：`record --flow sandbox-graded` |
 | sandbox | `open` 的反應 | 可證明：`record --flow sandbox-open` |
+| sandbox | `ritual-to-sandbox`：儀式頁按「下一步」→ 第一個主題（天氣） | 可證明：`record --flow sandbox-ritual` |
+| sandbox | `slot-breakfast`：天氣卡玩完 → 換成早餐卡並反應 | 可證明：`record --flow sandbox-breakfast` |
+| sandbox | `slot-animal`：早餐卡玩完 → 換成動物影子卡並反應 | 可證明：`record --flow sandbox-animal` |
+| sandbox | `closing`：三個主題都玩完 → 結語頁 | needs-flow（要在 `sandbox-animal` 的最終狀態之後再按一次「下一步」） |
 | [drag](./drag.md) | `tap-to-place`：點卡再點空格 | 可證明：`record --flow drag-tap-to-place` |
 | drag | `group`：四張有聲音的卡分到「留下／要改正」 | 可證明：`record --flow drag-group` |
 | drag | `order`：三張圖卡排進 1／2／3 | 可證明：`record --flow drag-order` |
@@ -81,6 +86,9 @@
 | review-and-sticker | `answer`：回顧題作答 | 可證明：`record --flow review-answer`（不得拿第 1 關選擇題的證據代替） |
 | [story](./story.md) | `branch`：下一步＋分歧 | 可證明：`record --flow story-branch` |
 | story | `ending`：走到結局 | 可證明：`record --flow story-ending` |
+| story | `hint-bag`：再猜一次 → 給它提示圖 → 書包 → 結局 | 可證明：`record --flow story-hint-bag` |
+| story | `hint-bath`：自己找 → 給它提示圖 → 浴室 → 結局 | 可證明：`record --flow story-hint-bath` |
+| story | `find-together`：第二個分歧選「一起找」 | needs-flow（沒有流程走這個分支） |
 | [system-states](./system-states.md) | `background`：進背景再回來 | 可證明：`record --flow background-resume` |
 | system-states | 遮罩 | 部分證明：`background-resume` 影片的轉場格（流程不斷言） |
 | system-states | `dynamic-type`：輔助使用 2 下作答、放卡 | 可證明：`sim text-size --size ax2` 後 `record --flow choice-answer`、`drag-tap-to-place`（錄完改回 default） |
@@ -106,7 +114,7 @@
 
 - [地圖](./map.md)：打開 App、四個島、鎖與完成星星、念出問句。
 - [單元共通流程](./unit-flow.md)：頂列（長按離開、進度點、重念）、下一步。
-- [選擇題](./choice-question.md)：第 1 關作答、答錯變淡、揭曉、有聲音的選項。
+- [選擇題](./choice-question.md)：第 1 關作答、答錯變淡、揭曉、有聲音的選項；單元 1 第 2 關箱子猜猜看（沒有正解）。
 - [一起說](./say-together.md)：固定句、依前面選擇決定的句子、再說一次。
 - [沙盒](./sandbox.md)：猜猜帽猜測、反應、多張卡比較、有對錯的看圖檢查。
 - [拖曳](./drag.md)：配對、分組、排序；點選放卡、交換、自動檢查。

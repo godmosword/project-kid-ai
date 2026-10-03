@@ -22,7 +22,10 @@ Preconditions:
 
 - **看故事開頭（前置狀態）。** `launch --unit 0 --beat 6`。看得到：點點框「猜猜帽第一次幫忙找襪子。」「會不會在沙發下？」，念完後下方「下一步」。
 - **下一步＋分歧（story-next、story-branch）。** 真實點擊 `unit.next` → 第一個 `story.choice.*`。`run new --feature story --entry branch`，`record --flow story-branch --run $RUN`。看得到：點「下一步」（橘框）→ 猜猜帽框「我猜在沙發下！咦，沒有。」「接下來呢？」＋兩個選項 → 點第一個選項（橘框）→ 選項消失、故事到下一個節點。
-- **走到結局（story-ending）。** 單元 1：`unit.next` → `story.choice.guess_again` → `unit.next` → `story.choice.give_hint` → `story.choice.hint_bed`。`run new --feature story --entry ending`，`record --flow story-ending --run $RUN`。看得到：猜猜帽兩次沒猜到、孩子給提示圖「床」、結局「襪子找到了！」念完後出現「下一步」。只走一條路；其他分支（自己找、一起找、書包、浴室）沒有流程。
+- **走到結局（story-ending）。** 單元 1：`unit.next` → `story.choice.guess_again` → `unit.next` → `story.choice.give_hint` → `story.choice.hint_bed`。`run new --feature story --entry ending`，`record --flow story-ending --run $RUN`。看得到：猜猜帽兩次沒猜到、孩子給提示圖「床」、結局「襪子找到了！」念完後出現「下一步」。這條只走「床」；「書包」與「浴室」見下面兩條流程。
+- **提示圖「書包」（hint-bag）。** 前置用真實點擊走到提示圖那一頁（`unit.next` → `story.choice.guess_again` → `unit.next` → `story.choice.give_hint`，不錄）。`run new --feature story --entry hint-bag`，`record --flow story-hint-bag --run $RUN`。看得到：三張提示圖（床／書包／浴室）同時可點 → 點「書包」（橘框）→ 三個選項都消失、結局「襪子找到了！」念完後出現「下一步」。
+- **提示圖「浴室」（hint-bath）。** 前置走另一條：`unit.next` → `story.choice.find_myself` → `unit.next` → `story.choice.give_hint`（不錄），順便覆蓋第一個分歧的「自己找」。`run new --feature story --entry hint-bath`，`record --flow story-hint-bath --run $RUN`。看得到：三張提示圖同時可點 → 點「浴室」（橘框）→ 選項消失、結局與「下一步」。
+- **第二個分歧的「一起找」（find-together）。** needs-flow：還沒有流程走 `story.choice.find_together`。
 - **看某個分歧（前置狀態）。** `launch --unit 0 --beat 6 --events "next"`。只用來看分歧畫面，不是孩子點的證明。
 
 ## Gotchas
@@ -30,3 +33,5 @@ Preconditions:
 - 選項和「下一步」都要等句子念完才出現；沒有 zh-TW 語音時會立刻出現。
 - 單元 4 的故事開頭就是分歧（沒有先「下一步」）；`story-branch` 流程只適用單元 1。
 - 選項 identifier 是 `story.choice.<選項 id>`（例如 `story.choice.guess_again`）；流程用「第一個 `story.choice.` 開頭的元素」，所以選項順序變了，證據裡點到的會不同。
+- `story-hint-bag`／`story-hint-bath` 的前置點擊不截圖（`prepareTap`／`prepareUntil`），所以影片裡只有提示圖那一頁和結局；前置仍然是真的點擊，不是 `--events`。
+- 三張提示圖都走到同一個結局節點（內容 JSON 的 `next` 都是 `u1_story_ending`），結局畫面看不出孩子選了哪一張；要證明選了哪一張，看影片裡被橘框標出的那一下。

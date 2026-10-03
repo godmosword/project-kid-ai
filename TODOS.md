@@ -12,8 +12,8 @@
 | 4 合規 | 🟡 Checklist v1；隱私權政策草稿、送審資料、Privacy Manifest 完成（#16）；律師、聯絡資訊、網址待定 |
 | 5 技術骨架 | ✅ Milestone 0；CI 每次 PR 建置 App、跑 69 個 App 單元測試與 103 個驗證工具測試（#11） |
 | 6 關卡引擎 | 🟡 引擎 v2，單元 1–4 可在模擬器從頭玩到尾；版面掃描（iPhone SE、大字級）的問題已修（#8、#13）；語音辨識 spike 與實機試玩等 iPhone 配對 |
-| 7 美術 | 🟡 規格書、token、風格樣張、每張圖的教學線索與驗收表（#17）完成；等生圖 |
-| 驗證層（agent 用） | ✅ V1–V4（#3–#6）：17 支真實點擊流程、證據 repo、每日自動維護（#18 補強被中斷時的紀錄） |
+| 7 美術 | 🟡 規格書、token、教學線索與驗收表（#17）完成；三方向共 9 張風格草稿已產生（`992925f`）；[下一階段計畫](docs/art/next-stage-plan.md)已收到執行指示，風格與表情規格待 Michael 定案 |
+| 驗證層（agent 用） | ✅ V1–V4（#3–#6）：23 支真實點擊流程（原 17＋單元 1 美術入口新增 6 支，新增皆通過並完成本機錄製審查）、證據 repo、每日自動維護（#18 補強被中斷時的紀錄） |
 | 8–12 | ⬜ |
 
 ## Michael 要做的
@@ -32,7 +32,7 @@
 - [ ] 找一支 iOS 17 或 18 的 iPhone，補測一輪，才能決定最低 iOS 版本
 
 ### 美術與配音（步驟 7）
-- [ ] 用 Codex／Grok 生 3 個風格方向（[生圖 prompt](docs/art/generation-prompts.md) 第 1 步），存到 `design/art/style-a|b|c/`
+- [x] 用 Codex／Grok 生 3 個風格方向（[生圖 prompt](docs/art/generation-prompts.md) 第 1 步），存到 `design/art/style-a|b|c/`（2026-10-03，`992925f`；共 9 張 draft，尚未核准）
 - [ ] 打開 [風格樣張](design/style-tile/index.html) 第 6 區比較，選定一個方向，也確認色票
 - [ ] 生點點、猜猜帽的設定圖；每張定稿圖都要通過 [教學線索與驗收](docs/art/asset-cues.md)，並記到 [provenance.md](docs/art/provenance.md)
 - [ ] 確認 Codex、Grok 的使用條款允許商用

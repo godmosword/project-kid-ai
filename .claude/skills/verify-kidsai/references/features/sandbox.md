@@ -16,6 +16,8 @@
 
 - 各單元的儀式之後（單元 1–3 `--beat 5`；單元 4 `--beat 4`）。
 - 在沙盒裡點反應鈕；單元 2 先點一張句子卡。
+- 儀式頁（單元 1 `--beat 4`）按「下一步」進第一個主題。
+- 單元 1 的三個主題依序玩：天氣 → 早餐 → 動物影子；每張卡反應完按「下一步」換下一張，三張都玩完才進結語頁。
 
 ## Driving it with control-kidsai
 
@@ -31,6 +33,10 @@ Preconditions:
 - **多卡主題：選卡、反應、第二張卡（multi-card）。** `record --flow sandbox-pick-and-react --run $RUN`：點 `option.prompt_vague` → 等反應鈕 → 點 `option.closer` → 點 `unit.next` → 第二張卡自動選好、反應鈕出現。
 - **有對錯：點錯再點對（graded）。** 真實點擊 `option.agree` → `option.catch`。`run new --feature sandbox --entry graded`，`record --flow sandbox-graded --run $RUN`。看得到：「小狗有三隻腳。」→ 點「同意」（橘框）→「同意」變淡、點點框「再看看圖，想一想。」、還沒有「下一步」→ 點「抓到了」（橘框）→ 下方「下一步」。
 - **沒有對錯的反應（open）。** 單元 1 第一張卡（天氣）：猜猜帽猜完後真實點擊 `option.seem_right`。`run new --feature sandbox --entry open`，`record --flow sandbox-open --run $RUN`。看得到：「好像對」選起來，出現「下一步」。
+- **儀式 → 第一個主題（ritual-to-sandbox）。** 真實點擊儀式頁的 `unit.next`（前置只用 `--unit 0 --beat 4` 準備所在關卡）。`run new --feature sandbox --entry ritual-to-sandbox`，`record --flow sandbox-ritual --run $RUN`。看得到：儀式頁的猜猜帽大圖與「猜猜帽時間」→ 點「下一步」（橘框）→ 天氣卡、「我猜今天會出太陽」＋「我不確定」、三個反應鈕都可點，而「猜猜帽時間」已不在。
+- **換到第二個主題：早餐（slot-breakfast）。** 前置用真實點擊把天氣卡玩完（不錄影：流程用 `prepareTap`／`prepareUntil`）。`run new --feature sandbox --entry slot-breakfast`，`record --flow sandbox-breakfast --run $RUN`。看得到：點「下一步」（橘框）→ 早餐卡在、天氣卡已不在、「我猜是麵包配牛奶」、反應鈕還沒被選、還沒有「下一步」→ 點「好像對」（橘框）→ 點點框「AI 會猜，有時猜對，有時猜錯。」與「下一步」。
+- **換到第三個主題：動物影子（slot-animal）。** 前置把天氣、早餐兩張卡都真的玩完（不錄）。`run new --feature sandbox --entry slot-animal`，`record --flow sandbox-animal --run $RUN`。看得到：點「下一步」（橘框）→ 動物影子卡在、早餐卡已不在、「我猜是一隻狐狸」、反應鈕還沒被選 → 點「好像錯」（橘框）→ 揭曉句與「下一步」。
+- **結語頁（sandbox-closing）。** needs-flow：三個主題都玩完後的結語頁（猜猜帽大圖）還沒有流程；要在 `sandbox-animal` 的最終狀態之後再按一次「下一步」，另案補或擴充該流程。
 
 ## Gotchas
 
@@ -39,3 +45,5 @@ Preconditions:
 - iPhone SE 等窄螢幕上，有對錯的沙盒會自動捲到主題圖的頂端；截圖前等捲動結束。
 - 猜猜帽的猜測念完之前反應鈕不會出現；沒有 zh-TW 語音時會立刻出現。
 - 單元 4 的三個世界都玩完才進結語；最後一個世界的反應決定下一關跟讀的句子（見 say-together）。
+- 三個主題共用同一組反應鈕 identifier（`option.seem_right`／`option.seem_wrong`／`option.unsure`），只看鈕分不出有沒有換主題：換主題一律同時要求新主題的卡在、舊主題的卡不在、反應鈕還沒被選、「下一步」不在，免得把舊狀態當成換了畫面。
+- 認得出是哪一張主題卡，靠的是內容 JSON 的 `a11y_label`（天氣卡／早餐卡／動物影子卡）；猜測句來自本機猜測庫，可以一起斷言。圖本身是裝飾性元素，換圖後的教學線索要人工驗收。

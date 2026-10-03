@@ -333,6 +333,232 @@ final class FlowBackgroundResume: FlowTestCase {
     }
 }
 
+// MARK: - 單元 1 美術進入點（E1）
+
+/// 依無障礙標籤找元素（圖片與說話框沒有 identifier）：`label == text`。
+/// 沙盒主題圖與箱子的舞台圖有自己的標籤（內容 JSON 的 `a11y_label`），所以認得出是哪一張卡。
+@MainActor
+private func labeled(_ app: XCUIApplication, exactly text: String) -> XCUIElement {
+    app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", text)).firstMatch
+}
+
+/// 依無障礙標籤找元素：`label CONTAINS text`（說話框是角色＋句子合成一個元素）。
+@MainActor
+private func labeled(_ app: XCUIApplication, containing text: String) -> XCUIElement {
+    app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS %@", text)).firstMatch
+}
+
+/// 前置狀態的真實點擊：和 `Frames.tap(_:until:)` 一樣點到有效果為止，但**不截圖**。
+/// `Frames` 的 tap／until 一呼叫就寫一格（連 `Frames.begin()` 之前也算），所以要證明的動作之前的準備走這裡，
+/// 影片裡才只有要證明的那一段；準備也是真的點擊，不用 `-events` 跳過。
+@MainActor
+private func prepareTap(_ element: XCUIElement, until what: String,
+                        file: StaticString = #filePath, line: UInt = #line, _ effect: () -> Bool) {
+    for _ in 0..<8 {
+        Flow.waitHittable(element, file: file, line: line)
+        element.tap()
+        let deadline = Date().addingTimeInterval(3)
+        repeat {
+            if effect() { return }
+            Thread.sleep(forTimeInterval: 0.3)
+        } while Date() < deadline
+    }
+    XCTFail("前置點了沒有效果：\(what)", file: file, line: line)
+}
+
+/// 前置狀態：等畫面上看得到的條件成立（不截圖；旁白時間不固定，不用固定秒數當前提）。
+@MainActor
+private func prepareUntil(_ what: String, file: StaticString = #filePath, line: UInt = #line, _ condition: () -> Bool) {
+    let deadline = Date().addingTimeInterval(Flow.timeout)
+    repeat {
+        if condition() { return }
+        Thread.sleep(forTimeInterval: 0.3)
+    } while Date() < deadline
+    XCTFail("前置等不到：\(what)", file: file, line: line)
+}
+
+/// 單元 1 第 2 關箱子猜猜看（沒有對錯）：舞台圖只露出耳朵，三個選項（貓咪／小車／香蕉）。
+/// 點「貓咪」→ 它標成「你選的」、另外兩個**不會變淡**（這關沒有正解），點點念揭曉句、出現下一步。
+final class FlowChoiceBox: FlowTestCase {
+    @MainActor
+    func testFlow() {
+        let app = Flow.launch(unit: 0, beat: 2)
+        let box = labeled(app, exactly: "箱子只露出一小角，看得到尖尖的耳朵")
+        let cat = Flow.element(app, "option.cat")
+        let car = Flow.element(app, "option.car")
+        let banana = Flow.element(app, "option.banana")
+        let feedback = Flow.element(app, "feedback")
+        let next = Flow.element(app, "unit.next")
+        Flow.waitHittable(cat)
+        XCTAssertTrue(box.exists, "第 2 關要有箱子的舞台圖")
+        XCTAssertTrue(Flow.hittable(car) && Flow.hittable(banana), "三個選項都要能點")
+        Frames.begin()
+        Frames.tap(cat, until: "貓咪標成你選的") { cat.isSelected }
+        Frames.until("點點念揭曉句、出現下一步") {
+            feedback.exists && feedback.label.contains("你和 AI 都會猜，有時對有時錯。") && Flow.hittable(next)
+        }
+        // 沒有對錯：只有孩子選的那個有標記，另外兩個仍可點、沒有打勾
+        XCTAssertFalse(car.isSelected || banana.isSelected, "這關沒有正解，不應該有第二個標記")
+        XCTAssertTrue(car.isEnabled && banana.isEnabled, "這關答錯不變淡")
+        Frames.end()
+    }
+}
+
+/// 單元 1 第 5 關儀式 → 沙盒第一個主題：儀式頁是猜猜帽大圖＋「猜猜帽時間」，
+/// 按「下一步」→ 天氣主題（天氣卡、猜測「我猜今天會出太陽」＋「我不確定」、三個反應鈕）。
+final class FlowSandboxRitual: FlowTestCase {
+    @MainActor
+    func testFlow() {
+        let app = Flow.launch(unit: 0, beat: 4)
+        let next = Flow.element(app, "unit.next")
+        let hat = labeled(app, exactly: "猜猜帽，AI")
+        let ritualLine = labeled(app, containing: "猜猜帽時間")
+        let weatherCard = labeled(app, exactly: "天氣卡")
+        let weatherGuess = labeled(app, containing: "我猜今天會出太陽")
+        let unsureTag = labeled(app, exactly: "我不確定")
+        let seemRight = Flow.element(app, "option.seem_right")
+        let seemWrong = Flow.element(app, "option.seem_wrong")
+        let dontKnow = Flow.element(app, "option.unsure")
+        Flow.waitHittable(next)
+        XCTAssertTrue(hat.exists, "儀式頁要有猜猜帽的大圖")
+        XCTAssertTrue(ritualLine.exists, "儀式頁要有「猜猜帽時間」")
+        Frames.begin()
+        Frames.tap(next, until: "離開儀式頁") { !next.exists }
+        Frames.until("進到天氣主題：天氣卡、猜測與三個反應鈕") {
+            weatherCard.exists && weatherGuess.exists && unsureTag.exists && !ritualLine.exists
+                && Flow.hittable(seemRight) && Flow.hittable(seemWrong) && Flow.hittable(dontKnow)
+        }
+        Frames.end()
+    }
+}
+
+/// 單元 1 沙盒第二個主題（早餐）：天氣那張卡先真的玩完（前置，不錄），
+/// 錄「按下一步 → 換成早餐卡」和「對早餐的猜測做反應 → 出現下一步」。
+/// 早餐卡用它自己的標籤和猜測句認（反應鈕三個主題共用，不能只看鈕）。
+final class FlowSandboxBreakfast: FlowTestCase {
+    @MainActor
+    func testFlow() {
+        let app = Flow.launch(unit: 0, beat: 5)
+        let next = Flow.element(app, "unit.next")
+        let seemRight = Flow.element(app, "option.seem_right")
+        let weatherCard = labeled(app, exactly: "天氣卡")
+        let breakfastCard = labeled(app, exactly: "早餐卡")
+        let breakfastGuess = labeled(app, containing: "我猜是麵包配牛奶")
+        let unsureTag = labeled(app, exactly: "我不確定")
+        let feedback = Flow.element(app, "feedback")
+        // 前置：天氣那張卡真的反應一次（不錄），才有「換到下一個主題」可按
+        prepareUntil("天氣卡的反應鈕出現") { weatherCard.exists && Flow.hittable(seemRight) }
+        prepareTap(seemRight, until: "天氣卡選了好像對") { seemRight.isSelected }
+        prepareUntil("天氣卡做完、出現下一步") { Flow.hittable(next) }
+        Frames.begin()
+        Frames.tap(next, until: "離開天氣卡") { !next.exists }
+        Frames.until("換成早餐卡：早餐的猜測念完、反應鈕出現、還不能下一步") {
+            breakfastCard.exists && !weatherCard.exists && breakfastGuess.exists && unsureTag.exists
+                && Flow.hittable(seemRight) && !seemRight.isSelected && !next.exists
+        }
+        Frames.tap(seemRight, until: "早餐卡選了好像對") { seemRight.isSelected }
+        Frames.until("揭曉句念完、出現下一步") {
+            feedback.exists && feedback.label.contains("AI 會猜，有時猜對，有時猜錯。") && Flow.hittable(next)
+        }
+        Frames.end()
+    }
+}
+
+/// 單元 1 沙盒第三個主題（動物影子）：天氣、早餐兩張卡先真的玩完（前置，不錄），
+/// 錄「按下一步 → 換成動物影子卡」和「點『好像錯』→ 出現下一步」。
+final class FlowSandboxAnimal: FlowTestCase {
+    @MainActor
+    func testFlow() {
+        let app = Flow.launch(unit: 0, beat: 5)
+        let next = Flow.element(app, "unit.next")
+        let seemRight = Flow.element(app, "option.seem_right")
+        let seemWrong = Flow.element(app, "option.seem_wrong")
+        let weatherCard = labeled(app, exactly: "天氣卡")
+        let breakfastCard = labeled(app, exactly: "早餐卡")
+        let animalCard = labeled(app, exactly: "動物影子卡")
+        let animalGuess = labeled(app, containing: "我猜是一隻狐狸")
+        let unsureTag = labeled(app, exactly: "我不確定")
+        let feedback = Flow.element(app, "feedback")
+        // 前置：天氣、早餐兩張卡都真的反應過（不錄）
+        prepareUntil("天氣卡的反應鈕出現") { weatherCard.exists && Flow.hittable(seemRight) }
+        prepareTap(seemRight, until: "天氣卡選了好像對") { seemRight.isSelected }
+        prepareUntil("天氣卡做完、出現下一步") { Flow.hittable(next) }
+        prepareTap(next, until: "離開天氣卡") { !next.exists }
+        prepareUntil("換成早餐卡、反應鈕出現") {
+            breakfastCard.exists && !weatherCard.exists && Flow.hittable(seemRight) && !seemRight.isSelected
+        }
+        prepareTap(seemRight, until: "早餐卡選了好像對") { seemRight.isSelected }
+        prepareUntil("早餐卡做完、出現下一步") { Flow.hittable(next) }
+        Frames.begin()
+        Frames.tap(next, until: "離開早餐卡") { !next.exists }
+        Frames.until("換成動物影子卡：猜測念完、反應鈕出現、還不能下一步") {
+            animalCard.exists && !breakfastCard.exists && animalGuess.exists && unsureTag.exists
+                && Flow.hittable(seemWrong) && !seemWrong.isSelected && !next.exists
+        }
+        Frames.tap(seemWrong, until: "動物影子卡選了好像錯") { seemWrong.isSelected }
+        Frames.until("揭曉句念完、出現下一步") {
+            feedback.exists && feedback.label.contains("AI 會猜，有時猜對，有時猜錯。") && Flow.hittable(next)
+        }
+        Frames.end()
+    }
+}
+
+/// 單元 1 故事：真的走到提示圖那一頁（下一步 → 再猜一次 → 下一步 → 給它提示圖，前置不錄），
+/// 錄「三張提示圖都在 → 點『書包』→ 結局」。`story-ending` 走的是「床」。
+final class FlowStoryHintBag: FlowTestCase {
+    @MainActor
+    func testFlow() {
+        let app = Flow.launch(unit: 0, beat: 6)
+        let next = Flow.element(app, "unit.next")
+        let guessAgain = Flow.element(app, "story.choice.guess_again")
+        let giveHint = Flow.element(app, "story.choice.give_hint")
+        let bed = Flow.element(app, "story.choice.hint_bed")
+        let bag = Flow.element(app, "story.choice.hint_bag")
+        let bath = Flow.element(app, "story.choice.hint_bath")
+        let ending = labeled(app, containing: "襪子找到了")
+        prepareTap(next, until: "往第一個分歧") { !next.exists }
+        prepareUntil("出現第一個分歧") { Flow.hittable(guessAgain) }
+        prepareTap(guessAgain, until: "選了再猜一次") { !guessAgain.exists }
+        prepareUntil("念完、出現下一步") { Flow.hittable(next) }
+        prepareTap(next, until: "往第二個分歧") { !next.exists }
+        prepareUntil("出現第二個分歧") { Flow.hittable(giveHint) }
+        prepareTap(giveHint, until: "往提示圖") { !giveHint.exists }
+        prepareUntil("三張提示圖都出現") { Flow.hittable(bed) && Flow.hittable(bag) && Flow.hittable(bath) }
+        Frames.begin()
+        Frames.tap(bag, until: "選了書包、選項消失") { !bag.exists && !bed.exists && !bath.exists }
+        Frames.until("走到結局、念完出現下一步") { ending.exists && Flow.hittable(next) }
+        Frames.end()
+    }
+}
+
+/// 單元 1 故事：另一條路（下一步 → 自己找 → 下一步 → 給它提示圖，前置不錄），
+/// 錄「三張提示圖都在 → 點『浴室』→ 結局」。
+final class FlowStoryHintBath: FlowTestCase {
+    @MainActor
+    func testFlow() {
+        let app = Flow.launch(unit: 0, beat: 6)
+        let next = Flow.element(app, "unit.next")
+        let findMyself = Flow.element(app, "story.choice.find_myself")
+        let giveHint = Flow.element(app, "story.choice.give_hint")
+        let bed = Flow.element(app, "story.choice.hint_bed")
+        let bag = Flow.element(app, "story.choice.hint_bag")
+        let bath = Flow.element(app, "story.choice.hint_bath")
+        let ending = labeled(app, containing: "襪子找到了")
+        prepareTap(next, until: "往第一個分歧") { !next.exists }
+        prepareUntil("出現第一個分歧") { Flow.hittable(findMyself) }
+        prepareTap(findMyself, until: "選了自己找") { !findMyself.exists }
+        prepareUntil("念完、出現下一步") { Flow.hittable(next) }
+        prepareTap(next, until: "往第二個分歧") { !next.exists }
+        prepareUntil("出現第二個分歧") { Flow.hittable(giveHint) }
+        prepareTap(giveHint, until: "往提示圖") { !giveHint.exists }
+        prepareUntil("三張提示圖都出現") { Flow.hittable(bed) && Flow.hittable(bag) && Flow.hittable(bath) }
+        Frames.begin()
+        Frames.tap(bath, until: "選了浴室、選項消失") { !bath.exists && !bed.exists && !bag.exists }
+        Frames.until("走到結局、念完出現下一步") { ending.exists && Flow.hittable(next) }
+        Frames.end()
+    }
+}
+
 /// `control-kidsai snapshot`：把目前畫面的無障礙元素樹寫到握手資料夾（tree.txt）。
 /// 前置狀態由 `TEST_RUNNER_KIDSAI_LAUNCH` 傳入（例如 "-openUnit 1 -beat 5"）。
 final class SnapshotTree: FlowTestCase {
