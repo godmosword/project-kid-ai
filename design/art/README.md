@@ -45,3 +45,23 @@
 - 圖卡多是透明背景；箱子（4:3 場景）、早餐（放大照片的一角）、動物影子（模糊）有底色。
 - 13 張並排的總覽：[d3-overview.png](d3-overview.png)。
 - **2026-10-03 Michael 全部核准（D3）。** 商用條款還沒確認，所以還不記入 provenance；P4 接入 App 的 PR 在條款確認前不合併。
+
+## App 用的單元 1 內容圖（P4）
+
+`design/art/d3/` 的原圖縮到最長邊 600px（縮放前先處理透明邊）放進 `app/KidsAI/Assets.xcassets`。箱子圖另外把米色背景去掉、裁到只剩箱子和耳朵（原圖箱子只佔一半，耳朵在 App 裡太小）。完整 SHA-256 以 Asset Catalog 裡的檔案為準。
+
+| 檔案 | 尺寸 | SHA-256（前 16 碼） |
+|---|---|---|
+| `img_box_peek_cat_ear.png` | 600×438 | `4aa29fa0866cef03…` |
+| `img_box_reveal_cat.png` | 600×600 | `9ab24e07d9fbd820…` |
+| `img_box_reveal_car.png` | 600×600 | `e54db827ab1eb3e9…` |
+| `img_box_reveal_banana.png` | 600×600 | `4aca918e247ea445…` |
+| `img_card_family.png` | 600×600 | `213f62e2a857f915…` |
+| `img_card_toy.png` | 600×600 | `8775eb73b1b4221e…` |
+| `img_slot_weather.png` | 600×600 | `2387e935b18d6bf4…` |
+| `img_slot_breakfast.png` | 600×600 | `7461d4a10f22ea82…` |
+| `img_slot_animal.png` | 600×600 | `cfa4f3356ee64fc8…` |
+| `img_hint_bed.png` | 600×600 | `3ca3d459adc28847…` |
+| `img_hint_bag.png` | 600×600 | `938e84c8faa04aa2…` |
+| `img_hint_bath.png` | 600×600 | `07f44381b6d2f2c0…` |
+| `img_sticker_can_guess.png` | 600×600 | `c11bbbecfa58c539…` |
