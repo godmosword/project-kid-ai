@@ -34,7 +34,7 @@
 ### 美術與配音（步驟 7）
 - [x] 用 Codex／Grok 生 3 個風格方向（[生圖 prompt](docs/art/generation-prompts.md) 第 1 步），存到 `design/art/style-a|b|c/`（2026-10-03，`992925f`；共 9 張 draft，尚未核准）
 - [x] 選定風格方向：A 扁平圓角；角色表情照 art-spec（2026-10-03）
-- [ ] 生點點、猜猜帽的三視圖與表情（D1；prompt 已備好：[生圖 prompt](docs/art/generation-prompts.md) 第 2 步），縮成 App 大小檢查後核准；每張定稿圖都要通過 [教學線索與驗收](docs/art/asset-cues.md)，並記到 [provenance.md](docs/art/provenance.md)
+- [ ] 核准點點、猜猜帽的三視圖與表情（D1）：draft 已生好（2026-10-03，`design/art/d1/`，見 [design/art/README.md](design/art/README.md)），縮成 App 大小檢查過；每張定稿圖都要通過 [教學線索與驗收](docs/art/asset-cues.md)，並記到 [provenance.md](docs/art/provenance.md)
 - [ ] 確認 Codex、Grok（含內建 image_gen）的使用條款允許商用；確認前所有生出來的圖都只是 draft，不放進 App
 - [ ] 決定旁白要用系統語音、AI 配音（在電腦上先錄好）還是真人配音；點點和猜猜帽要聽得出是不同角色。比較與建議見 [配音方式的決策表](docs/voice-options.md)（建議：單元 1 試玩先用系統語音，看結果再定）
 

@@ -11,3 +11,18 @@
 打開 [風格樣張](../style-tile/index.html) 第 6 節即可比較。完整 prompts、日期、尺寸和 SHA-256 記在 [generation-log.json](generation-log.json)。所有圖片都是 draft，尚未由 Michael 選定或核准，不打包進 App。
 
 天氣圖卡是比較風格用的晴天樣本，不是正式單元 1 的 img_slot_weather；正式圖需要保留不完整的天氣線索。設定圖、表情、透明背景、教學線索驗收和商用授權確認仍待做；定稿後才登錄 docs/art/provenance.md。
+
+## D1 角色設定稿（draft，2026-10-03）
+
+依 [生圖 prompt](../../docs/art/generation-prompts.md) 第 2 步，以 `style-a/characters.png` 為參考圖生成；完整 prompt 與 SHA-256 記在 generation-log.json。
+
+| 檔案 | 內容 |
+|---|---|
+| `d1/dian-turnaround.png` | 點點三視圖（正、側、背） |
+| `d1/dian-expressions.png` | 點點表情 4 種：開心、好奇、指引、鼓勵 |
+| `d1/hat-turnaround.png` | 猜猜帽三視圖（正、側、背），小牌子空白 |
+| `d1/hat-expressions.png` | 猜猜帽表情 5 種：猜、不確定、開心、道謝、被抓到說錯 |
+
+- 都是透明背景（alpha 輪廓乾淨；透明區殘留的顏色在 App 合成時看不到）。
+- 縮成 App 大小（28pt、52pt、140pt）檢查過，兩個角色一眼分得出來。
+- 還是 draft：等 Michael 核准，也要等生圖工具的商用條款確認，才記入 provenance、接進 App。

@@ -93,6 +93,58 @@
       "height": 1448,
       "status": "draft",
       "approved": false
+    },
+    {
+      "id": "d1/dian-turnaround",
+      "file": "design/art/d1/dian-turnaround.png",
+      "date": "2026-10-03",
+      "tool": "built-in image_gen via Codex (codex exec)",
+      "reference_image": "design/art/style-a/characters.png",
+      "prompt": "Style: flat vector illustration for a children's learning app, soft rounded shapes, thick friendly outlines, bright but gentle colors, simple shading, clean shapes, playful and calm, no gradients noise.\nConstraints: for ages 5-8, friendly and not scary, no text or letters anywhere in the image, no real people, no children, no brand logos, no existing cartoon characters, no religious symbols, no flags, no weapons, no injuries. Color palette: cream #FFF8EC background, yellow #F5B82E, green #3BAA6E, orange #F08A3C, purple #A98BF0, coral #F2877A, blue #1E6FC2.\nCharacter turnaround sheet of \"DianDian\", a small round friendly robot buddy in coral color with a heart-shaped light on its chest, big kind eyes, short arms, same design as the reference image. Front view, side view, back view, consistent proportions, transparent background.",
+      "sha256": "5f0388e98b31512e391df6cc7787f5fee0c4b32b434cdea147930e6814c3b9c8",
+      "width": 1774,
+      "height": 887,
+      "status": "draft",
+      "approved": false
+    },
+    {
+      "id": "d1/dian-expressions",
+      "file": "design/art/d1/dian-expressions.png",
+      "date": "2026-10-03",
+      "tool": "built-in image_gen via Codex (codex exec)",
+      "reference_image": "design/art/style-a/characters.png",
+      "prompt": "Style: flat vector illustration for a children's learning app, soft rounded shapes, thick friendly outlines, bright but gentle colors, simple shading, clean shapes, playful and calm, no gradients noise.\nConstraints: for ages 5-8, friendly and not scary, no text or letters anywhere in the image, no real people, no children, no brand logos, no existing cartoon characters, no religious symbols, no flags, no weapons, no injuries. Color palette: cream #FFF8EC background, yellow #F5B82E, green #3BAA6E, orange #F08A3C, purple #A98BF0, coral #F2877A, blue #1E6FC2.\nExpression sheet of \"DianDian\" (same design as the reference image), four expressions: happy; curious (head slightly tilted, eyes wide); guiding (one arm reaching out and pointing to the side, as if showing the way); encouraging (both fists up, warm smile). Front view, transparent background.",
+      "sha256": "20e1b49c8520522a99f88e86f9e516dc42d9b7d443e316f5e498ebd9cefe0f48",
+      "width": 1536,
+      "height": 1024,
+      "status": "draft",
+      "approved": false
+    },
+    {
+      "id": "d1/hat-turnaround",
+      "file": "design/art/d1/hat-turnaround.png",
+      "date": "2026-10-03",
+      "tool": "built-in image_gen via Codex (codex exec)",
+      "reference_image": "design/art/style-a/characters.png",
+      "prompt": "Style: flat vector illustration for a children's learning app, soft rounded shapes, thick friendly outlines, bright but gentle colors, simple shading, clean shapes, playful and calm, no gradients noise.\nConstraints: for ages 5-8, friendly and not scary, no text or letters anywhere in the image, no real people, no children, no brand logos, no existing cartoon characters, no religious symbols, no flags, no weapons, no injuries. Color palette: cream #FFF8EC background, yellow #F5B82E, green #3BAA6E, orange #F08A3C, purple #A98BF0, coral #F2877A, blue #1E6FC2.\nCharacter turnaround sheet of \"Guess Hat\", a talking magician's hat in blue with a pointed tip, a friendly face on the hat band, and a small blank badge on the hat, same design as the reference image. Front view, side view, back view, consistent proportions, transparent background. Do not place any writing on the blank badge.",
+      "sha256": "0dc0d61da8012a18dd8c1ea9570f1fa05bc6a45773176eb372f27ad993298ba9",
+      "width": 2172,
+      "height": 724,
+      "status": "draft",
+      "approved": false
+    },
+    {
+      "id": "d1/hat-expressions",
+      "file": "design/art/d1/hat-expressions.png",
+      "date": "2026-10-03",
+      "tool": "built-in image_gen via Codex (codex exec)",
+      "reference_image": "design/art/style-a/characters.png",
+      "prompt": "Style: flat vector illustration for a children's learning app, soft rounded shapes, thick friendly outlines, bright but gentle colors, simple shading, clean shapes, playful and calm, no gradients noise.\nConstraints: for ages 5-8, friendly and not scary, no text or letters anywhere in the image, no real people, no children, no brand logos, no existing cartoon characters, no religious symbols, no flags, no weapons, no injuries. Color palette: cream #FFF8EC background, yellow #F5B82E, green #3BAA6E, orange #F08A3C, purple #A98BF0, coral #F2877A, blue #1E6FC2.\nExpression sheet of \"Guess Hat\" (same design as the reference image), five expressions: guessing (eyes looking up, a small question mark above the hat tip); unsure (hat tilted, small shrug, wavy mouth); happy; thanking (a small polite bow); caught being wrong (shy embarrassed smile, a little sweat drop, not sad). Front view, transparent background. Do not place any writing on the blank badge.",
+      "sha256": "6c9cad1bff7d12670308e997664b0aa7af7645649332aa1c003142f99e39b293",
+      "width": 1536,
+      "height": 1024,
+      "status": "draft",
+      "approved": false
     }
   ],
   "selected": {
