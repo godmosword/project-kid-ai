@@ -1,0 +1,98 @@
+{
+  "status": "drafts-awaiting-Michael-selection",
+  "date": "2026-10-03",
+  "tool": "built-in image_gen",
+  "source_spec": "docs/art/generation-prompts.md",
+  "assets": [
+    {
+      "id": "style-a/card",
+      "file": "design/art/style-a/card.png",
+      "prompt": "Use case: illustration-story.\nAsset type: KidsAI style evaluation preview, not approved production art.\nStyle: flat vector illustration for a children's learning app, soft rounded shapes, thick friendly outlines, bright but gentle colors, simple shading, clean shapes, playful and calm, no gradients noise.\nConstraints: for ages 5-8, friendly and not scary, no text or letters anywhere in the image, no real people, no children, no brand logos, no existing cartoon characters, no religious symbols, no flags, no weapons, no injuries. Color palette: cream #FFF8EC background, yellow #F5B82E, green #3BAA6E, orange #F08A3C, purple #A98BF0, coral #F2877A, blue #1E6FC2.\nPrimary request: A single square card illustration of a sunny weather symbol: a smiling sun with a few small clouds, centered, plenty of margin, plain light background. Square 1:1. This is only a style evaluation sample, not the ambiguous-weather learning card in the final app.",
+      "sha256": "5bdef3bd2ca6d185f7b42a6186675b6a83542ab7b05cbbe9ee860674187e17c1",
+      "width": 1254,
+      "height": 1254,
+      "status": "draft",
+      "approved": false
+    },
+    {
+      "id": "style-a/characters",
+      "file": "design/art/style-a/characters.png",
+      "prompt": "Use case: illustration-story.\nAsset type: KidsAI style evaluation preview, not approved production art.\nStyle: flat vector illustration for a children's learning app, soft rounded shapes, thick friendly outlines, bright but gentle colors, simple shading, clean shapes, playful and calm, no gradients noise.\nConstraints: for ages 5-8, friendly and not scary, no text or letters anywhere in the image, no real people, no children, no brand logos, no existing cartoon characters, no religious symbols, no flags, no weapons, no injuries. Color palette: cream #FFF8EC background, yellow #F5B82E, green #3BAA6E, orange #F08A3C, purple #A98BF0, coral #F2877A, blue #1E6FC2.\nPrimary request: Two characters side by side on a plain background: (1) \"DianDian\", a small round friendly robot buddy in coral color with a heart-shaped light on its chest, big kind eyes, short arms; (2) \"Guess Hat\", a talking magician's top hat in blue with a pointed tip, a friendly face on the hat band, and a small blank badge on the hat. The two must look clearly different in shape and color. Full body, front view. Do not place any writing on the blank badge.",
+      "sha256": "77fcbb5e3158b44abea0e20326fcd06570034f78467259a1c43b8a1f80a62f8b",
+      "width": 1536,
+      "height": 1024,
+      "status": "draft",
+      "approved": false
+    },
+    {
+      "id": "style-a/map",
+      "file": "design/art/style-a/map.png",
+      "prompt": "Use case: illustration-story.\nAsset type: KidsAI style evaluation preview, not approved production art.\nStyle: flat vector illustration for a children's learning app, soft rounded shapes, thick friendly outlines, bright but gentle colors, simple shading, clean shapes, playful and calm, no gradients noise.\nConstraints: for ages 5-8, friendly and not scary, no text or letters anywhere in the image, no real people, no children, no brand logos, no existing cartoon characters, no religious symbols, no flags, no weapons, no injuries. Color palette: cream #FFF8EC background, yellow #F5B82E, green #3BAA6E, orange #F08A3C, purple #A98BF0, coral #F2877A, blue #1E6FC2.\nPrimary request: A vertical treasure-map style island world seen from above, four small round islands connected by a winding path: a yellow island with a question-mark shaped hill and a box, a green island with a small bridge, an orange island with a little detective house, a purple island with a small stage with curtains. Clouds, gentle sea, lots of empty space at the bottom for buttons. Portrait 3:4.",
+      "sha256": "9ad899cfdcb59893eef4a0b344c9ef88ecad6179f2e5e3ae09faa5a07b07ebe0",
+      "width": 1086,
+      "height": 1448,
+      "status": "draft",
+      "approved": false
+    },
+    {
+      "id": "style-b/card",
+      "file": "design/art/style-b/card.png",
+      "prompt": "Use case: illustration-story.\nAsset type: KidsAI style evaluation preview, not approved production art.\nStyle: children's picture-book illustration, soft watercolor and colored-pencil texture, warm cream paper background, gentle hand-drawn lines, cozy and calm mood.\nConstraints: for ages 5-8, friendly and not scary, no text or letters anywhere in the image, no real people, no children, no brand logos, no existing cartoon characters, no religious symbols, no flags, no weapons, no injuries. Color palette: cream #FFF8EC background, yellow #F5B82E, green #3BAA6E, orange #F08A3C, purple #A98BF0, coral #F2877A, blue #1E6FC2.\nPrimary request: A single square card illustration of a sunny weather symbol: a smiling sun with a few small clouds, centered, plenty of margin, plain light background. Square 1:1. This is only a style evaluation sample, not the ambiguous-weather learning card in the final app.",
+      "sha256": "021b45ecf18ef76e56aa5a5b9bb7cd0eeebe9cdd8053bb7cdd54031b9b0eca62",
+      "width": 1254,
+      "height": 1254,
+      "status": "draft",
+      "approved": false
+    },
+    {
+      "id": "style-b/characters",
+      "file": "design/art/style-b/characters.png",
+      "prompt": "Use case: illustration-story.\nAsset type: KidsAI style evaluation preview, not approved production art.\nStyle: children's picture-book illustration, soft watercolor and colored-pencil texture, warm cream paper background, gentle hand-drawn lines, cozy and calm mood.\nConstraints: for ages 5-8, friendly and not scary, no text or letters anywhere in the image, no real people, no children, no brand logos, no existing cartoon characters, no religious symbols, no flags, no weapons, no injuries. Color palette: cream #FFF8EC background, yellow #F5B82E, green #3BAA6E, orange #F08A3C, purple #A98BF0, coral #F2877A, blue #1E6FC2.\nPrimary request: Two characters side by side on a plain background: (1) \"DianDian\", a small round friendly robot buddy in coral color with a heart-shaped light on its chest, big kind eyes, short arms; (2) \"Guess Hat\", a talking magician's top hat in blue with a pointed tip, a friendly face on the hat band, and a small blank badge on the hat. The two must look clearly different in shape and color. Full body, front view. Do not place any writing on the blank badge.",
+      "sha256": "794eacf5043bb880db74bec6a99fb66315764d4bc647dcd256a9cd0bcea2344e",
+      "width": 1536,
+      "height": 1024,
+      "status": "draft",
+      "approved": false
+    },
+    {
+      "id": "style-b/map",
+      "file": "design/art/style-b/map.png",
+      "prompt": "Use case: illustration-story.\nAsset type: KidsAI style evaluation preview, not approved production art.\nStyle: children's picture-book illustration, soft watercolor and colored-pencil texture, warm cream paper background, gentle hand-drawn lines, cozy and calm mood.\nConstraints: for ages 5-8, friendly and not scary, no text or letters anywhere in the image, no real people, no children, no brand logos, no existing cartoon characters, no religious symbols, no flags, no weapons, no injuries. Color palette: cream #FFF8EC background, yellow #F5B82E, green #3BAA6E, orange #F08A3C, purple #A98BF0, coral #F2877A, blue #1E6FC2.\nPrimary request: A vertical treasure-map style island world seen from above, four small round islands connected by a winding path: a yellow island with a question-mark shaped hill and a box, a green island with a small bridge, an orange island with a little detective house, a purple island with a small stage with curtains. Clouds, gentle sea, lots of empty space at the bottom for buttons. Portrait 3:4.",
+      "sha256": "76e4d6a5f9b008e5ff650d44b865c588dcdfe23309345a67004f0a91143d380c",
+      "width": 1086,
+      "height": 1448,
+      "status": "draft",
+      "approved": false
+    },
+    {
+      "id": "style-c/card",
+      "file": "design/art/style-c/card.png",
+      "prompt": "Use case: illustration-story.\nAsset type: KidsAI style evaluation preview, not approved production art.\nStyle: soft clay 3D render for young children, rounded chunky forms, matte pastel materials, soft studio lighting, cute and friendly, gentle shadows.\nConstraints: for ages 5-8, friendly and not scary, no text or letters anywhere in the image, no real people, no children, no brand logos, no existing cartoon characters, no religious symbols, no flags, no weapons, no injuries. Color palette: cream #FFF8EC background, yellow #F5B82E, green #3BAA6E, orange #F08A3C, purple #A98BF0, coral #F2877A, blue #1E6FC2.\nPrimary request: A single square card illustration of a sunny weather symbol: a smiling sun with a few small clouds, centered, plenty of margin, plain light background. Square 1:1. This is only a style evaluation sample, not the ambiguous-weather learning card in the final app.",
+      "sha256": "0fa9964925e9bbe92a1518b8de8636cffc05d23bbb26b18fcdcf667a5ef7846b",
+      "width": 1254,
+      "height": 1254,
+      "status": "draft",
+      "approved": false
+    },
+    {
+      "id": "style-c/characters",
+      "file": "design/art/style-c/characters.png",
+      "prompt": "Use case: illustration-story.\nAsset type: KidsAI style evaluation preview, not approved production art.\nStyle: soft clay 3D render for young children, rounded chunky forms, matte pastel materials, soft studio lighting, cute and friendly, gentle shadows.\nConstraints: for ages 5-8, friendly and not scary, no text or letters anywhere in the image, no real people, no children, no brand logos, no existing cartoon characters, no religious symbols, no flags, no weapons, no injuries. Color palette: cream #FFF8EC background, yellow #F5B82E, green #3BAA6E, orange #F08A3C, purple #A98BF0, coral #F2877A, blue #1E6FC2.\nPrimary request: Two characters side by side on a plain background: (1) \"DianDian\", a small round friendly robot buddy in coral color with a heart-shaped light on its chest, big kind eyes, short arms; (2) \"Guess Hat\", a talking magician's top hat in blue with a pointed tip, a friendly face on the hat band, and a small blank badge on the hat. The two must look clearly different in shape and color. Full body, front view. Do not place any writing on the blank badge.",
+      "sha256": "d356980ae67e2e9b744fda6847952b2e03d84470ae55d438aba768d73dee1482",
+      "width": 1536,
+      "height": 1024,
+      "status": "draft",
+      "approved": false
+    },
+    {
+      "id": "style-c/map",
+      "file": "design/art/style-c/map.png",
+      "prompt": "Use case: illustration-story.\nAsset type: KidsAI style evaluation preview, not approved production art.\nStyle: soft clay 3D render for young children, rounded chunky forms, matte pastel materials, soft studio lighting, cute and friendly, gentle shadows.\nConstraints: for ages 5-8, friendly and not scary, no text or letters anywhere in the image, no real people, no children, no brand logos, no existing cartoon characters, no religious symbols, no flags, no weapons, no injuries. Color palette: cream #FFF8EC background, yellow #F5B82E, green #3BAA6E, orange #F08A3C, purple #A98BF0, coral #F2877A, blue #1E6FC2.\nPrimary request: A vertical treasure-map style island world seen from above, four small round islands connected by a winding path: a yellow island with a question-mark shaped hill and a box, a green island with a small bridge, an orange island with a little detective house, a purple island with a small stage with curtains. Clouds, gentle sea, lots of empty space at the bottom for buttons. Portrait 3:4.",
+      "sha256": "33802141a4ac0b30feb3e4c696b1cdc6f38cfe864f8fd3501881154f5cda9933",
+      "width": 1086,
+      "height": 1448,
+      "status": "draft",
+      "approved": false
+    }
+  ]
+}

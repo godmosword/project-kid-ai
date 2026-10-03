@@ -1,6 +1,6 @@
 # 首版範圍
 
-更新：2026-10-01。決定由 Michael 定案；改範圍要先改這份，再改程式。Notion 由 Grok 依本檔同步。
+更新：2026-10-03。決定由 Michael 定案；改範圍要先改這份，再改程式。Notion 由 Grok 依本檔同步。
 
 ## 首版決定（2026-10-01）
 
@@ -45,5 +45,5 @@
 ## 下一步
 
 1. 單元 1 實機試玩（試玩步驟放在 `docs/playtests/`），依結果修玩法，再擴到單元 2–4。
-2. CI 補 Swift 建置與 App 單元測試。
+2. CI 已經在每次 main push／PR 建置 App、跑 App 單元測試，也跑 verify-kidsai 的工具測試（[.github/workflows/app.yml](../.github/workflows/app.yml)，PR #11 補上）；UI 流程測試（KidsAIUITests）只編譯不跑，留給 Mac 上錄證據時跑。
 3. 美術與配音：先確定圖像能傳達教學線索，再批量製作。
