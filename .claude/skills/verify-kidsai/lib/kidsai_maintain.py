@@ -138,18 +138,65 @@ def maintain_status(ctx: Context, a) -> dict:
 
 # ---------------------------------------------------------------- 每日流程
 
+class Interrupted(Exception):
+    """收到系統的結束訊號（SIGTERM／SIGHUP）：照樣收尾，這一輪記成 blocked。"""
+
+
+TERMINATION_SIGNALS = (signal.SIGTERM, signal.SIGHUP)
+
+
+def raise_interrupted(signum, frame):
+    raise Interrupted(signal.Signals(signum).name)
+
+
+def set_termination_handler(handler) -> dict:
+    """換掉結束訊號的處理方式，回傳原本的（只有主執行緒能換；換不了就什麼都不做）。"""
+    previous = {}
+    for sig in TERMINATION_SIGNALS:
+        try:
+            previous[sig] = signal.signal(sig, handler)
+        except ValueError:
+            break
+    return previous
+
+
 def maintain_run(ctx: Context, a) -> dict:
     date = ctx.now().strftime("%Y-%m-%d")
     no_push = a.no_push or os.environ.get("KIDSAI_MAINTAIN_NO_PUSH") == "1"
-    if not acquire_lock(ctx):
-        result = {"outcome": "skip", "reason": "另一次每日維護還在跑", "pr": None}
-    else:
+    acquired, stale = acquire_lock(ctx)
+    if stale and stale.get("stuck"):
+        return record(ctx, date, blocked(
+            f"上一次每日維護卡住超過 3 小時（PID {stale.get('pid')}，{stale.get('started')} 開始），請手動結束它"))
+    if stale is not None:
+        record_interrupted(ctx, date, stale)
+    if not acquired:
+        return record(ctx, date, {"outcome": "skip", "reason": "另一次每日維護還在跑", "pr": None})
+    previous = set_termination_handler(raise_interrupted)
+    try:
+        result = daily(ctx, a.ref or DEFAULT_REF, f"maintain/verify-kidsai-{date}", no_push)
+    except Interrupted as signal_name:
+        result = blocked(f"這次每日維護被系統中斷（{signal_name}）")
+    finally:
+        set_termination_handler(signal.SIG_IGN)  # 收尾時再收到結束訊號也要把鎖放掉
         try:
-            result = daily(ctx, a.ref or DEFAULT_REF, f"maintain/verify-kidsai-{date}", no_push)
+            try:
+                shutdown_sim(ctx)
+            finally:
+                release_lock(ctx)  # 關模擬器出錯也要放鎖
         finally:
-            shutdown_sim(ctx)
-            release_lock(ctx)
+            for sig, handler in previous.items():
+                signal.signal(sig, handler)
     return record(ctx, date, result)
+
+
+def record_interrupted(ctx: Context, today: str, stale: dict) -> None:
+    """上一輪沒有跑完（被強制結束、關機或當機，連收尾都沒做）：補一筆 blocked 並通知。"""
+    started = stale.get("started")
+    try:
+        date = datetime.datetime.fromisoformat(started).strftime("%Y-%m-%d")
+    except (TypeError, ValueError):
+        date, started = today, "時間不明"
+    record(ctx, date, blocked(f"上一次每日維護（{started}）沒有跑完就中斷了：可能被系統結束、強制關機或當機"))
 
 
 def daily(ctx: Context, ref: str, branch: str, no_push: bool) -> dict:
@@ -406,28 +453,44 @@ def lock_dir(ctx: Context) -> Path:
     return maintain_root(ctx) / ".lock"
 
 
-def acquire_lock(ctx: Context) -> bool:
+def acquire_lock(ctx: Context) -> tuple:
+    """回傳（拿到鎖了嗎, 上一輪留下的舊鎖資訊或 None）。舊鎖＝上一輪沒有收尾就結束了。"""
     lock = lock_dir(ctx)
     lock.parent.mkdir(parents=True, exist_ok=True)
+    stale = None
     try:
         lock.mkdir()
     except FileExistsError:
+        owner = {}
         try:
             owner = read_json(lock / "owner.json", {}) or {}
             started = datetime.datetime.fromisoformat(owner["started"])
-            busy = pid_alive(ctx, owner.get("pid")) and ctx.now() - started < LOCK_STALE
+            ours = maintain_process_alive(ctx, owner.get("pid"))
         except (ValueError, TypeError, KeyError, AttributeError):
-            busy = False  # 鎖檔壞了：當成上次中斷留下的
-        if busy:
-            return False
-        shutil.rmtree(lock)  # 上次當掉或被中斷留下的鎖
-        lock.mkdir()
+            ours = False  # 鎖檔壞了：當成上次中斷留下的
+        if ours and ctx.now() - started < LOCK_STALE:
+            return False, None
+        if ours:  # 每日維護的程序還在、卻超過 3 小時：卡住了，不搶它的 clone，交給人處理
+            return False, {"stuck": True, "pid": owner.get("pid"), "started": owner.get("started")}
+        stale = {"started": owner.get("started") if isinstance(owner, dict) else None}
+        shutil.rmtree(lock, ignore_errors=True)  # 上次當掉或被中斷留下的鎖（PID 不在了或被別的程序重用）
+        try:
+            lock.mkdir()
+        except FileExistsError:
+            return False, None  # 另一個程序剛好同時回收、先拿到了
     write_json(lock / "owner.json", {"pid": os.getpid(), "started": ctx.now().isoformat()})
-    return True
+    return True, stale
 
 
 def release_lock(ctx: Context) -> None:
     shutil.rmtree(lock_dir(ctx), ignore_errors=True)
+
+
+def maintain_process_alive(ctx: Context, pid) -> bool:
+    """PID 還活著、而且是每日維護（命令列有 control-kidsai）；重開機後 PID 可能被別的程序重用。"""
+    if not pid_alive(ctx, pid):
+        return False
+    return "control-kidsai" in ctx.runner.run(["ps", "-p", str(pid), "-o", "command="]).stdout
 
 
 def pid_alive(ctx: Context, pid) -> bool:

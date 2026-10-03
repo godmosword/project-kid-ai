@@ -13,6 +13,7 @@ import json
 import os
 import struct
 import tempfile
+import time
 import types
 import unittest
 from unittest import mock
@@ -269,6 +270,58 @@ class DoctorTests(Base):
         self.runner.apps = {"com.godmosword.kidsai": {"ApplicationType": "User"}, "com.example.chat": {"ApplicationType": "User"}}
         code, _ = self.call("doctor")
         self.assertEqual(code, ck.EXIT_ENV)
+
+
+class RunLoggedTests(unittest.TestCase):
+    """真的開子程序：逾時看實際時間（Mac 睡眠時 monotonic 不走）；自己被中斷時要先結束子程序。"""
+
+    def setUp(self):
+        import sys
+        self.core = sys.modules["kidsai_core"]
+        self.tmp = tempfile.TemporaryDirectory()
+        self.log = Path(self.tmp.name) / "run.log"
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def child_pid(self):
+        deadline = time.time() + 5
+        while time.time() < deadline:
+            text = self.log.read_text().strip() if self.log.exists() else ""
+            if text:
+                return int(text.splitlines()[0])
+            time.sleep(0.02)
+        self.fail("子程序沒有寫出 PID")
+
+    def assert_gone(self, pid):
+        with self.assertRaises(ProcessLookupError):
+            os.kill(pid, 0)
+
+    def test_timeout_counts_wall_clock_time(self):
+        real_time = time.time
+        jumps = iter([0, 0, 10_000])  # 第三次看時間時「睡了」將近三小時
+
+        def fake_time():
+            return real_time() + next(jumps, 10_000)
+
+        with mock.patch.object(self.core, "WAIT_POLL_SECONDS", 0.05), mock.patch.object(self.core.time, "time", fake_time):
+            code = ck.Runner().run_logged(["/bin/sh", "-c", "echo $$; exec sleep 30"], self.log, timeout=60)
+        self.assertIsNone(code)
+        self.assert_gone(self.child_pid())
+
+    def test_interrupt_stops_the_child_then_reraises(self):
+        calls = iter([1_000.0])
+
+        def fake_time():
+            value = next(calls, None)
+            if value is None:
+                raise KeyboardInterrupt  # 模擬等待中被訊號打斷
+            return value
+
+        with mock.patch.object(self.core, "WAIT_POLL_SECONDS", 0.05), mock.patch.object(self.core.time, "time", fake_time):
+            with self.assertRaises(KeyboardInterrupt):
+                ck.Runner().run_logged(["/bin/sh", "-c", "echo $$; exec sleep 30"], self.log, timeout=60)
+        self.assert_gone(self.child_pid())
 
 
 class TextSizeTests(Base):
