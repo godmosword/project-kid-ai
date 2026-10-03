@@ -104,8 +104,11 @@
       "sha256": "5f0388e98b31512e391df6cc7787f5fee0c4b32b434cdea147930e6814c3b9c8",
       "width": 1774,
       "height": 887,
-      "status": "draft",
-      "approved": false
+      "status": "design-approved",
+      "approved": true,
+      "approved_by": "Michael",
+      "approved_on": "2026-10-03",
+      "commercial_terms": "pending"
     },
     {
       "id": "d1/dian-expressions",
@@ -117,8 +120,11 @@
       "sha256": "20e1b49c8520522a99f88e86f9e516dc42d9b7d443e316f5e498ebd9cefe0f48",
       "width": 1536,
       "height": 1024,
-      "status": "draft",
-      "approved": false
+      "status": "design-approved",
+      "approved": true,
+      "approved_by": "Michael",
+      "approved_on": "2026-10-03",
+      "commercial_terms": "pending"
     },
     {
       "id": "d1/hat-turnaround",
@@ -130,8 +136,11 @@
       "sha256": "0dc0d61da8012a18dd8c1ea9570f1fa05bc6a45773176eb372f27ad993298ba9",
       "width": 2172,
       "height": 724,
-      "status": "draft",
-      "approved": false
+      "status": "design-approved",
+      "approved": true,
+      "approved_by": "Michael",
+      "approved_on": "2026-10-03",
+      "commercial_terms": "pending"
     },
     {
       "id": "d1/hat-expressions",
@@ -143,8 +152,11 @@
       "sha256": "6c9cad1bff7d12670308e997664b0aa7af7645649332aa1c003142f99e39b293",
       "width": 1536,
       "height": 1024,
-      "status": "draft",
-      "approved": false
+      "status": "design-approved",
+      "approved": true,
+      "approved_by": "Michael",
+      "approved_on": "2026-10-03",
+      "commercial_terms": "pending"
     }
   ],
   "selected": {
