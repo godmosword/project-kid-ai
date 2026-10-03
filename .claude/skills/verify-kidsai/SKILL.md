@@ -147,6 +147,11 @@ $C cleanup             # 只停本次啟動的：錄影（核對 pid 身分）�
   - 分支 push 了但開 PR 失敗，也算 blocked（要手動處理）。
   - 任一項不合就 blocked，並丟掉這次的分支。
 - **不發布證據**：證據只留在專用 clone 的 `.verify/`。
+- **被中斷與舊鎖**：
+  - 收到系統的結束訊號（SIGTERM／SIGHUP）時照樣收尾（關模擬器、放鎖），這一輪記成 blocked「被系統中斷」。
+  - 被強制結束（SIGKILL、關機、當機）來不及收尾時，下一輪回收舊鎖，並補記上一輪「沒有跑完就中斷了」、跳通知。
+  - 超過 3 小時的鎖一律視為舊鎖：開機腳本也照這條規則，重開機後 PID 被別的程序拿去用，也不會每天誤判成「還在跑」。
+- **agent 逾時 90 分鐘用實際時間算**：Mac 睡眠時 monotonic 時鐘不走，不能只靠它計時。
 - **log**：`~/Library/Logs/kidsai-maintain/<date>.log`（保留 30 天），Claude Code 的輸出在 `<date>-<時間>.claude.log`（每次一個檔）。
 
 ```bash

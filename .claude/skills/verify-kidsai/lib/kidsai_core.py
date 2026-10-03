@@ -61,6 +61,22 @@ class Result:
     stderr: str
 
 
+WAIT_POLL_SECONDS = 30  # run_logged 多久看一次實際時間
+
+
+def stop_group(p: subprocess.Popen) -> None:
+    """結束子程序整個 process group：先 SIGTERM，30 秒還在就 SIGKILL。"""
+    for sig in (signal.SIGTERM, signal.SIGKILL):
+        try:
+            os.killpg(p.pid, sig)
+            p.wait(timeout=30)
+            return
+        except ProcessLookupError:
+            return
+        except subprocess.TimeoutExpired:
+            continue
+
+
 class Runner:
     """真正的外部命令；測試換成假的。"""
 
@@ -73,26 +89,27 @@ class Runner:
         return Result(p.returncode, p.stdout, p.stderr)
 
     def run_logged(self, cmd, log_path: Path, cwd=None, env=None, timeout=None) -> Optional[int]:
-        """跑到結束，輸出寫進 log；逾時就結束整個 process group 並回傳 None。"""
+        """跑到結束，輸出寫進 log；逾時就結束整個 process group 並回傳 None。
+        逾時用實際時間（time.time）算：Mac 睡眠時 monotonic 時鐘不走，只靠 p.wait(timeout) 會一睡就延長好幾個小時。
+        自己被中斷（例如收到 SIGTERM 而丟出例外）時，也先結束子程序再往外丟，免得留下沒人管的 claude。"""
         with open(log_path, "wb") as log:
             try:
                 p = subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, start_new_session=True,
                                      cwd=cwd, env={**os.environ, **env} if env else None)
             except FileNotFoundError:
                 return 127
+            deadline = None if timeout is None else time.time() + timeout
             try:
-                return p.wait(timeout=timeout)
-            except subprocess.TimeoutExpired:
-                for sig in (signal.SIGTERM, signal.SIGKILL):
+                while True:
                     try:
-                        os.killpg(p.pid, sig)
-                        p.wait(timeout=30)
-                        break
-                    except ProcessLookupError:
-                        break
+                        return p.wait(timeout=WAIT_POLL_SECONDS)
                     except subprocess.TimeoutExpired:
-                        continue
-                return None
+                        if deadline is not None and time.time() >= deadline:
+                            stop_group(p)
+                            return None
+            except BaseException:
+                stop_group(p)
+                raise
 
     def popen(self, cmd, log_path: Path, env=None, cwd=None) -> int:
         with open(log_path, "wb") as log:
