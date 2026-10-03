@@ -49,9 +49,8 @@ enum ArtResources {
     }
 
     /// 不在內容 JSON 裡、執行期才會用到的圖：角色（P2）、地圖（P3）。
-    /// 名稱由各自的實作 Plan 決定，這裡先留空；列進來的 key 和 `Content.migrated` 受同一套 bundle 解碼檢查。
-    /// 設定圖與表情 sheet 是製作參考，不放進這份清單。
-    static let runtime: Set<String> = []
+    /// 列進來的 key 和 `Content.migrated` 受同一套 bundle 解碼檢查。設定圖與表情 sheet 是製作參考，不放進這份清單。
+    static let runtime: Set<String> = [CharacterArt.dianDian, CharacterArt.guessHat]
 
     /// 由共用角色渲染負責的內容 key，不走 `ArtView` 的通用讀圖路徑。
     ///
