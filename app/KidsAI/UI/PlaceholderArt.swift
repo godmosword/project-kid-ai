@@ -1,7 +1,9 @@
 import SwiftUI
+import UIKit
 
 /// 素材的暫代圖：依內容的素材 key 查表，不從 key 猜、不顯示 key。
-/// 需要教學判斷的圖刻意保留模糊（例如沙盒卡不和猜測一模一樣）。美術定稿後改讀 Asset Catalog。
+/// 需要教學判斷的圖刻意保留模糊（例如沙盒卡不和猜測一模一樣）。
+/// 正式圖按 `ArtResources.Content.migrated` 逐批取代，未遷移的 key 仍然畫這裡的暫代圖。
 enum PlaceholderArt {
     enum Art: Equatable {
         case emoji(String)
@@ -59,7 +61,8 @@ enum PlaceholderArt {
     }
 }
 
-/// 顯示一個素材；找不到就是中性色塊（測試會擋下缺少的 key）。
+/// 顯示一個素材：已遷移的 key 讀 Asset Catalog 的正式圖，其餘畫暫代圖；
+/// 兩邊都找不到就是中性色塊（測試會擋下缺少的 key）。
 /// 有 `label` 時是一個無障礙元素；沒有就交給外層（例如選項卡）的標籤。
 struct ArtView: View {
     let key: String?
@@ -74,7 +77,32 @@ struct ArtView: View {
         }
     }
 
-    private var art: some View {
+    @ViewBuilder private var art: some View {
+        if let image = genericImage {
+            // 等比縮放塞進暫代圖同樣大小的框，保留原圖留白：沙盒並排比較的相對大小關係才不會變
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFit()
+                .frame(width: box, height: box)
+        } else {
+            placeholder
+        }
+    }
+
+    /// 只有「已遷移、而且不是角色渲染」的 key 才在這裡直接讀正式圖；
+    /// 解不出來就退回下面的暫代圖，不留空白（已遷移卻缺圖由 AssetCatalogTests 擋下）。
+    ///
+    /// AI 卡（`ArtResources.roleRenderedContentKeys`）永遠走下面的 `.guessHat`，由 `GuessHat` 畫帽上的「AI」牌；
+    /// 否則 P2 一放進角色圖，這裡就會顯示一張沒有 AI 牌文字的原圖。
+    private var genericImage: UIImage? {
+        guard let key, ArtResources.usesGenericImage(key) else { return nil }
+        return ArtResources.image(named: key)
+    }
+
+    /// 正式圖佔的框和暫代圖一樣大（見 `PlaceholderArt.widthScale`）。
+    private var box: CGFloat { size * PlaceholderArt.widthScale(key) }
+
+    private var placeholder: some View {
         Group {
             switch key.flatMap({ PlaceholderArt.table[$0] }) {
             case .emoji(let text)?:

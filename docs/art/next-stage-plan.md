@@ -144,7 +144,7 @@ Michael：選風格、確認角色與素材、商用條款、安排試玩、決�
 ## 執行進度（2026-10-03）
 
 - **E1 單元 1新增六條：完成。** Claude 已新增六條真實點擊流程及 CLI 對應；Codex 審查、套用提案並在新 build 執行，xcresult 確認 6 通過、0 失敗、0 跳過，驗證工具 103 個測試通過。Feature Map 與 design-map 已同步；六次錄製與本機視覺／隱私審查均完成，證據未發布。詳見[單元 1 美術證據覆蓋](unit1-art-evidence-coverage.md)；沙盒結語等未覆蓋入口仍待補。
-- **P1：未完成，獨立保留。** 在獨立工作樹 `art/p1-art-catalog` 由 Claude 實作載入與資源檢查基礎；bundle 解碼測試尚未完成，預設 build 因缺少 AppIcon 資源而失敗，不能併入 `main`。正式內容圖仍全部待製作／核准；測試素材只用於工程 fixture，不是教學美術定稿。
+- **P1：基礎程式與工程驗證完成，UI PR 準備中。** Claude 在 `art/p1-art-catalog`（基於 `0e1b793`）完成 Asset Catalog 接入、中央載入、35 個 key 的清單對照與 bundle 解碼檢查；Codex 工程審查、預設 Debug／Release 模擬器建置、78 個 App 單元測試及內容驗證均通過。Feature Map 與 design-map 已同步；提交後新 build 的畫面證據與 CI 結果以 PR 描述為準，尚未合併。35 張正式內容圖仍全部待製作／核准，工程 fixture 不代表美術定稿。詳見[P1 現況](p1-art-catalog-status.md)。
 - **D0／D1–D6：待相應前置。** 尚無風格或表情規格定案；角色與地圖、14 張單元 1 定稿、兒童實機試玩、其餘 21 張及視覺收尾都未宣稱完成。
 
 執行分工：Claude 寫程式；Codex 審查與操作驗證。Michael 已指示 commit 並 push `main`，本次提交範圍限 E1 測試、工具整合與相關文件；沒有改 App 畫面或內容。P1 的 UI 改動保留在獨立分支，完成後依 AGENTS.md 走 PR。
