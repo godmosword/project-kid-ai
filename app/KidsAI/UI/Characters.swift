@@ -8,8 +8,23 @@ enum CharacterArt {
     /// 猜猜帽小牌子（米白色圓牌）在圖上的位置，以整張圖的比例表示；量自 `char_guesshat.png`。
     static let badgeCenter = CGPoint(x: 0.478, y: 0.395)
     static let badgeSize = CGSize(width: 0.156, height: 0.118)
-    /// 角色框小於這個大小就不疊「AI」字（28pt 的小帽子字會小到看不清，那裡本來就不給 VoiceOver）。
+    /// 「AI」字怎麼疊：框小於 40pt 不疊（28pt 小帽子，本來就不給 VoiceOver）；
+    /// 40–100pt 小牌子太小（字只有 3–4pt），改成蓋在小牌子上的白底膠囊、字至少 9pt；100pt 以上直接寫在小牌子上。
+    enum BadgeStyle: Equatable { case none, capsule, onBadge }
     static let badgeTextMinSize: CGFloat = 40
+    static let badgeOnPlateMinSize: CGFloat = 100
+    static let capsuleMinFont: CGFloat = 9
+
+    static func badgeStyle(box: CGFloat) -> BadgeStyle {
+        if box < badgeTextMinSize { return .none }
+        return box < badgeOnPlateMinSize ? .capsule : .onBadge
+    }
+
+    /// 字的大小：寫在小牌子上時跟著小牌子；膠囊時至少 9pt。
+    static func badgeFontSize(badge: CGRect, style: BadgeStyle) -> CGFloat {
+        let onPlate = badge.height * 0.62
+        return style == .capsule ? max(onPlate, capsuleMinFont) : onPlate
+    }
 
     /// 圖以 scaledToFit 放進 box×box 的框時，實際畫出來的區域（置中）。
     static func fittedRect(imageSize: CGSize, box: CGFloat) -> CGRect {
@@ -39,6 +54,7 @@ struct DianDian: View {
         Group {
             if let image = ArtResources.image(named: CharacterArt.dianDian) {
                 Image(uiImage: image).resizable().scaledToFit()
+                    .accessibilityIgnoresInvertColors()
             } else {
                 DrawnDianDian(size: size)
             }
@@ -79,18 +95,9 @@ struct GuessHat: View {
         Group {
             if let image = ArtResources.image(named: CharacterArt.guessHat) {
                 Image(uiImage: image).resizable().scaledToFit()
+                    .accessibilityIgnoresInvertColors()
                     .frame(width: size, height: size)
-                    .overlay(alignment: .topLeading) {
-                        if let badge = CharacterArt.badgeRect(imageSize: image.size, box: size) {
-                            Text("AI")
-                                .font(.system(size: badge.height * 0.62, weight: .heavy, design: .rounded))
-                                .foregroundStyle(Theme.ai)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.5)
-                                .frame(width: badge.width, height: badge.height)
-                                .offset(x: badge.minX, y: badge.minY)
-                        }
-                    }
+                    .overlay(alignment: .topLeading) { aiBadge(imageSize: image.size) }
             } else {
                 DrawnGuessHat(size: size)
             }
@@ -99,6 +106,31 @@ struct GuessHat: View {
         .accessibilityElement(children: .ignore)
         .accessibilityAddTraits(.isImage)
         .accessibilityLabel("猜猜帽，AI")
+    }
+}
+
+extension GuessHat {
+    /// 小牌子上的「AI」：大圖直接寫在牌面；小圖改成蓋在牌上的白底膠囊（字至少 9pt）；太小不疊。
+    @ViewBuilder fileprivate func aiBadge(imageSize: CGSize) -> some View {
+        let style = CharacterArt.badgeStyle(box: size)
+        if style != .none, let badge = CharacterArt.badgeRect(imageSize: imageSize, box: size) {
+            let font = CharacterArt.badgeFontSize(badge: badge, style: style)
+            let label = Text("AI")
+                .font(.system(size: font, weight: .heavy, design: .rounded))
+                .foregroundStyle(Theme.ai)
+                .lineLimit(1)
+            if style == .onBadge {
+                label.minimumScaleFactor(0.5)
+                    .frame(width: badge.width, height: badge.height)
+                    .offset(x: badge.minX, y: badge.minY)
+            } else {
+                let width = font * 2.1, height = font * 1.35
+                label.frame(width: width, height: height)
+                    .background(Theme.surface, in: Capsule())
+                    .overlay(Capsule().stroke(Theme.ai, lineWidth: 1))
+                    .offset(x: badge.midX - width / 2, y: badge.midY - height / 2)
+            }
+        }
     }
 }
 
@@ -145,6 +177,7 @@ struct SpeechBubble: View {
             Group {
                 if isAI { GuessHat(size: 52) } else { DianDian(size: 52) }
             }
+            .accessibilityRemoveTraits(.isImage)  // 和台詞合併時只念「點點，〇〇」，不多念「圖像」
             .scaleEffect(isSpeaking && !reduceMotion ? 1.08 : 1)
             Text(text)
                 .font(.title2.weight(.semibold))

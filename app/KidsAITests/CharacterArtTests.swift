@@ -41,6 +41,18 @@ struct CharacterArtTests {
         #expect(CharacterArt.badgeRect(imageSize: imageSize, box: 40) != nil)
     }
 
+    @Test("AI 字怎麼疊：28pt 不疊、52／44pt 白底膠囊至少 9pt、120／140pt 直接寫在牌面", arguments: [
+        (28.0, CharacterArt.BadgeStyle.none), (44.0, .capsule), (52.0, .capsule), (99.0, .capsule), (120.0, .onBadge), (140.0, .onBadge),
+    ])
+    func badgeStyleBySize(box: Double, expected: CharacterArt.BadgeStyle) throws {
+        #expect(CharacterArt.badgeStyle(box: box) == expected)
+        guard expected != .none else { return }
+        let badge = try #require(CharacterArt.badgeRect(imageSize: CGSize(width: 578, height: 600), box: box))
+        let font = CharacterArt.badgeFontSize(badge: badge, style: expected)
+        if expected == .capsule { #expect(font >= CharacterArt.capsuleMinFont, "\(box)pt 的字太小：\(font)") }
+        else { #expect(font >= 8, "\(box)pt 牌面上的字太小：\(font)") }
+    }
+
     @Test("圖的尺寸是 0 時不會除以 0，退回整個框")
     func degenerateImageSize() {
         #expect(CharacterArt.fittedRect(imageSize: .zero, box: 52) == CGRect(x: 0, y: 0, width: 52, height: 52))
