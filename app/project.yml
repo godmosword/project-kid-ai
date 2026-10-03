@@ -28,6 +28,11 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"  # 首版只做 iPhone（docs/first-release-scope.md）
         ENABLE_PREVIEWS: "YES"
         GENERATE_INFOPLIST_FILE: "YES"
+        # XcodeGen 給 iOS app target 的預設值是 ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon。
+        # 加入 KidsAI/Assets.xcassets 之後 actool 才真的跑，找不到 AppIcon 就讓 Debug／Release build 失敗。
+        # App 圖示排在 D6／P8（docs/art/next-stage-plan.md），還沒有已核准的圖；先宣告「這個 target 不指定圖示」。
+        # D6 放進核准的 AppIcon.appiconset 時，把這行改回 AppIcon（docs/art/p1-art-catalog-status.md）。
+        ASSETCATALOG_COMPILER_APPICON_NAME: ""
         # 正式 App 還沒有麥克風／語音功能，不得加任何 *UsageDescription；另案 L3 再加。
         # 只用系統提供的加密（docs/release/app-store-submission.md），上傳時不再問出口合規
         INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: "NO"

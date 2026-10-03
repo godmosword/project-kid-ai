@@ -4,33 +4,12 @@ import Testing
 @Suite("暫代圖")
 struct PlaceholderArtTests {
     /// 內容用到的每個圖片 key 都要有暫代圖，找不到的會變成中性色塊，所以要在測試擋下。
+    /// key 的走法和 `AssetCatalogTests` 共用 `ContentImageKeys`，兩邊才不會各走一次而漏掉同一個欄位。
     @Test("4 個單元用到的圖片 key 都有暫代圖")
     func everyImageKeyHasPlaceholder() throws {
-        var keys: Set<String> = []
-        for content in try RepoContent.all() {
-            for beat in content.unit.beats {
-                switch beat.kind {
-                case .choice(let c):
-                    keys.formUnion(c.options.compactMap(\.image))
-                    if let stage = c.stage { keys.insert(stage.image) }
-                case .drag(let d): keys.formUnion(d.items.compactMap(\.image))
-                case .review(let qs): keys.formUnion(qs.flatMap { $0.options.compactMap(\.image) })
-                case .sticker(let s, _): keys.insert(s.image)
-                default: break
-                }
-            }
-            for story in content.unit.stories {
-                for node in story.nodes {
-                    if case .choices(let choices) = node.exit { keys.formUnion(choices.compactMap(\.image)) }
-                }
-            }
-            for sandbox in content.unit.sandboxes {
-                keys.formUnion(sandbox.slots.compactMap(\.image))
-                keys.formUnion(sandbox.slots.flatMap { $0.choices.compactMap(\.image) })
-            }
-            keys.formUnion(content.banks.values.flatMap { $0.guesses.compactMap(\.image) })
-        }
+        let keys = try ContentImageKeys.all()
         let missing = keys.filter { !PlaceholderArt.has($0) }.sorted()
+        #expect(!keys.isEmpty)
         #expect(missing.isEmpty, "缺少暫代圖：\(missing)")
     }
 
