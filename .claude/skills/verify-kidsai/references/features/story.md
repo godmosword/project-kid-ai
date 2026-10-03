@@ -30,6 +30,7 @@ Preconditions:
 
 ## Gotchas
 
+- 單元 1 的提示圖（床、書包、浴室）是正式圖（2026-10-03，P4）。
 - 選項和「下一步」都要等句子念完才出現；沒有 zh-TW 語音時會立刻出現。
 - 單元 4 的故事開頭就是分歧（沒有先「下一步」）；`story-branch` 流程只適用單元 1。
 - 選項 identifier 是 `story.choice.<選項 id>`（例如 `story.choice.guess_again`）；流程用「第一個 `story.choice.` 開頭的元素」，所以選項順序變了，證據裡點到的會不同。

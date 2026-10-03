@@ -11,7 +11,7 @@ import UIKit
 ///
 /// 例外：`roleRenderedContentKeys`（AI 卡）由共用角色渲染畫，不經 `ArtView` 的通用讀圖。
 ///
-/// 35 個內容 key 全部還是待製作（`migrated` 是空的）；角色圖（P2，D1 核准的點點、猜猜帽正面）在 `runtime`。
+/// 單元 1 的 13 個內容 key 已遷移（P4）；其他 22 個仍待製作。角色圖（P2，D1 核准的點點、猜猜帽正面）在 `runtime`。
 enum ArtResources {
     /// 內容 JSON（`image` 欄位）用到的 key。
     enum Content {
@@ -19,17 +19,20 @@ enum ArtResources {
         ///
         /// 遷移某個 key 時要一起檢查 `PlaceholderArt.widthScale`：正式圖若把「相對大小」畫在共用畫布裡
         /// （單元 2 的三張貓、單元 3 的兩顆蘋果），該 key 的倍率要改成 1，否則會再乘一次。
-        static let migrated: Set<String> = []
-
-        /// 還沒定稿、暫時用暫代圖的 key。D5 收尾後這份要清空。
-        static let pending: Set<String> = [
-            // 單元 1 認識島（14）
-            "img_card_family", "img_card_toy", "img_card_ai",
+        static let migrated: Set<String> = [
+            // 單元 1 認識島（13；img_card_ai 由 GuessHat 渲染，留在 pending）— D3，Michael 2026-10-03 核准
+            "img_card_family", "img_card_toy",
             "img_box_peek_cat_ear",
             "img_box_reveal_cat", "img_box_reveal_car", "img_box_reveal_banana",
             "img_slot_weather", "img_slot_breakfast", "img_slot_animal",
             "img_hint_bed", "img_hint_bag", "img_hint_bath",
             "img_sticker_can_guess",
+        ]
+
+        /// 還沒定稿、暫時用暫代圖的 key。D5 收尾後這份要清空。
+        static let pending: Set<String> = [
+            // 單元 1 認識島：AI 卡由共用角色渲染（GuessHat），沒有獨立圖檔
+            "img_card_ai",
             // 單元 2 提問島（8）
             "img_u2_bear", "img_u2_rabbit", "img_u2_cup_star", "img_u2_place_table",
             "img_u2_wish_cat", "img_u2_guess_cat_clear", "img_u2_guess_cat_vague",

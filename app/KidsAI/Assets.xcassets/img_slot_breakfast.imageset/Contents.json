@@ -1,0 +1,12 @@
+{
+  "images": [
+    {
+      "filename": "img_slot_breakfast.png",
+      "idiom": "universal"
+    }
+  ],
+  "info": {
+    "author": "xcode",
+    "version": 1
+  }
+}
