@@ -8,7 +8,7 @@
 |---|---|
 | 0–1 範圍、玩法骨架 | ✅ 首版範圍定案：不含語音辨識、進度只在記憶體、家長區只有家長卡、只做 iPhone 直向（#9、#12） |
 | 2 關卡腳本 | ✅ 單元 1–4 JSON 通過驗證，AI 猜測已核准 |
-| 3 低保真原型＋孩子試玩 | 🟡 mid-fi 有（01、02 已由 Grok 對齊 App，還沒 commit）；試玩步驟與彙總表完成（#10）；等 iPhone 配對後找孩子試玩 |
+| 3 低保真原型＋孩子試玩 | 🟡 mid-fi 有（01、02 已對齊 App）；試玩步驟與彙總表完成（#10）；等 iPhone 配對後找孩子試玩 |
 | 4 合規 | 🟡 Checklist v1；隱私權政策草稿、送審資料、Privacy Manifest 完成（#16）；律師、聯絡資訊、網址待定 |
 | 5 技術骨架 | ✅ Milestone 0；CI 每次 PR 建置 App、跑 69 個 App 單元測試與 103 個驗證工具測試（#11） |
 | 6 關卡引擎 | 🟡 引擎 v2，單元 1–4 可在模擬器從頭玩到尾；版面掃描（iPhone SE、大字級）的問題已修（#8、#13）；語音辨識 spike 與實機試玩等 iPhone 配對 |
@@ -44,8 +44,8 @@
 - [ ] 實機確認 iPad 相容模式的橫向（審查員常用 iPad 測）
 
 ### Grok 與 Notion
-- [ ] commit Grok 對 mid-fi 01、02 的更新（工作目錄裡 `design/midfi/01-map.png`、`02-readalong.png`、`README.md` 還沒 commit）
-- [x] 請 Grok 依首版範圍把 mid-fi 01 地圖、02 頂列改成 App 現況（2026-10-01，Grok 已改，待 commit）
+- [x] commit Grok 對 mid-fi 01、02 的更新（2026-10-03）
+- [x] 請 Grok 依首版範圍把 mid-fi 01 地圖、02 頂列改成 App 現況（2026-10-01）
 - [ ] 請 Grok 依 [首版範圍](docs/first-release-scope.md) 同步 Notion
 - [ ] 把 Notion 路線圖狀態的更新 prompt 貼給 Grok（如果還沒貼）
 - [ ] 請 Grok 修正 Notion 線框裡已過時的地方：家長閘、Sign in with Apple、按住說話、「給點點猜」、垃圾桶
@@ -63,7 +63,7 @@
 ## Claude 要做的
 
 ### 等輸入
-- [ ] mid-fi 01、02 commit 後：更新 [design-map](.claude/skills/verify-kidsai/references/design-map.md) 01、02 的差異（應該只剩「已定」與「延後」）
+- [x] mid-fi 01、02 commit 後：更新 [design-map](.claude/skills/verify-kidsai/references/design-map.md) 01、02 的差異（2026-10-03；01 沒有差異，02 剩兩項待確認的小差異）
 - [ ] 收到單元 1 試玩彙總 → 整理要修的地方（玩法、旁白節奏、圖像線索），Michael 排優先順序；順便決定「AI 看到的」欄（首版範圍的待決策項）
 - [ ] 收到 spike 數字 → 整理 [報告](docs/spikes/asr-spike-report.md) 與建議路徑，Michael 定案
 - [ ] spike 定案後，提 L3 計畫：正式 App 加入跟讀功能與隱私權限說明（隱私權政策、Privacy Manifest、送審資料要一起改）
