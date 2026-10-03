@@ -11,7 +11,7 @@ import UIKit
 ///
 /// 例外：`roleRenderedContentKeys`（AI 卡）由共用角色渲染畫，不經 `ArtView` 的通用讀圖。
 ///
-/// P1 只做接入與檢查：`migrated` 是空的、35 個 key 全部待製作，沒有任何正式素材被選定或標記核准。
+/// 35 個內容 key 全部還是待製作（`migrated` 是空的）；角色圖（P2，D1 核准的點點、猜猜帽正面）在 `runtime`。
 enum ArtResources {
     /// 內容 JSON（`image` 欄位）用到的 key。
     enum Content {
