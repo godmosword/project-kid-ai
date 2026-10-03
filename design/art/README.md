@@ -8,7 +8,7 @@
 - B：繪本水彩。
 - C：軟黏土 3D。
 
-打開 [風格樣張](../style-tile/index.html) 第 6 節即可比較。完整 prompts、日期、尺寸和 SHA-256 記在 [generation-log.json](generation-log.json)。所有圖片都是 draft，尚未由 Michael 選定或核准，不打包進 App。
+打開 [風格樣張](../style-tile/index.html) 第 6 節即可比較。完整 prompts、日期、尺寸和 SHA-256 記在 [generation-log.json](generation-log.json)。這 9 張是選風格用的樣本，不打包進 App（2026-10-03 選定 A）。
 
 天氣圖卡是比較風格用的晴天樣本，不是正式單元 1 的 img_slot_weather；正式圖需要保留不完整的天氣線索。設定圖、表情、透明背景、教學線索驗收和商用授權確認仍待做；定稿後才登錄 docs/art/provenance.md。
 

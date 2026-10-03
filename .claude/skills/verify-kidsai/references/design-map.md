@@ -32,7 +32,7 @@
 
 2026-10-03（P2）：點點與猜猜帽換成 D1 核准的定稿正面圖（[design/art/README.md](../../../../design/art/README.md)）。mid-fi 裡的角色是舊的示意造型，不再當差異列出；角色以 D1 設定稿為準。
 
-2026-10-03（P1）：App 的素材載入改成已遷移的 key 讀 Asset Catalog，但 35 個內容圖 key 目前全部還是暫代圖，畫面沒有改變，下面各屏的差異不變。正式素材（計畫的 P2 角色、P3 地圖、P4 單元 1）放上去時，要用新 build 的證據重新對照每一屏的圖，把**新的**差異列進對應小節；素材本身的核准走 [docs/art/next-stage-plan.md](../../../../docs/art/next-stage-plan.md) 的流程，不在這份對照表。
+2026-10-03（P1）：App 的素材載入改成已遷移的 key 讀 Asset Catalog（當時 35 個內容圖 key 都還是暫代圖；P4 起單元 1 的 13 張換成正式圖）。正式素材（計畫的 P2 角色、P3 地圖、P4 單元 1）放上去時，要用新 build 的證據重新對照每一屏的圖，把**新的**差異列進對應小節；素材本身的核准走 [docs/art/next-stage-plan.md](../../../../docs/art/next-stage-plan.md) 的流程，不在這份對照表。
 
 ## 差異
 

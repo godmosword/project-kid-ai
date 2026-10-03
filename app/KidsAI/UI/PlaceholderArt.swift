@@ -49,12 +49,13 @@ enum PlaceholderArt {
     static func has(_ key: String) -> Bool { table[key] != nil }
 
     /// 素材實際畫出的寬是 `size` 的幾倍（ArtView 裡各自放大的倍率）；要塞進固定框時用。
+    /// 模糊影子的 1.3 是給暫代符號外溢的模糊留的；正式圖已經把模糊畫在方圖裡，遷移後回到 1。
     static func widthScale(_ key: String?) -> CGFloat {
         switch key.flatMap({ table[$0] }) {
         case .boxWithEar?: 1.6
         case .standingCat?: 1.5
         case .countableDog?: 1.4
-        case .blurredSilhouette?: 1.3
+        case .blurredSilhouette?: key.map { ArtResources.usesGenericImage($0) } == true ? 1 : 1.3
         case .sittingCat?: 1.1
         default: 1
         }
@@ -83,6 +84,8 @@ struct ArtView: View {
             Image(uiImage: image)
                 .resizable()
                 .scaledToFit()
+                // 沒有透明度的方圖（早餐、動物影子）裁成圓角，放進圓角卡片才不像貼上去的照片
+                .clipShape(RoundedRectangle(cornerRadius: ArtView.isOpaque(image) ? 12 : 0))
                 .frame(width: box, height: box)
         } else {
             placeholder
@@ -97,6 +100,12 @@ struct ArtView: View {
     private var genericImage: UIImage? {
         guard let key, ArtResources.usesGenericImage(key) else { return nil }
         return ArtResources.image(named: key)
+    }
+
+    /// 圖沒有透明度（整張都有底色）。
+    static func isOpaque(_ image: UIImage) -> Bool {
+        guard let alpha = image.cgImage?.alphaInfo else { return false }
+        return alpha == .none || alpha == .noneSkipFirst || alpha == .noneSkipLast
     }
 
     /// 正式圖佔的框和暫代圖一樣大（見 `PlaceholderArt.widthScale`）。
