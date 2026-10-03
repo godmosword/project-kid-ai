@@ -20,14 +20,17 @@ fail() {
 }
 
 mkdir -p "$ROOT" || fail "建不了 $ROOT"
-# 上一次還在跑（鎖在 3 小時內、裡面的 PID 還活著）：不要動它的 clone，直接跳過；鎖的回收與紀錄由 maintain run 負責。
-# 超過 3 小時的鎖不算：重開機後 PID 可能被別的程序拿去用，只看 PID 會每天都誤判成「還在跑」。
+# 鎖裡的 PID 還活著、而且真的是每日維護（命令列有 control-kidsai）：不要動它的 clone。
+#   3 小時內＝還在跑，跳過；超過 3 小時＝卡住了（agent 90 分鐘就逾時），通知人來處理，也不動 clone。
+# PID 活著但不是每日維護：重開機後 PID 被別的程序拿去用，當成舊鎖，交給 maintain run 回收並補紀錄。
 if [ -f "$ROOT/.lock/owner.json" ]; then
   pid=$(grep -o '"pid": *[0-9]*' "$ROOT/.lock/owner.json" | grep -o '[0-9]*$')
-  old=$(find "$ROOT/.lock/owner.json" -mmin +"$LOCK_STALE_MINUTES" 2>/dev/null)
-  if [ -n "$pid" ] && [ -z "$old" ] && kill -0 "$pid" 2>/dev/null; then
-    echo "$(date '+%F %T') skip：上一次每日維護還在跑（PID ${pid}）"
-    exit 0
+  if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null && ps -p "$pid" -o command= 2>/dev/null | grep -q 'control-kidsai'; then
+    if [ -z "$(find "$ROOT/.lock/owner.json" -mmin +"$LOCK_STALE_MINUTES" 2>/dev/null)" ]; then
+      echo "$(date '+%F %T') skip：上一次每日維護還在跑（PID ${pid}）"
+      exit 0
+    fi
+    fail "上一次每日維護卡住超過 3 小時（PID ${pid}），請手動結束它"
   fi
 fi
 if [ ! -d "$CLONE/.git" ]; then

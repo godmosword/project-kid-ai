@@ -48,6 +48,7 @@ class HybridRunner(ck.Runner):
         self.gh_list_fails = False
         self.pr_create_fails = False
         self.wrapper_commit_fails = False
+        self.ps_command = ""        # ps -p <pid> -o command= 的輸出（鎖裡的 PID 是不是每日維護）
 
     def run(self, cmd, cwd=None, input=None, env=None, timeout=None):
         if cmd[0] == "git" and self.wrapper_commit_fails and "commit" in cmd:
@@ -55,6 +56,8 @@ class HybridRunner(ck.Runner):
         if cmd[0] == "git":
             return super().run(cmd, cwd=cwd, input=input, env=env)
         self.calls.append(list(cmd))
+        if cmd[:2] == ["ps", "-p"]:
+            return ck.Result(0, self.ps_command, "")
         if cmd[:3] == ["/fake/gh", "pr", "list"]:
             if self.gh_list_fails:
                 return ck.Result(1, "", "network down")
@@ -447,9 +450,32 @@ class LockAndStateTests(MaintainBase):
         lock = self.home / "kidsai-maintain/.lock"
         lock.mkdir()
         ck.write_json(lock / "owner.json", {"pid": os.getpid(), "started": NOW.isoformat()})
+        self.runner.ps_command = "/usr/bin/python3 /x/control-kidsai maintain run --ref origin/main\n"
         code, out = self.call("maintain", "run")
         self.assertEqual((code, out["outcome"]), (0, "skip"))
         self.assertFalse(self.runner.ran("/fake/claude"))
+
+    def test_reused_pid_is_not_a_busy_lock(self):
+        lock = self.home / "kidsai-maintain/.lock"
+        lock.mkdir()
+        ck.write_json(lock / "owner.json", {"pid": os.getpid(), "started": NOW.isoformat()})
+        self.runner.ps_command = "/Applications/Some.app/Contents/MacOS/Some\n"  # 重開機後被別的程序拿去用
+        self.runner.agent = lambda c: self.notes(c, "clean")
+        _, out = self.call("maintain", "run")
+        self.assertEqual(out["outcome"], "clean", out)
+
+    def test_stuck_run_is_reported_not_taken_over(self):
+        lock = self.home / "kidsai-maintain/.lock"
+        lock.mkdir()
+        ck.write_json(lock / "owner.json", {"pid": 4242, "started": (NOW - datetime.timedelta(hours=5)).isoformat()})
+        self.runner.ps_command = "/usr/bin/python3 /x/control-kidsai maintain run\n"
+        code, out = self.call("maintain", "run")
+        self.assertEqual(out["outcome"], "blocked", out)
+        self.assertIn("卡住", out["reason"])
+        self.assertNotEqual(code, 0)
+        self.assertTrue(lock.exists(), "不搶卡住那一輪的鎖")
+        self.assertFalse(self.runner.ran("/fake/claude"))
+        self.assertFalse(self.runner.ran("sim", "shutdown"), "不碰它的模擬器")
 
     def test_stale_lock_is_reclaimed_and_released(self):
         lock = self.home / "kidsai-maintain/.lock"
@@ -517,13 +543,22 @@ class BootstrapTests(unittest.TestCase):
 
     SCRIPT = Path(__file__).resolve().parents[1] / "maintain" / "run-daily.sh"
 
-    def run_bootstrap(self, lock_age_seconds):
+    def setUp(self):
+        # 一個命令列看起來像每日維護的程序（bash 的 exec -a 改掉 argv[0]）
+        self.maintain = subprocess.Popen(["/bin/bash", "-c", 'exec -a "python3 control-kidsai maintain run" sleep 60'])
+        time.sleep(0.3)
+
+    def tearDown(self):
+        self.maintain.kill()
+        self.maintain.wait()
+
+    def run_bootstrap(self, lock_age_seconds, pid=None):
         with tempfile.TemporaryDirectory() as tmp:
             home = Path(tmp)
             lock = home / "kidsai-maintain/.lock"
             lock.mkdir(parents=True)
             owner = lock / "owner.json"
-            owner.write_text(json.dumps({"pid": os.getpid(), "started": "x"}))  # PID 一定活著
+            owner.write_text(json.dumps({"pid": pid or self.maintain.pid, "started": "x"}))
             then = time.time() - lock_age_seconds
             os.utime(owner, (then, then))
             fake_bin = home / "fake-bin"
@@ -533,15 +568,21 @@ class BootstrapTests(unittest.TestCase):
             env = {"HOME": str(home), "PATH": f"{fake_bin}:/usr/bin:/bin", "KIDSAI_OSASCRIPT": "/usr/bin/true"}
             return subprocess.run(["/bin/bash", str(self.SCRIPT)], env=env, capture_output=True, text=True, timeout=60)
 
-    def test_recent_lock_with_live_pid_skips(self):
+    def test_recent_lock_of_a_running_maintain_skips(self):
         p = self.run_bootstrap(60)
         self.assertEqual(p.returncode, 0, p.stderr)
         self.assertIn("skip", p.stdout)
 
-    def test_old_lock_is_not_trusted_even_if_pid_is_alive(self):
-        p = self.run_bootstrap(4 * 3600)  # 重開機後 PID 被別的程序拿去用
+    def test_stuck_maintain_is_reported_without_touching_the_clone(self):
+        p = self.run_bootstrap(4 * 3600)
         self.assertEqual(p.returncode, 5, p.stdout + p.stderr)
-        self.assertIn("bootstrap 失敗", p.stderr)
+        self.assertIn("卡住", p.stderr)
+        self.assertNotIn("git clone", p.stderr)
+
+    def test_pid_reused_by_another_program_is_not_trusted(self):
+        p = self.run_bootstrap(60, pid=os.getpid())  # 活著，但命令列不是每日維護
+        self.assertEqual(p.returncode, 5, p.stdout + p.stderr)
+        self.assertIn("git clone", p.stderr, "照常往下（這裡 git 是假的，所以失敗在 clone）")
         self.assertNotIn("skip", p.stdout)
 
 

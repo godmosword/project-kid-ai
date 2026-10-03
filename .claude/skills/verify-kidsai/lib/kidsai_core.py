@@ -65,16 +65,20 @@ WAIT_POLL_SECONDS = 30  # run_logged 多久看一次實際時間
 
 
 def stop_group(p: subprocess.Popen) -> None:
-    """結束子程序整個 process group：先 SIGTERM，30 秒還在就 SIGKILL。"""
+    """結束子程序整個 process group：先 SIGTERM，30 秒還在就 SIGKILL；最後再對同組剩下的程序補一次 SIGKILL。"""
     for sig in (signal.SIGTERM, signal.SIGKILL):
         try:
             os.killpg(p.pid, sig)
             p.wait(timeout=30)
-            return
+            break
         except ProcessLookupError:
             return
         except subprocess.TimeoutExpired:
             continue
+    try:
+        os.killpg(p.pid, signal.SIGKILL)  # 帶頭的結束了，同組的子程序（例如 xcodebuild）可能還在
+    except (ProcessLookupError, PermissionError):
+        pass
 
 
 class Runner:
