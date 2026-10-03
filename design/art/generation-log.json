@@ -1,5 +1,5 @@
 {
-  "status": "drafts-awaiting-Michael-selection",
+  "status": "style-a-selected",
   "date": "2026-10-03",
   "tool": "built-in image_gen",
   "source_spec": "docs/art/generation-prompts.md",
@@ -94,5 +94,11 @@
       "status": "draft",
       "approved": false
     }
-  ]
+  ],
+  "selected": {
+    "style": "style-a",
+    "by": "Michael",
+    "date": "2026-10-03",
+    "note": "Style direction only; assets remain drafts until commercial terms are confirmed and each image is approved."
+  }
 }

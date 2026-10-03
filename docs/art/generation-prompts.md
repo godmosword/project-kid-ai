@@ -2,7 +2,9 @@
 
 規格見 [art-spec.md](art-spec.md)。英文 prompt 通常比較穩定，所以 prompt 用英文，說明用中文。每次生圖都把「風格區塊＋限制區塊＋題目」一起貼上，並把結果記到 [provenance.md](provenance.md)。
 
-## 第 1 步：風格方向（3 選 1）
+## 第 1 步：風格方向（3 選 1）— 已選 A
+
+**2026-10-03 Michael 選定方向 A（扁平圓角）。** 之後所有圖都只用下面 A 的風格區塊；B、C 只留作紀錄。草稿見 [design/art/](../../design/art/README.md)。
 
 每個方向都生同一組 3 張測試圖（地圖、兩個角色、一張圖卡），放在一起給 Michael 比較。
 
@@ -48,19 +50,33 @@ A single square card illustration of a sunny weather symbol: a smiling sun with 
 
 選定一個方向後，之後所有圖都只用那個風格區塊。
 
-## 第 2 步：角色設定圖
+## 第 2 步：角色設定圖（D1）
 
-選好風格後，把選中的角色圖當參考圖一起上傳，逐張生：
+把 `design/art/style-a/characters.png` 當參考圖一起上傳。每次都貼「A 的風格區塊＋限制區塊」，再貼下面其中一段。表情以 [art-spec.md](art-spec.md) 第 3 節為準（2026-10-03 定）：點點 4 種、猜猜帽 5 種，兩個角色分開生。
 
+**點點：三視圖**
 ```
-Character turnaround sheet of [角色描述，照上面第 2 題], front view, side view, back view, same character, consistent proportions, transparent background.
-```
-
-```
-Expression sheet of [角色描述], six expressions: happy, curious, pointing to guide, encouraging, thinking with eyes looking up and a small question mark above the hat tip (Guess Hat only), shy smile when caught being wrong (Guess Hat only). Transparent background, same style.
+Character turnaround sheet of "DianDian", a small round friendly robot buddy in coral color with a heart-shaped light on its chest, big kind eyes, short arms, same design as the reference image. Front view, side view, back view, consistent proportions, transparent background.
 ```
 
-注意：猜猜帽上的小牌子，最後由 App 疊上「AI」字樣；生圖時只要一塊空白的小牌子。
+**點點：表情（4 種）**
+```
+Expression sheet of "DianDian" (same design as the reference image), four expressions: happy; curious (head slightly tilted, eyes wide); guiding (one arm reaching out and pointing to the side, as if showing the way); encouraging (both fists up, warm smile). Front view, transparent background.
+```
+
+**猜猜帽：三視圖**
+```
+Character turnaround sheet of "Guess Hat", a talking magician's hat in blue with a pointed tip, a friendly face on the hat band, and a small blank badge on the hat, same design as the reference image. Front view, side view, back view, consistent proportions, transparent background. Do not place any writing on the blank badge.
+```
+
+**猜猜帽：表情（5 種）**
+```
+Expression sheet of "Guess Hat" (same design as the reference image), five expressions: guessing (eyes looking up, a small question mark above the hat tip); unsure (hat tilted, small shrug, wavy mouth); happy; thanking (a small polite bow); caught being wrong (shy embarrassed smile, a little sweat drop, not sad). Front view, transparent background. Do not place any writing on the blank badge.
+```
+
+- 猜猜帽上的小牌子最後由 App 疊上「AI」字樣；生圖時只要一塊空白的小牌子。
+- 生完先縮成 App 裡的大小（28pt、52pt、120–140pt）看輪廓清不清楚，再給 Michael 核准（[next-stage-plan.md](next-stage-plan.md) 的 D1 門檻）。
+- 商用條款還沒確認之前，生出來的圖都只是 draft：不記入 provenance.md，也不放進 App。
 
 ## 第 3 步以後：素材圖
 

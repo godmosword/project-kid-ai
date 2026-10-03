@@ -1,5 +1,7 @@
 # 美術風格預覽
 
+**2026-10-03 Michael 選定 A（扁平圓角）。** 角色表情照 [art-spec](../../docs/art/art-spec.md) 第 3 節；生圖工具的商用條款還沒確認，所以這些圖仍是 draft。B、C 只留作紀錄。
+
 2026-10-03 依 [生圖規格](../../docs/art/generation-prompts.md)用內建 image_gen 產生三個方向，每個方向各有地圖、兩個角色和天氣圖卡，共 9 張 PNG。
 
 - A：扁平圓角。

@@ -12,7 +12,7 @@
 | 4 合規 | 🟡 Checklist v1；隱私權政策草稿、送審資料、Privacy Manifest 完成（#16）；律師、聯絡資訊、網址待定 |
 | 5 技術骨架 | ✅ Milestone 0；CI 每次 PR 建置 App、跑 69 個 App 單元測試與 103 個驗證工具測試（#11） |
 | 6 關卡引擎 | 🟡 引擎 v2，單元 1–4 可在模擬器從頭玩到尾；版面掃描（iPhone SE、大字級）的問題已修（#8、#13）；語音辨識 spike 與實機試玩等 iPhone 配對 |
-| 7 美術 | 🟡 規格書、token、教學線索與驗收表（#17）完成；三方向共 9 張風格草稿已產生（`992925f`）；[下一階段計畫](docs/art/next-stage-plan.md)已收到執行指示，風格與表情規格待 Michael 定案 |
+| 7 美術 | 🟡 規格書、token、教學線索與驗收表（#17）完成；風格選定 A 扁平圓角、表情照 art-spec（2026-10-03）；圖片載入與缺圖檢查已接好（#19）；下一步 D1 角色定稿（[下一階段計畫](docs/art/next-stage-plan.md)） |
 | 驗證層（agent 用） | ✅ V1–V4（#3–#6）：23 支真實點擊流程（原 17＋單元 1 美術入口新增 6 支，新增皆通過並完成本機錄製審查）、證據 repo、每日自動維護（#18 補強被中斷時的紀錄） |
 | 8–12 | ⬜ |
 
@@ -33,9 +33,9 @@
 
 ### 美術與配音（步驟 7）
 - [x] 用 Codex／Grok 生 3 個風格方向（[生圖 prompt](docs/art/generation-prompts.md) 第 1 步），存到 `design/art/style-a|b|c/`（2026-10-03，`992925f`；共 9 張 draft，尚未核准）
-- [ ] 打開 [風格樣張](design/style-tile/index.html) 第 6 區比較，選定一個方向，也確認色票
-- [ ] 生點點、猜猜帽的設定圖；每張定稿圖都要通過 [教學線索與驗收](docs/art/asset-cues.md)，並記到 [provenance.md](docs/art/provenance.md)
-- [ ] 確認 Codex、Grok 的使用條款允許商用
+- [x] 選定風格方向：A 扁平圓角；角色表情照 art-spec（2026-10-03）
+- [ ] 生點點、猜猜帽的三視圖與表情（D1；prompt 已備好：[生圖 prompt](docs/art/generation-prompts.md) 第 2 步），縮成 App 大小檢查後核准；每張定稿圖都要通過 [教學線索與驗收](docs/art/asset-cues.md)，並記到 [provenance.md](docs/art/provenance.md)
+- [ ] 確認 Codex、Grok（含內建 image_gen）的使用條款允許商用；確認前所有生出來的圖都只是 draft，不放進 App
 - [ ] 決定旁白要用系統語音、AI 配音（在電腦上先錄好）還是真人配音；點點和猜猜帽要聽得出是不同角色。比較與建議見 [配音方式的決策表](docs/voice-options.md)（建議：單元 1 試玩先用系統語音，看結果再定）
 
 ### 上架前（步驟 4 合規）
@@ -67,7 +67,7 @@
 - [ ] 收到單元 1 試玩彙總 → 整理要修的地方（玩法、旁白節奏、圖像線索），Michael 排優先順序；順便決定「AI 看到的」欄（首版範圍的待決策項）
 - [ ] 收到 spike 數字 → 整理 [報告](docs/spikes/asr-spike-report.md) 與建議路徑，Michael 定案
 - [ ] spike 定案後，提 L3 計畫：正式 App 加入跟讀功能與隱私權限說明（隱私權政策、Privacy Manifest、送審資料要一起改）
-- [ ] 風格選定後，提 L2 計畫：把圖片放進 App 的 Asset Catalog，並加一支檢查「內容用到的素材 key 都有對應圖檔」的驗證
+- [x] 圖片集中載入、素材清單與缺圖檢查（E0，#19）；正式圖片核准後照清單分批接入
 - [ ] 配音方式定案後，提 L2 計畫：預錄旁白接口（有音檔就播、沒有退回系統語音；補「我不確定」等寫死字串的音檔 key；預錄音檔的逐字亮起時間點）。選 AI 配音的話，pipeline 呼叫外部服務另提 L3
 - [ ] Figma 可用後：匯入 token，建元件與地圖首頁的高保真
 
