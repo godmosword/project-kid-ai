@@ -11,7 +11,7 @@ import UIKit
 ///
 /// 例外：`roleRenderedContentKeys`（AI 卡）由共用角色渲染畫，不經 `ArtView` 的通用讀圖。
 ///
-/// P1 只做接入與檢查：`migrated` 是空的、35 個 key 全部待製作，沒有任何正式素材被選定或標記核准。
+/// 35 個內容 key 全部還是待製作（`migrated` 是空的）；角色圖（P2，D1 核准的點點、猜猜帽正面）在 `runtime`。
 enum ArtResources {
     /// 內容 JSON（`image` 欄位）用到的 key。
     enum Content {
@@ -49,9 +49,8 @@ enum ArtResources {
     }
 
     /// 不在內容 JSON 裡、執行期才會用到的圖：角色（P2）、地圖（P3）。
-    /// 名稱由各自的實作 Plan 決定，這裡先留空；列進來的 key 和 `Content.migrated` 受同一套 bundle 解碼檢查。
-    /// 設定圖與表情 sheet 是製作參考，不放進這份清單。
-    static let runtime: Set<String> = []
+    /// 列進來的 key 和 `Content.migrated` 受同一套 bundle 解碼檢查。設定圖與表情 sheet 是製作參考，不放進這份清單。
+    static let runtime: Set<String> = [CharacterArt.dianDian, CharacterArt.guessHat]
 
     /// 由共用角色渲染負責的內容 key，不走 `ArtView` 的通用讀圖路徑。
     ///
