@@ -1,13 +1,15 @@
 """control-kidsai 的真實點擊流程（XCUITest）：drive、record --flow、snapshot。
 
 流程測試在 app/KidsAIUITests/Flows.swift，每支一個類別。
-Xcode 27 上 UI 測試執行期間只要有螢幕錄影，xcodebuild 就會卡在收尾（卡住後模擬器要重開），
-所以 record --flow 不錄影：測試自己約每 0.5 秒截一張圖（frame-NNN.png），點擊前兩格記下被點元素的位置（taps.json），
+xcodebuild 卡在收尾的真正原因是收尾時的 simctl diagnose，已用 -collect-test-diagnostics never 關掉（2026-10-04 實測不再卡）。
+以前以為是螢幕錄影造成的；關掉診斷之後「UI 測試＋錄影」還會不會卡沒有重測，所以 record --flow 仍不錄影：測試自己約每 0.5 秒截一張圖（frame-NNN.png），點擊前兩格記下被點元素的位置（taps.json），
 CLI 再把截圖以 4 fps 接成縮時影片，並在點擊那兩格畫框標出「點了這裡」。
 """
 
+import os
 import shlex
 import shutil
+import signal
 import time
 
 from kidsai_core import *  # noqa: F401,F403
@@ -55,8 +57,10 @@ def require_fresh_runner(ctx: Context) -> None:
 
 
 def test_command(ctx: Context, udid: str, test_class: str, result: Path) -> list:
+    # -collect-test-diagnostics never：Xcode 27 預設在收尾跑 simctl diagnose（整份 logarchive，100MB 以上、10 分鐘以上），
+    # 連跑流程時好幾個疊在一起，會把整台 Mac 拖慢、塞滿 /tmp（2026-10-04 查到）
     return ["xcodebuild", "test-without-building", "-project", "KidsAI.xcodeproj", "-scheme", "KidsAI",
-            "-destination", f"id={udid}", "-derivedDataPath", "build",
+            "-destination", f"id={udid}", "-derivedDataPath", "build", "-collect-test-diagnostics", "never",
             f"-only-testing:KidsAIUITests/{test_class}", "-resultBundlePath", str(result)]
 
 
@@ -135,6 +139,7 @@ def run_flow(ctx: Context, d: dict, test_class: str, label: str, frames: bool, e
         s = session(ctx)
         if not (folder / "exit").exists():
             stop_process(ctx, s.get("xcodebuild") or {}, group=True)
+            stop_leftovers(ctx, result)
             reset_simulator(ctx, d)
         s.pop("xcodebuild", None)
         save_session(ctx, s)
@@ -156,6 +161,23 @@ def wait_flag(ctx: Context, folder: Path, polls: int) -> Optional[str]:
             return "failed"
         ctx.sleep(0.2)
     return None
+
+
+def stop_leftovers(ctx: Context, result: Path) -> list:
+    """停掉 xcodebuild 留下、還在寫這次 xcresult 的程序（例如 simctl diagnose）：它們不在 xcodebuild 的程序群組，
+    停掉 xcodebuild 後會繼續跑到自己逾時。只認命令列帶著這次 bundle 路徑的（路徑含時間戳，不會撞到別次）。"""
+    listed = ctx.runner.run(["ps", "-axo", "pid=,command="])
+    stopped = []
+    for line in listed.stdout.splitlines():
+        pid, _, command = line.strip().partition(" ")
+        if not pid.isdigit() or int(pid) == os.getpid() or str(result) not in command:
+            continue
+        try:
+            ctx.kill(int(pid), signal.SIGTERM)
+            stopped.append(int(pid))
+        except OSError:
+            continue  # 已經結束或不是自己的程序
+    return stopped
 
 
 def reset_simulator(ctx: Context, d: dict) -> None:

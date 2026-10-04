@@ -37,6 +37,7 @@
 | `char_guesshat.png` | `d1/hat-turnaround.png` 正面 | 578×600 | `5e61bd17cddcbd9eab2b31396ee6e4ccaa7ed16a3a7b3c9bf60a46ff7b53e9c0` |
 
 猜猜帽小牌子的位置量自 `char_guesshat.png`（中心 47.8%、39.5%，大小 15.6%×11.8%），「AI」字由 App 疊上。商用條款確認後才記入 provenance。
+
 ## D3 單元 1 內容圖（draft，2026-10-03）
 
 依 [教學線索與驗收](../../docs/art/asset-cues.md) 寫 prompt，用 Codex 內建 image_gen 生成 13 張（`img_card_ai` 由 P2 的猜猜帽渲染，不另外生）；完整 prompt 與 SHA-256 記在 generation-log.json。

@@ -36,6 +36,12 @@
 2. `cd app && xcodegen generate && open KidsAI.xcodeproj`
 3. 用傳輸線接上 iPhone，在 Xcode 上方選 **ASRSpike** scheme 和你的 iPhone，按 Run（⌘R）。第一次要在 iPhone 的「設定 → 一般 → VPN 與裝置管理」信任你的開發者帳號。
 
+## 授權
+
+- **程式碼採 [MIT](LICENSE)：** `app/`、`pipeline/`、`content/schema/`、`.claude/`、`.github/`。
+- **保留所有權利，不適用 MIT：** `content/units/`（教學內容）、`design/`（美術、mid-fi、style tile、design tokens）、`docs/`。說明見 [content/LICENSE](content/LICENSE)、[design/LICENSE](design/LICENSE)、[docs/LICENSE](docs/LICENSE)。
+- MIT 授權不包含「KidsAI」名稱，也不包含角色（點點、猜猜帽）的使用權。
+
 ## 尚未加入
 
 - 正式 App（KidsAI）的麥克風與語音辨識功能、隱私 key（`NSMicrophoneUsageDescription`、`NSSpeechRecognitionUsageDescription`）：等 spike 結果由 Michael 定案後另案（L3）加入。目前這兩個 key 只在 ASRSpike。
