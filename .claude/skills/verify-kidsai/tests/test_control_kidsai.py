@@ -49,6 +49,7 @@ class FakeRunner:
         self.apps = apps if apps is not None else {"com.godmosword.kidsai": {"ApplicationType": "User"}}
         self.app_dir = None
         self.ps_line = None
+        self.ps_all = ""  # ps -axo pid=,command= 的輸出
         self.shutdown_fails = False
         self.popen_log = ""
         self.handshake_files = {}
@@ -95,6 +96,8 @@ class FakeRunner:
         if cmd[:2] == ["ps", "-p"]:
             line = self.ps_line() if callable(self.ps_line) else self.ps_line
             return ck.Result(0 if line else 1, line or "", "")
+        if cmd[:2] == ["ps", "-axo"]:
+            return ck.Result(0, self.ps_all, "")
         if cmd[:1] == ["xcodebuild"]:
             return ck.Result(self.xcodebuild_code, "", "")
         if "shutdown" in cmd and self.shutdown_fails:
@@ -459,6 +462,39 @@ class FlowTests(Base):
         self.assertEqual(code, 0, out)
         self.assertTrue(out["xcodebuild_hung"])
         self.assertTrue(self.runner.ran("shutdown") and self.runner.ran("boot"), "卡住後要重開模擬器")
+
+    def test_tests_skip_simulator_diagnostics(self):
+        self.fresh_runner()
+        self.runner.handshake_files = {"done": "done", "exit": "0"}
+        self.call("drive", "--flow", "map-to-unit1")
+        shell = next(c for c in self.runner.calls if c[:2] == ["/bin/sh", "-c"])
+        self.assertIn("-collect-test-diagnostics never", shell[2],
+                      "收尾的 simctl diagnose 每次 100MB 以上、跑 10 分鐘以上，會拖垮整台 Mac")
+
+    def test_hung_xcodebuild_stops_only_its_own_leftover_diagnostics(self):
+        self.fresh_runner()
+        self.runner.handshake_files = {"done": "done"}
+        bundle = "/tmp/kidsai-xcresult/20260926-213005-drive-map-to-unit1.xcresult"
+        self.runner.ps_all = "\n".join([
+            f"  5151 /Library/Developer/PrivateFrameworks/CoreSimulator.framework/Resources/bin/simctl diagnose -b "
+            f"--output={bundle}/Staging/1_Test/Diagnostics/simctl_diagnostics --udid={UDID}",
+            "  6161 simctl diagnose -b --output=/tmp/kidsai-xcresult/20260926-000000-other.xcresult/Staging",
+            "  7171 /usr/bin/log collect --output /tmp/elsewhere",
+            "garbage line"])
+        code, out = self.call("drive", "--flow", "map-to-unit1")
+        self.assertEqual(code, 0, out)
+        stopped = [pid for pid, _ in self.killed]
+        self.assertIn(5151, stopped, "這次 xcresult 的 diagnose 要停掉")
+        self.assertNotIn(6161, stopped, "別次的不能碰")
+        self.assertNotIn(7171, stopped)
+
+    def test_finished_xcodebuild_leaves_other_processes_alone(self):
+        self.fresh_runner()
+        self.runner.handshake_files = {"done": "done", "exit": "0"}
+        self.runner.ps_all = "  5151 simctl diagnose --output=/tmp/kidsai-xcresult/20260926-213005-drive-map-to-unit1.xcresult"
+        self.call("drive", "--flow", "map-to-unit1")
+        self.assertEqual(self.killed, [])
+        self.assertEqual(self.runner.ran("ps", "-axo"), [], "正常結束不必掃程序")
 
     def test_stale_runner_is_rejected(self):
         self.fresh_runner()
