@@ -1,8 +1,8 @@
 """control-kidsai 的真實點擊流程（XCUITest）：drive、record --flow、snapshot。
 
 流程測試在 app/KidsAIUITests/Flows.swift，每支一個類別。
-Xcode 27 上 UI 測試執行期間只要有螢幕錄影，xcodebuild 就會卡在收尾（卡住後模擬器要重開），
-所以 record --flow 不錄影：測試自己約每 0.5 秒截一張圖（frame-NNN.png），點擊前兩格記下被點元素的位置（taps.json），
+xcodebuild 卡在收尾的真正原因是收尾時的 simctl diagnose，已用 -collect-test-diagnostics never 關掉（2026-10-04 實測不再卡）。
+以前以為是螢幕錄影造成的；關掉診斷之後「UI 測試＋錄影」還會不會卡沒有重測，所以 record --flow 仍不錄影：測試自己約每 0.5 秒截一張圖（frame-NNN.png），點擊前兩格記下被點元素的位置（taps.json），
 CLI 再把截圖以 4 fps 接成縮時影片，並在點擊那兩格畫框標出「點了這裡」。
 """
 
