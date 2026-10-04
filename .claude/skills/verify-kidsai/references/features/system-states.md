@@ -33,6 +33,7 @@ Preconditions:
 
 ## Gotchas
 
+- 進背景時的遮罩只有點點（96pt，D1 定稿的正面圖，2026-10-03 起）。
 - 背景流程的證據一定會出現專用模擬器主畫面：除了 Apple 內建圖示，還會有本專案的 KidsAI 與 UI 測試 runner（KidsAIUITests-Runner）圖示，這是允許的（2026-09-28 定）；有通知或別的 App 內容就重錄。
 - 用 `--unit/--beat` 冷啟動時，App 會觸發一次「回到前景」而重念；這是啟動參數造成的，不是 `background-resume` 的證明。
 - App 只支援 iPhone、鎖直向（首版範圍，2026-10-01）；轉橫手機畫面不會跟著轉。

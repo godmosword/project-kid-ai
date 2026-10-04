@@ -27,6 +27,17 @@
 - 縮成 App 大小（28pt、52pt、140pt）檢查過，兩個角色一眼分得出來。
 - **2026-10-03 Michael 核准角色造型（D1）。** 商用條款還沒確認，所以還不記入 provenance；P2 接入 App 的 PR 在條款確認前不合併。
 
+## App 用的角色圖（P2）
+
+從 D1 三視圖的正面依透明輪廓裁出、四周留 8px 透明邊，縮到 600px 高（縮放前先預乘透明度，避免邊緣染色），放進 `app/KidsAI/Assets.xcassets`：
+
+| 檔案 | 來源 | 尺寸 | SHA-256 |
+|---|---|---|---|
+| `char_diandian.png` | `d1/dian-turnaround.png` 正面 | 478×600 | `d09f03348d99f5b882a34d1a0df6181235908b86d92dbb5b80795a2cfdb140d0` |
+| `char_guesshat.png` | `d1/hat-turnaround.png` 正面 | 578×600 | `5e61bd17cddcbd9eab2b31396ee6e4ccaa7ed16a3a7b3c9bf60a46ff7b53e9c0` |
+
+猜猜帽小牌子的位置量自 `char_guesshat.png`（中心 47.8%、39.5%，大小 15.6%×11.8%），「AI」字由 App 疊上。商用條款確認後才記入 provenance。
+
 ## D3 單元 1 內容圖（draft，2026-10-03）
 
 依 [教學線索與驗收](../../docs/art/asset-cues.md) 寫 prompt，用 Codex 內建 image_gen 生成 13 張（`img_card_ai` 由 P2 的猜猜帽渲染，不另外生）；完整 prompt 與 SHA-256 記在 generation-log.json。
