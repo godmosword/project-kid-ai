@@ -66,4 +66,22 @@ struct CharacterArtTests {
     }
 }
 
+@Suite("正式內容圖（P4）")
+struct UnitOneArtTests {
+    @Test("不透明的方圖才裁圓角：早餐、動物影子是；有透明背景的不是", arguments: [
+        ("img_slot_breakfast", true), ("img_slot_animal", true),
+        ("img_box_peek_cat_ear", false), ("img_slot_weather", false), ("img_hint_bath", false),
+    ])
+    func opaqueImagesGetRoundedCorners(key: String, opaque: Bool) throws {
+        let image = try #require(ArtResources.image(named: key))
+        #expect(ArtView.isOpaque(image) == opaque, "\(key)")
+    }
+
+    @Test("模糊影子遷移後不再放大 1.3 倍；箱子仍是 1.6")
+    func widthScaleAfterMigration() {
+        #expect(PlaceholderArt.widthScale("img_slot_animal") == 1)
+        #expect(PlaceholderArt.widthScale("img_box_peek_cat_ear") == 1.6)
+    }
+}
+
 private final class CharacterArtBundleMarker {}

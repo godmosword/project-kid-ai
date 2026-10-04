@@ -28,9 +28,11 @@
 
 沒有對到設計稿的功能：[choice-question](./features/choice-question.md)、[drag](./features/drag.md)、[story](./features/story.md)、[review-and-sticker](./features/review-and-sticker.md)、[system-states](./features/system-states.md)、[observer-menu](./features/observer-menu.md)。這些畫面沒有 mid-fi，只對照功能檔與 `design/tokens/kidsai.tokens.json`。
 
+2026-10-03（P4）：單元 1 的 13 張內容圖換成 D3 核准的正式圖（[asset-cues](../../../../docs/art/asset-cues.md) 的驗收）。mid-fi 03／04 沙盒畫面裡的主題圖是示意，不當差異列出。
+
 2026-10-03（P2）：點點與猜猜帽換成 D1 核准的定稿正面圖（[design/art/README.md](../../../../design/art/README.md)）。mid-fi 裡的角色是舊的示意造型，不再當差異列出；角色以 D1 設定稿為準。
 
-2026-10-03（P1）：App 的素材載入改成已遷移的 key 讀 Asset Catalog，但 35 個內容圖 key 目前全部還是暫代圖，畫面沒有改變，下面各屏的差異不變。正式素材（計畫的 P2 角色、P3 地圖、P4 單元 1）放上去時，要用新 build 的證據重新對照每一屏的圖，把**新的**差異列進對應小節；素材本身的核准走 [docs/art/next-stage-plan.md](../../../../docs/art/next-stage-plan.md) 的流程，不在這份對照表。
+2026-10-03（P1）：App 的素材載入改成已遷移的 key 讀 Asset Catalog（當時 35 個內容圖 key 都還是暫代圖；P4 起單元 1 的 13 張換成正式圖）。正式素材（計畫的 P2 角色、P3 地圖、P4 單元 1）放上去時，要用新 build 的證據重新對照每一屏的圖，把**新的**差異列進對應小節；素材本身的核准走 [docs/art/next-stage-plan.md](../../../../docs/art/next-stage-plan.md) 的流程，不在這份對照表。
 
 ## 差異
 
