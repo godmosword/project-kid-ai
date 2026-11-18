@@ -39,10 +39,13 @@ C=.claude/skills/verify-kidsai/control-kidsai   # 在 repo 根目錄執行
 | booted | exit 3 | `$C sim boot` |
 | statusbar 已覆寫 | exit 3 | `$C sim statusbar` |
 | text-size（字級是系統預設） | exit 3 | `$C sim text-size --size default`（大字級的證據錄完要改回來；每日維護收尾時 wrapper 會自動改回） |
-| only-kidsai（除 Apple 內建外只裝 KidsAI） | exit 3 | `$C sim erase --yes`，再 build、install |
+| list-apps（讀得到已安裝 App 清單） | exit 5（這項失敗就不再往下檢查） | `$C sim shutdown` 再 `$C sim boot` |
+| only-kidsai（除 Apple 內建外只裝 KidsAI 與 UI 測試 runner） | exit 3 | `$C sim erase --yes`，再 build、install |
 | installed | exit 3 | `$C build && $C install` |
 | debug-build（有啟動參數） | exit 3 | `$C build && $C install` |
 | fresh-build（安裝的 App 等於目前原始碼） | **exit 7** | `$C build && $C install` |
+| ui-tests（UI 測試 runner 等於目前原始碼） | **exit 7** | `$C build --for-testing`（還沒 build --for-testing 時這項直接通過，只影響 `drive`、`record --flow`、`snapshot`） |
+| screenshot（截得到圖） | exit 5（這項失敗就不再往下檢查） | 重開模擬器後再試 |
 | screen（截圖 1170×2532） | exit 3 | 刪掉模擬器後 `sim ensure` 重建 |
 
 **舊 build 錄的影片不算證據**：fresh-build 比對原始碼指紋（HEAD＋`app/`、`content/` 的未提交改動與未追蹤檔）和已安裝的程式碼（主執行檔＋`KidsAI.debug.dylib`；Xcode 的 Debug build 把程式放在 dylib，主執行檔只是小殼）。
